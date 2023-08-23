@@ -1,0 +1,13 @@
+{
+	"type": "acceptmsg",
+	"result": true,
+	"userid": 1,
+	"roomid": 1,
+	"content": "test message.",
+	"time": "2023年 08月 22日 星期二 22:03:46 CST"
+}
+
+{
+	"type": "acceptmsg",
+	"result": false
+}

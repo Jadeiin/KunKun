@@ -1,0 +1,20 @@
+{
+	"type": "acceptroom",
+	"result": true,
+	"roomid": 1,
+	"adminid": [
+        1
+    ],
+	"memberid": [
+		1,
+		2,
+		// 3,
+		// 4
+	],
+	"roomname": "demo"
+}
+
+{
+	"type": "acceptroom",
+	"result": false
+}

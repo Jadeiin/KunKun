@@ -1,0 +1,10 @@
+{
+	"type": "acceptregister",
+	"result": true,
+	"userid": 3
+}
+
+{
+	"type": "acceptregister",
+	"result": false
+}

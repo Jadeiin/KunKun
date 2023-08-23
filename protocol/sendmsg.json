@@ -1,0 +1,6 @@
+{
+	"type": "sendmsg",
+	"userid": 1,
+	"roomid": 1,
+	"content": "test message."
+}
