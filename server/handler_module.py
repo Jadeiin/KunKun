@@ -11,19 +11,22 @@ links = {}  # ip -> id
 def register(addr, data):
     user_id = db.insert_user(data["username"], data["userpwdhash"])
     if user_id is None:
+        logging.debug(f"Client registration failed, {addr}")
         return {"type": "acceptregister", "result": False}, {addr}
     else:
+        logging.debug(f"Client registration successed, {addr}")
         return {"type": "acceptregister", "result": True, "userid": user_id}, {addr}
-    # logging.debug("")
 
 
 def login(addr, data):
     user_id = db.query_user_login(data["username"], data["userpwdhash"])
     if user_id is None:
+        logging.debug(f"Client login failed, {addr}")
         return {"type": "acceptlogin", "result": False}, {addr}
     else:
         users[user_id] = addr
         links[addr] = user_id
+        logging.debug(f"Client login successed, {addr}")
         return {"type": "acceptlogin", "result": True, "userid": user_id}, {addr}
 
 
@@ -33,25 +36,25 @@ def create_room(data):
     admin_ids = data["adminid"]
     member_ids = data["memberid"]
     if room_id is None or db.insert_room_admins(room_id, admin_ids) or db.insert_room_members(room_id, member_ids):
+        logging.debug(f"Client room creation failed")
         return {"type": "accpetroom", "result": False}, set(admin_ids)
     else:
+        logging.debug(f"Client room creation successed")
         return {"type": "acceptroom", "result": True, "roomid": room_id, "adminid": admin_ids, "memberid": member_ids, "roomname": room_name}, set(member_ids)
-
-    # logging.info(f"Chat room '{room_name}' created with admin: {admin_ids} and members: {member_ids}")
 
 
 def send_msg(data):
     tm = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
-    msg_id = db.insert_message(
-        data["userid"], data["roomid"], data["content"], tm)
-    msg_content = data["content"]
+    content = data["content"]
     sender_id = data["userid"]
     room_id = data["roomid"]
+    msg_id = db.insert_message(sender_id, room_id, content, tm)
     if msg_id is None:
+        logging.debug(f"Client message send failed")
         return {"type": "acceptmsg", "result": False}, {users[sender_id]}
     else:
-        return {"type": "acceptmsg", "result": True, "userid": sender_id, "roomid": room_id, "content": msg_content, "time": tm}, {users.get(item) for item in db.query_room_members if item in users}
-    # logging.info(f"Message '{msg_content}' sent by: {sender_id} in: {room_id}")
+        logging.debug(f"Client message send successed")
+        return {"type": "acceptmsg", "result": True, "msgid": msg_id, "userid": sender_id, "roomid": room_id, "content": content, "time": tm}, {users.get(item) for item in db.query_room_members(room_id) if item in users}
 
 
 def handler(conn, addr, clients):
