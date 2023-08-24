@@ -1,4 +1,10 @@
 {
 	"type": "acceptlogin",
-	"result": true
+	"result": true,
+	"userid": 3
+}
+
+{
+	"type": "acceptlogin",
+	"result": false
 }

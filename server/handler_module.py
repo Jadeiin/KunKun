@@ -19,12 +19,12 @@ def register(addr, data):
 
 def login(addr, data):
     user_id = db.query_user_login(data["username"], data["userpwdhash"])
-    users[user_id] = addr
-    links[addr] = user_id
     if user_id is None:
         return {"type": "acceptlogin", "result": False}, {addr}
     else:
-        return {"type": "acceptlogin", "result": True}, {addr}
+        users[user_id] = addr
+        links[addr] = user_id
+        return {"type": "acceptlogin", "result": True, "userid": user_id}, {addr}
 
 
 def create_room(data):
@@ -89,5 +89,7 @@ def handler(conn, addr, clients):
         #     client_conn.sendall(msg.encode())
 
     del clients[addr]
-    del users[links[addr]]
+    if links[addr] and users[links[addr]]:
+        del users[links[addr]]
+        del links[addr]
     conn.close()
