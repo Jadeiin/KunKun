@@ -3,13 +3,14 @@ import logging
 
 
 class Database:
-    def __init__(self, db_name: str) -> None:
+    def __init__(self, db_name: str = "data.db") -> None:
         self.db_name = db_name
         self._conn = None
 
     def _connect(self):
         if self._conn is None:
-            self._conn = sqlite3.connect(self.db_name)
+            self._conn = sqlite3.connect(self.db_name, check_same_thread=False)
+            self._conn.execute("PRAGMA foreign_keys = ON")  # 级联更新/删除
         return self._conn
 
     def __del__(self):
@@ -106,33 +107,6 @@ class Database:
     query part
     """
 
-    # def query_user_ip(self, user_id: int):
-    #     try:
-    #         with self._connect() as conn:
-    #             user_ip = conn.execute(
-    #                 "SELECT UserIP FROM USER WHERE UserID = ?",
-    #                 (user_id,)
-    #             ).fetchone()  # only one row one field
-    #             if user_ip:
-    #                 return user_ip[0]  # so it's okay to write this
-    #             else:
-    #                 return None
-    #     except sqlite3.Error as e:
-    #         logging.error("Error query user ip: %s", e)
-    #         return None
-
-    # def query_user_id(self, user_ip: str):
-    #     try:
-    #         with self._connect() as conn:
-    #             user_ids = conn.execute(
-    #                 "SELECT UserID FROM USER WHERE UserIP = ?",
-    #                 (user_ip,)
-    #             ).fetchall()  # maybe not only one row
-    #             return [row[0] for row in user_ids]
-    #     except sqlite3.Error as e:
-    #         logging.error("Error query user id: %s", e)
-    #         return None
-
     def query_user_login(self, user_name: str, user_pwd_sha1: str):
         try:
             with self._connect() as conn:
@@ -160,6 +134,18 @@ class Database:
             logging.error("Error query room members: %s", e)
             return None
 
+    def query_room_admins(self, room_id: int):
+        try:
+            with self._connect() as conn:
+                room_admins = conn.execute(
+                    "SELECT UserID FROM RoomAdmin WHERE RoomID = ?",
+                    (room_id,)
+                ).fetchall()
+            return set(item[0] for item in room_admins)
+        except sqlite3.Error as e:
+            logging.error("Error query room admins: %s", e)
+            return None
+
     def query_user_rooms(self, user_id: int):
         try:
             with self._connect() as conn:
@@ -171,13 +157,44 @@ class Database:
         except sqlite3.Error as e:
             logging.error("Error query user members: %s", e)
             return None
+
+    def query_room_messages(self, room_id: int, size: int = 50):
+        try:
+            with self._connect() as conn:
+                room_messages = conn.execute(
+                    """
+                    SELECT MsgID, MsgSender, MsgContent, MsgSendtime
+                    FROM Msg WHERE RoomID = ?
+                    ORDER BY MsgSendtime DESC
+                    LIMIT ?
+                    """,
+                    (room_id, size)
+                ).fetchall()
+            return room_messages
+        except sqlite3.Error as e:
+            logging.error("Error query room messages: %s", e)
+            return None
+
+    # def query_user_id
+
     """
     delete part
     """
 
+    # def delete_user(self, user_id: int)
+    # def delete_room(self, room_id: int)
+    # def delete_messasge(self, msg_id: int)
+
     """
     update part
     """
+
+    # def update_user(self, user_id:int)
+    # def update_room(self, room_id:int)
+    # def update_messasge(self, msg_id: int)
+    # 下面的情况比较复杂 可能需要删除/插入操作
+    # def update_room_admins(self, room_id: int, user_ids: set)
+    # def update_room_memebers(self, room_id: int, user_ids: set)
 
 
 if __name__ == "__main__":
@@ -191,12 +208,13 @@ if __name__ == "__main__":
     user_name = "testuser"
     user_pwd_sha1 = "9ad4cf12ea8c7c42000a7af92864e80e807a0718"
     user_id = db.insert_user(user_name, user_pwd_sha1)
-    logging.debug(
-        f"Inserted user info: {user_id}, {user_name}, {user_pwd_sha1}")
     if user_id is None:
         user_id = db.query_user_login(user_name, user_pwd_sha1)
         logging.debug(
             f"Queried user login: {user_id}, {user_name}, {user_pwd_sha1}")
+    else:
+        logging.debug(
+            f"Inserted user info: {user_id}, {user_name}, {user_pwd_sha1}")
 
     room_name = "testroom"
     room_id = db.insert_room(room_name)

@@ -1,16 +1,18 @@
 import logging
 import json
+from threading import Lock
 from datetime import datetime
 from database import Database
 
+lock = Lock()
 db = Database("data.db")
-users = {}  # id -> ip
-links = {}  # ip -> id
+clients = {}  # ip -> conn
+users = {}    # id -> ip
+links = {}    # ip -> id
 
 
 def register(addr, data):
-    user_id = db.insert_user(data["username"], data["userpwdhash"])
-    if user_id is None:
+    if data["username"] == "" or (user_id := db.insert_user(data["username"], data["userpwdhash"])) is None:
         logging.debug(f"Client registration failed, {addr}")
         return {"type": "acceptregister", "result": False}, {addr}
     else:
@@ -19,46 +21,51 @@ def register(addr, data):
 
 
 def login(addr, data):
-    user_id = db.query_user_login(data["username"], data["userpwdhash"])
-    if user_id is None:
+    if (user_id := db.query_user_login(data["username"], data["userpwdhash"])) is None:
         logging.debug(f"Client login failed, {addr}")
         return {"type": "acceptlogin", "result": False}, {addr}
     else:
-        users[user_id] = addr
-        links[addr] = user_id
-        logging.debug(f"Client login successed, {addr}")
-        return {"type": "acceptlogin", "result": True, "userid": user_id}, {addr}
+        with lock:
+            users[user_id] = addr
+            links[addr] = user_id
+            logging.debug(f"Client login successed, {addr}")
+            return {"type": "acceptlogin", "result": True, "userid": user_id}, {addr}
 
 
 def create_room(data):
+    # TODO: avoid someone using other user id to create room
     room_name = data["roomname"]
-    room_id = db.insert_room(room_name)
     admin_ids = data["adminid"]
     member_ids = data["memberid"]
-    if room_id is None or db.insert_room_admins(room_id, admin_ids) or db.insert_room_members(room_id, member_ids):
-        logging.debug(f"Client room creation failed")
-        return {"type": "accpetroom", "result": False}, set(admin_ids)
-    else:
-        logging.debug(f"Client room creation successed")
-        return {"type": "acceptroom", "result": True, "roomid": room_id, "adminid": admin_ids, "memberid": member_ids, "roomname": room_name}, set(member_ids)
+    room_id = db.insert_room(room_name)
+    with lock:
+        if room_id is None or not db.insert_room_admins(room_id, admin_ids) or not db.insert_room_members(room_id, member_ids):
+            logging.debug(f"Client room creation failed")
+            return {"type": "accpetroom", "result": False}, {users[admin_ids]}
+        else:
+            logging.debug(f"Client room creation successed")
+            return {"type": "acceptroom", "result": True, "roomid": room_id, "adminid": admin_ids, "memberid": member_ids, "roomname": room_name}, {users.get(item) for item in member_ids if item in users}
 
 
 def send_msg(data):
-    tm = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
-    content = data["content"]
+    # TODO: avoid someone using other user id to send message
     sender_id = data["userid"]
     room_id = data["roomid"]
+    content = data["content"]
+    tm = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
     msg_id = db.insert_message(sender_id, room_id, content, tm)
-    if msg_id is None:
-        logging.debug(f"Client message send failed")
-        return {"type": "acceptmsg", "result": False}, {users[sender_id]}
-    else:
-        logging.debug(f"Client message send successed")
-        return {"type": "acceptmsg", "result": True, "msgid": msg_id, "userid": sender_id, "roomid": room_id, "content": content, "time": tm}, {users.get(item) for item in db.query_room_members(room_id) if item in users}
+    with lock:
+        if msg_id is None:
+            logging.debug(f"Client message send failed")
+            return {"type": "acceptmsg", "result": False}, {users[sender_id]}
+        else:
+            logging.debug(f"Client message send successed")
+            return {"type": "acceptmsg", "result": True, "msgid": msg_id, "userid": sender_id, "roomid": room_id, "content": content, "time": tm}, {users.get(item) for item in db.query_room_members(room_id) if item in users}
 
 
-def handler(conn, addr, clients):
-
+def handler(conn, addr):
+    global db, clients, users, links
+    clients[addr] = conn
     while True:
         msg = conn.recv(1024).decode().rstrip("\r\n")
 
@@ -78,11 +85,16 @@ def handler(conn, addr, clients):
                 resp, st = create_room(data)
             elif data["type"] == "sendmsg":
                 resp, st = send_msg(data)
+            else:
+                raise ValueError("Received message in unknown type")
+
             for item in st:  # st: 反馈消息发送给的ip集合
                 clients[item].sendall(json.dumps(resp).encode())
 
         except json.JSONDecodeError:
-            logging.debug(f"Received malformed message: {msg}")
+            logging.error(f"Received malformed message: {msg}")
+        except ValueError as e:
+            logging.error(f"{str(e)}: {msg}")
 
         if msg.lower() == 'exit':
             break
@@ -92,7 +104,8 @@ def handler(conn, addr, clients):
         #     client_conn.sendall(msg.encode())
 
     del clients[addr]
-    if links.get(addr) and users.get(links[addr]):
-        del users[links[addr]]
-        del links[addr]
+    with lock:
+        if links.get(addr) and users.get(links[addr]):
+            del users[links[addr]]
+            del links[addr]
     conn.close()

@@ -9,7 +9,6 @@ from handler_module import handler
 logging.basicConfig(level=logging.DEBUG,
                     format="%(asctime)s - %(levelname)s - %(message)s")
 port = 7979
-clients = {}
 
 
 def signal_handler(signal, frame):
@@ -32,7 +31,6 @@ if __name__ == "__main__":
 
     while True:
         conn, addr = server.accept()
-        clients[addr] = conn
-        thread = Thread(target=handler, daemon=True,
-                        args=(conn, addr, clients))
+        thread = Thread(target=handler, daemon=True, # 不要在循环里加新建线程 不然每次连接都会新建线程
+                        args=(conn, addr))
         thread.start()
