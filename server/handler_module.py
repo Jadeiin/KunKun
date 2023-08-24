@@ -32,7 +32,7 @@ def create_room(data):
     room_id = db.insert_room(room_name)
     admin_ids = data["adminid"]
     member_ids = data["memberid"]
-    if room_id is None or db.insert_room_admins(room_id, admin_ids) or db.insert_room_members(self, room_id, member_ids):
+    if room_id is None or db.insert_room_admins(room_id, admin_ids) or db.insert_room_members(room_id, member_ids):
         return {"type": "accpetroom", "result": False}, set(admin_ids)
     else:
         return {"type": "acceptroom", "result": True, "roomid": room_id, "adminid": admin_ids, "memberid": member_ids, "roomname": room_name}, set(member_ids)
@@ -46,8 +46,8 @@ def send_msg(data):
         data["userid"], data["roomid"], data["content"], tm)
     msg_content = data["content"]
     sender_id = data["userid"]
-    room_id = data["roomid"],
-    if msg_id == None:
+    room_id = data["roomid"]
+    if msg_id is None:
         return {"type": "acceptmsg", "result": False}, {users[sender_id]}
     else:
         return {"type": "acceptmsg", "result": True, "userid": sender_id, "roomid": room_id, "content": msg_content, "time": tm}, {users.get(item) for item in db.query_room_members if item in users}
@@ -89,7 +89,7 @@ def handler(conn, addr, clients):
         #     client_conn.sendall(msg.encode())
 
     del clients[addr]
-    if links[addr] and users[links[addr]]:
+    if links.get(addr) and users.get(links[addr]):
         del users[links[addr]]
         del links[addr]
     conn.close()
