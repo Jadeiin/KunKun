@@ -1,14 +1,13 @@
 {
-    "type":"acceptloadroom",
-    "result":true,
-    "roomid":1,
-    "adminid":1,
-    "memberid":[
-        2,
-        3
-    ],
-    "contentdict":[
-        ["memberid","content","time"]
-    ],
-    "messagenum":50
+    "type": "acceptloadroom",
+    "result": true,
+    "roomids": [
+        1,
+        2
+    ]
+}
+
+{
+    "type": "acceptloadroom",
+    "result": false
 }
