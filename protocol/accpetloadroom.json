@@ -1,0 +1,14 @@
+{
+    "type":"acceptloadroom",
+    "result":true,
+    "roomid":1,
+    "adminid":1,
+    "memberid":[
+        2,
+        3
+    ],
+    "contentdict":[
+        ["memberid","content","time"]
+    ],
+    "messagenum":50
+}
