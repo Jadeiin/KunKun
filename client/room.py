@@ -6,5 +6,7 @@ class Room():
         self.room_name = ""
         self.adminID   = []
         self.memberID  = []
-        self.msg     = []  # ("memberid","contents","time")
+        self.msg       = []
+        # ("sender","contents","time","msgtype","msgid") 
+        # 按照时间从久到近排序, 老消息放前边, 新消息放后边
         self.lastest_time = None

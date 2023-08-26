@@ -21,18 +21,16 @@ class ChatUI(QWidget):
         self.ui = uic.loadUi("./UIfiles/chat.ui")
 
         # init
+
+
         # 点击好友选择聊天，重新加载聊天记录
         self.ui.chattingRecordBrowser.verticalScrollBar().valueChanged.connect(self.chatRecordScrolledToTop)
 
         # 输入框发送文字
         self.ui.sendMsgBtn.clicked.connect(self.sendTextToServer)
-
-        # self.ui.addFriendLineBtn.clicked.connect(self.addFriend)
-        avatar_path = "./graphSource/profPhoto.jpg"  # Replace with actual path
-        name = "Paimon"  # Replace with actual name
-        recent_msg = "你好"
-        avatar_path2 = "./graphSource/stickerIcon.jpg"
-        self.ui.addFriendLineBtn.clicked.connect(lambda: self.additemInChatList(random.choice([avatar_path,avatar_path2]), name, recent_msg)) # 使用 lambda 表达式来正确地连接信号和槽
+    
+        # self.ui.addFriendLineBtn.clicked.connect(lambda: self.additemInChatList(random.choice([avatar_path,avatar_path2]), name, recent_msg)) # 使用 lambda 表达式来正确地连接信号和槽
+        self.ui.addFriendLineBtn.clicked.connect(self.addFriend)
         
         self.connected_items = []  # 用于存储已连接的项的列表
         self.connectAllItems()  # 聊天列表监听鼠标点击情况，初始化时连接所有聊天项
@@ -41,12 +39,11 @@ class ChatUI(QWidget):
     def handleItemClicked(self, index):
         '''
         聊天项被点击时执行该函数
-
         Args:
             index: 被点击聊天项在chatList当中的位置，可以直接用
         '''
         print("Item clicked. Index:", index)
-        self.viewChatRecord(share.RoomOrderList[index][0])
+        self.viewChatRecord(index)
     
     def sendTextToServer(self):
         # dictionary
@@ -62,7 +59,6 @@ class ChatUI(QWidget):
         self.text_msg = json.dumps(self.text_msg_dict)
         share.server.sendall(self.text_msg.encode())
         
-
     def sendDoc(self):
         pass
 
@@ -109,46 +105,6 @@ class ChatUI(QWidget):
         share.server.sendall(self.add_friend.encode())
         # 弹出新的聊天界面
        
-
-    def sendChatMsg(self, msg):
-        """
-        调用: 当自己发消息成功(acceptMsg)或接收到别人的消息(sendmsg)时调用该函数
-        功能: 发msg, 消息列表上升, 聊天框追加
-        """
-        # 更新room list      
-        if share.CurrentRoom.roomID != share.RoomOrderList[0][0]:  # if 不在消息列表的最顶端：
-            # 将最新的room移动到最顶端
-            for index, (room_id, _) in enumerate(share.RoomOrderList): # RoomOrderList:(roomid, time)
-                if room_id == share.CurrentRoom.roomID:
-                    share.RoomOrderList[index][1] = msg["time"]
-                    share.RoomOrderList.sort(
-                        key=lambda item: datetime.strptime(item[1], '%Y-%m-%dT%H:%M:%S.%f'))
-        
-        # UI中列表移动
-        
-        # 在room里面追加message
-        if msg["userid"] == share.User.userID:  # 自己方向的气泡框，后期加效果
-            self.ui.chattingRecordBrowser.append( 
-                str(share.User.userID) + ": " + msg["content"])  # 在聊天框里加文字
-            self.ui.chattingRecordBrowser.ensureCursorVisible()  # 自动翻滚到最后一行
-        else:  # 在对方方向的气泡框，后期加效果
-            self.ui.chattingRecordBrowser.append( 
-                str(msg["userid"]) + ": " + msg["content"])  # 在聊天框里加文字
-            self.ui.chattingRecordBrowser.ensureCursorVisible()  # 自动翻滚到最后一行
-    
-    def receiveUnreadMsg(self, msg):
-        # 上升到顶端 不用判断当前消息框是否在list顶端了，应已经判断过了
-        for index, (room_id, _) in enumerate(share.RoomOrderList):
-            if room_id == share.CurrentRoom.roomID:  # RoomOrderList:(roomid, time)
-                share.RoomOrderList[index][1] = msg["time"]
-                share.RoomOrderList.sort(
-                    key=lambda item: datetime.strptime(item[1], '%Y-%m-%dT%H:%M:%S.%f'))
-        
-        # UI中列表移动
-
-        # 加小红点
-        QMessageBox.information(self, "未读消息", "111") # 后面改成标柱红点 
-    
     def viewChatRecord(self, room_id):
         # if 有小红点：
         #     把小红点消掉
@@ -168,17 +124,73 @@ class ChatUI(QWidget):
         #         self.ui.chattingRecordBrowser.append(
         #             str(item[0]) + ":" + str(item[1]) )  # 聊天记录框显示文字 # 可以加时间
         #         self.ui.chattingRecordBrowser.ensureCursorVisible()  # 自动翻滚到最后一行
+
+    def sendChatMsg(self, msg):
+        """
+        调用: 当自己发消息成功(acceptMsg)或接收到别人的消息(sendmsg)时调用该函数
+        功能: 发msg, 消息列表上升, 聊天框追加
+        """
+        # 更新room list      
+        if share.CurrentRoom.roomID != share.RoomOrderList[0][0]:  # if 不在消息列表的最顶端：
+            # 将最新的room移动到最顶端
+            for index, (room_id, _) in enumerate(share.RoomOrderList): # RoomOrderList:(roomid, time)
+                if room_id == share.CurrentRoom.roomID:
+                    share.RoomOrderList.pop(index)
+                    share.RoomOrderList.insert(0, (msg["roomid"], msg["time"]) )
+
+        # 在字典中找到room, 追加一条消息
+        msg_room_id = msg["roomid"]
+        msg_content = msg["content"]
+        share.RoomDict[msg_room_id].msg.append(
+            (msg["userid"], msg_content, msg["sendtime"], msg["msgtype"], msg["msgid"]) )
+
+        # UI中列表移动或改变
+        avatar_path = "./graphSource/profPhoto.jpg"  # Replace with actual path
+        self.deletItemInChatList(msg_room_id)  # 删除当前item      
+        self.additemInChatList(avatar_path, msg_room_id, msg_content)  # 重新在顶部插入item
+
+        # 在room里面追加message
+        if msg["userid"] == share.User.userID:  # 自己方向的气泡框，后期加效果
+            self.ui.chattingRecordBrowser.append( 
+                str(share.User.userID) + ": " + msg["content"])  # 在聊天框里加文字
+            self.ui.chattingRecordBrowser.ensureCursorVisible()  # 自动翻滚到最后一行
+        else:  # 在对方方向的气泡框，后期加效果
+            self.ui.chattingRecordBrowser.append( 
+                str(msg["userid"]) + ": " + msg["content"])  # 在聊天框里加文字
+            self.ui.chattingRecordBrowser.ensureCursorVisible()  # 自动翻滚到最后一行
+    
+    def receiveUnreadMsg(self, msg):
+        # 上升到顶端 不用判断当前消息框是否在list顶端了，应已经判断过了
+        for index, (room_id, _) in enumerate(share.RoomOrderList):
+            if room_id == share.CurrentRoom.roomID:  # RoomOrderList:(roomid, time)
+                share.RoomOrderList.pop(index)
+                share.RoomOrderList.insert(0, (msg["roomid"], msg["time"]) )
+        
+        # 追加
+        msg_room_id = msg["roomid"]
+        msg_content = msg["content"]
+        share.RoomDict[msg_room_id].msg.append(
+            (msg["userid"], msg_content, msg["sendtime"], msg["msgtype"], msg["msgid"]) )
+
+        # UI中列表移动或改变
+        avatar_path = "./graphSource/profPhoto.jpg"  # Replace with actual path
+        self.deletItemInChatList(msg_room_id)  # 删除当前item      
+        self.additemInChatList(avatar_path, msg_room_id, msg_content)  # 重新在顶部插入item
+
+        # 加小红点
+        QMessageBox.information(self, "未读消息", "111") # 后面改成标柱红点 
         
     def displayChatList(self):
         self.ui.chatList.clear()
         # for avatar_path, usr_name in enumerate(): # 从客户端读过来
             # self.additemInChatList(avatar_path, usr_name)
 
-    def additemInChatList(self, avatar_path, name, recent_msg):
+    def additemInChatList(self, avatar_path, roomid, recent_msg):
         '''向聊天列表中间加入新的item'''
-
-        index = len(share.chat_list)
-        chat_widget = ChatListItemWidget(avatar_path, name, recent_msg, index) # 一个新的聊天好友列表的框
+        
+        name = share.RoomDict[roomid]
+        recent_msg = recent_msg[:10]+"..." if len(recent_msg) > 10 else recent_msg  # 防止文字过多只选前10个字
+        chat_widget = ChatListItemWidget(avatar_path, name, recent_msg, roomid) # 一个新的聊天好友列表的框
         share.chat_list.append(chat_widget)
 
         list_item = QListWidgetItem()

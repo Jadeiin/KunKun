@@ -85,21 +85,25 @@ class ListenThread(QThread):
         """加好友成功或者建立群聊成功"""
         if msg["result"] == True:
             new_room = room.Room()  # 新建一个房间
-            new_room.roomID    = msg["roomid"]
-            new_room.adminID   = msg["adminid"]
-            new_room.memberID  = msg["memberid"]
-            new_room.room_name = msg["roomname"]
+            new_room.roomID       = msg["roomid"]
+            new_room.adminID      = msg["adminid"]
+            new_room.memberID     = msg["memberid"]
+            new_room.room_name    = msg["roomname"]
+            new_room.lastest_time = msg["createtime"]
             share.RoomDict[new_room.roomID] = new_room  # 并把房间放到房间字典中
-            share.RoomOrderList.append((new_room.roomID, None))  # 
-            share.RoomOrderList.sort(
-                        key=lambda item: datetime.strptime(item[1], '%Y-%m-%dT%H:%M:%S.%f'))
+            share.RoomOrderList.insert(0, (new_room.roomID, new_room.lastest_time))  # 
             
+            # 清空输入框的内容, 清空聊天记录框
             share.chat_page.ui.msgTextEdit.clear()  # 清空输入框的内容
             share.chat_page.ui.chattingRecordBrowser.clearHistory()  # 清空聊天记录框
+
             # 显示新群聊名字
 
             # 消息列表在最前面添加一个新的
-            
+            avatar_path = "./graphSource/profPhoto.jpg"  # Replace with actual path
+            # room_name = "Paimon"  # Replace with actual name
+            recent_msg = "你好, 你创建了新的聊天"
+            share.chat_page.additemInChatList(avatar_path, new_room.roomID, recent_msg)
         else:
             error_message = (0, "错误", "创建聊天失败")  # 封装窗口标题和消息内容
             self.notifySignal.emit(error_message)
@@ -110,15 +114,17 @@ class ListenThread(QThread):
         """登录成功后, 接收该用户的消息列表, 并发送拉取消息的请求"""
         if msg["result"] == True:       
             # 登录成功后, 接收room的列表
-            login_room = msg["rooms"]
+            login_room = msg["rooms"].reverse() # 服务端发过来的是从新到旧
             for item in login_room:
                 new_room = room.Room()
                 new_room.roomID       = item["roomid"]
                 new_room.room_name    = item["roomname"]
                 new_room.lastest_time = item["lasttime"]
                 share.RoomDict[new_room.roomID] = new_room  # 并把房间放到房间字典中
-                share.RoomOrderList.append((new_room.roomID, new_room.lastest_time))  # 房间id放到房间列表
-            
+                share.RoomOrderList.insert(0, (new_room.roomID, new_room.lastest_time))  # 房间id放到房间列表
+                avatar_path = "./graphSource/profPhoto.jpg"
+                share.chat_page.additemInChatList(avatar_path, new_room.roomID, "hello")
+                            
             # 按照room顺序, 并发送拉取消息的请求
             room_dict = {"type":"roommessage"}
             room_dict["userid"] = share.User().userID
