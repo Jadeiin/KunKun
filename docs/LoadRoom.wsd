@@ -1,5 +1,5 @@
 @startuml
-title RoomMessage procedure
+title LoadRoom procedure
 'author Jadeiin
 'version 1.0.0
 skinparam participant {
@@ -7,39 +7,34 @@ skinparam participant {
 	handwritten true
 }
 
-box "Server"
-participant Database_Module #Lime
-participant Handler_Module #Cyan
-participant Server_Sender_Module #Cyan
-end box
 box "Client"
-participant Client_Sender_Module #Cyan
-participant ListenThread_Module #Cyan
-participant pyqtSignal #Silver
-participant Broadcast_Module #Silver
-participant User_Module #Magenta
-participant User_RegisterUI #Magenta
-participant User_LoginUI #Magenta
 participant User_ChatUI #Magenta
+participant User_LoginUI #Magenta
+participant User_RegisterUI #Magenta
+participant User_Module #Magenta
+participant Broadcast_Module #Silver
+participant pyqtSignal #Silver
+participant ListenThread_Module #Cyan
+participant Client_Sender_Module #Cyan
+end box
+box "Server"
+participant Server_Sender_Module #Cyan
+participant Handler_Module #Cyan
+participant Database_Module #Lime
 end box
 
 autonumber
-User_ChatUI -> User_ChatUI : 
-User_ChatUI -> User_ChatUI : 
+User_LoginUI -> User_ChatUI : goToChat()
 User_ChatUI -> Client_Sender_Module : send()
 Client_Sender_Module -> Handler_Module : server.sendall()
 
-Handler_Module -> Database_Module : 
-Database_Module -> Handler_Module : 
-Database_Module -> Handler_Module : 
+Handler_Module -> Database_Module : load_room()
+Database_Module -> Handler_Module : query_user_rooms()
 Handler_Module -> Server_Sender_Module : send()
 Server_Sender_Module -> ListenThread_Module : server.sendall()
 
-ListenThread_Module -> pyqtSignal : receiveRoomMessage()
+ListenThread_Module -> pyqtSignal : receiveRoomList()
 pyqtSignal -> User_ChatUI : handleErrors()
-ListenThread_Module -> Broadcast_Module : 
-ListenThread_Module -> Broadcast_Module :
-ListenThread_Module -> User_ChatUI :
-ListenThread_Module -> User_ChatUI :
+ListenThread_Module -> User_ChatUI : displayChatList()
 
 @enduml

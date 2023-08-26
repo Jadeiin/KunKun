@@ -7,20 +7,20 @@ skinparam participant {
 	handwritten true
 }
 
-box "Server"
-participant Database_Module #Lime
-participant Handler_Module #Cyan
-participant Server_Sender_Module #Cyan
-end box
 box "Client"
-participant Client_Sender_Module #Cyan
-participant ListenThread_Module #Cyan
-participant pyqtSignal #Silver
-participant Broadcast_Module #Silver
-participant User_Module #Magenta
-participant User_RegisterUI #Magenta
-participant User_LoginUI #Magenta
 participant User_ChatUI #Magenta
+participant User_LoginUI #Magenta
+participant User_RegisterUI #Magenta
+participant User_Module #Magenta
+participant Broadcast_Module #Silver
+participant pyqtSignal #Silver
+participant ListenThread_Module #Cyan
+participant Client_Sender_Module #Cyan
+end box
+box "Server"
+participant Server_Sender_Module #Cyan
+participant Handler_Module #Cyan
+participant Database_Module #Lime
 end box
 
 autonumber
