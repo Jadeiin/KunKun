@@ -2,6 +2,7 @@
     "type": "roommessage",
     "roomid" : 1,
     "userid" : 1,
-    "size": 50
+    "size": 50,
+    "lasttime": "2023-08-24T12:32:08.908557"
 }
 

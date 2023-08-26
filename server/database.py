@@ -26,15 +26,13 @@ class Database:
         try:
             with self._connect() as conn:
                 cursor = conn.cursor()
-                cursor.execute(
-                    """
+                cursor.execute("""
                     INSERT INTO User(UserName, UserPasswordSha1)
                     VALUES (?, ?)
-                    """,
-                    (user_name, user_pwd_sha1))
+                    """, (user_name, user_pwd_sha1))
                 user_id = cursor.lastrowid
                 conn.commit()
-                return user_id
+            return user_id
         except sqlite3.Error as e:
             logging.error("Error inserting user: %s", e)
             return None
@@ -43,15 +41,13 @@ class Database:
         try:
             with self._connect() as conn:
                 cursor = conn.cursor()
-                cursor.execute(
-                    """
+                cursor.execute("""
                     INSERT INTO Room(RoomName)
                     VALUES (?)
-                    """,
-                    (room_name,))
+                    """, (room_name,))
                 room_id = cursor.lastrowid
                 conn.commit()
-                return room_id
+            return room_id
         except sqlite3.Error as e:
             logging.error("Error inserting room: %s", e)
             return None
@@ -59,14 +55,12 @@ class Database:
     def insert_room_admins(self, room_id: int, user_ids: set):
         try:
             with self._connect() as conn:
-                conn.executemany(
-                    """
+                conn.executemany("""
                     INSERT INTO RoomAdmin(RoomID, UserID)
                     VALUES (?, ?)
-                    """,
-                    [(room_id, user_id) for user_id in user_ids])
+                    """, [(room_id, user_id) for user_id in user_ids])
                 conn.commit()
-                return True
+            return True
         except sqlite3.Error as e:
             logging.error("Error inserting room admin: %s", e)
             return False
@@ -74,14 +68,12 @@ class Database:
     def insert_room_members(self, room_id: int, user_ids: set):
         try:
             with self._connect() as conn:
-                conn.executemany(
-                    """
+                conn.executemany("""
                     INSERT INTO RoomMember(RoomID, UserID)
                     VALUES (?, ?)
-                    """,
-                    [(room_id, user_id) for user_id in user_ids])
+                    """, [(room_id, user_id) for user_id in user_ids])
                 conn.commit()
-                return True
+            return True
         except sqlite3.Error as e:
             logging.error("Error inserting room member: %s", e)
             return False
@@ -90,15 +82,13 @@ class Database:
         try:
             with self._connect() as conn:
                 cursor = conn.cursor()
-                cursor.execute(
-                    """
+                cursor.execute("""
                     INSERT INTO Msg(Msgsender, RoomID, MsgContent, MsgType, MsgSendtime)
                     VALUES (?, ?, ?, ?, ?)
-                    """,
-                    (sender_id, room_id, content, msgtype, send_time))
+                    """, (sender_id, room_id, content, msgtype, send_time))
                 msg_id = cursor.lastrowid
                 conn.commit()
-                return msg_id
+            return msg_id
         except sqlite3.Error as e:
             logging.error("Error inserting message: %s", e)
             return None
@@ -110,14 +100,15 @@ class Database:
     def query_user_login(self, user_name: str, user_pwd_sha1: str):
         try:
             with self._connect() as conn:
-                user_id = conn.execute(
-                    "SELECT UserID FROM USER WHERE UserName = ? AND UserPasswordSha1 = ?",
-                    (user_name, user_pwd_sha1)
+                user_id = conn.execute("""
+                    SELECT UserID FROM USER
+                    WHERE UserName = ? AND UserPasswordSha1 = ?
+                    """, (user_name, user_pwd_sha1)
                 ).fetchone()
-                if user_id:
-                    return user_id[0]
-                else:
-                    return None
+            if user_id:
+                return user_id[0]
+            else:
+                return None
         except sqlite3.Error as e:
             logging.error("Error query user login: %s", e)
             return None
@@ -149,27 +140,61 @@ class Database:
     def query_user_rooms(self, user_id: int):
         try:
             with self._connect() as conn:
-                user_rooms = conn.execute(
-                    "SELECT RoomID FROM RoomMember WHERE UserID = ?",
-                    (user_id,)
+                result = conn.execute("""
+                    SELECT
+                        r.RoomID,
+                        r.RoomName,
+                        (
+                            SELECT MsgSendtime
+                            FROM Msg m
+                            WHERE m.RoomID = r.RoomID
+                            ORDER BY MsgSendtime DESC
+                            LIMIT 1
+                        ) AS LastMessageSendTime
+                    FROM
+                        Room r
+                    LEFT JOIN
+                        RoomMember rm ON r.RoomID = rm.RoomID
+                    WHERE
+                        rm.UserID = ?
+                    """, (user_id,)
                 ).fetchall()
-            return set(item[0] for item in user_rooms)
+                # return set(item[0] for item in user_rooms)
+            user_rooms = []
+            for row in result:
+                room = {
+                    "roomid": row[0],
+                    "roomname": row[1],
+                    "lasttime": row[2]
+                }
+                user_rooms.append(room)
+            return user_rooms
         except sqlite3.Error as e:
             logging.error("Error query user members: %s", e)
             return None
 
-    def query_room_messages(self, room_id: int, size: int = 50):
+    def query_room_messages(self, room_id: int, size: int, lasttime: str):
         try:
             with self._connect() as conn:
-                room_messages = conn.execute(
+                result = conn.execute(
                     """
-                    SELECT MsgID, MsgSender, MsgContent, MsgSendtime
-                    FROM Msg WHERE RoomID = ?
+                    SELECT MsgID, MsgSender, MsgType, MsgContent, MsgSendtime
+                    FROM Msg WHERE RoomID = ? AND MsgSendtime <= ?
                     ORDER BY MsgSendtime DESC
                     LIMIT ?
                     """,
-                    (room_id, size)
+                    (room_id, lasttime, size)
                 ).fetchall()
+            room_messages = []
+            for row in result:
+                message = {
+                    "msgid": row[0],
+                    "sender": row[1],
+                    "msgtype": row[2],
+                    "content": row[3],
+                    "sendtime": row[4]
+                }
+                room_messages.append(message)
             return room_messages
         except sqlite3.Error as e:
             logging.error("Error query room messages: %s", e)

@@ -1,20 +1,20 @@
 {
     "type": "acceptroommessage",
     "result": true,
-    "content": [
+    "messages": [
         {
             "msgid": 3,
             "sender": 2,
             "msgtype": 1,
             "content": "test",
-            "sendtime": "2023年 08月 25日 星期五 15:59:38 CST"
+            "sendtime": "2023-08-24T12:32:08.908557"
         },
         {
             "msgid": 2,
             "sender": 1,
             "msgtype": 1,
             "content": "test",
-            "sendtime": "2023年 08月 25日 星期五 15:59:37 CST"
+            "sendtime": "2023-08-24T12:12:08.908557"
         }
     ]
 }

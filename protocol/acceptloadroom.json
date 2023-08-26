@@ -1,0 +1,21 @@
+{
+    "type": "acceptloadroom",
+    "result": true,
+    "rooms": [
+        {
+            "roomid": 1,
+            "roomname": "test",
+            "lasttime": "2023-08-24T13:11:56.534999"
+        },
+        {
+            "roomid": 2,
+            "roomname": "demo",
+            "lasttime": "2023-08-24T12:32:08.908557"
+        }
+    ]
+}
+
+{
+    "type": "acceptloadroom",
+    "result": false
+}
