@@ -2,5 +2,14 @@
 	"type": "sendmsg",
 	"userid": 1,
 	"roomid": 1,
+    "msgtype": 1,
 	"content": "test message."
+}
+
+{
+	"type": "sendmsg",
+	"userid": 2,
+	"roomid": 1,
+    "msgtype": 2,
+	"content": "memes.jpg"
 }

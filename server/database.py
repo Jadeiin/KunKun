@@ -86,16 +86,16 @@ class Database:
             logging.error("Error inserting room member: %s", e)
             return False
 
-    def insert_message(self, sender_id: int, room_id: int, content: str, send_time: str):
+    def insert_message(self, sender_id: int, room_id: int, content: str, msgtype: int, send_time: str):
         try:
             with self._connect() as conn:
                 cursor = conn.cursor()
                 cursor.execute(
                     """
-                    INSERT INTO Msg(Msgsender, RoomID, MsgContent, MsgSendtime)
-                    VALUES (?, ?, ?, ?)
+                    INSERT INTO Msg(Msgsender, RoomID, MsgContent, MsgType, MsgSendtime)
+                    VALUES (?, ?, ?, ?, ?)
                     """,
-                    (sender_id, room_id, content, send_time))
+                    (sender_id, room_id, content, msgtype, send_time))
                 msg_id = cursor.lastrowid
                 conn.commit()
                 return msg_id
