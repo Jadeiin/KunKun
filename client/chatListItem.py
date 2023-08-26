@@ -1,18 +1,21 @@
 from PyQt5.QtWidgets import QWidget, QMessageBox, QSpacerItem
 from PyQt5.QtWidgets import QListWidget, QListWidgetItem, QHBoxLayout, QVBoxLayout, QLabel, QSizePolicy
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5 import QtCore
+from PyQt5 import uic
 
 class ChatListItemWidget(QWidget):
 
-    itemClickedWithIndex = pyqtSignal(int)  # 自定义信号，用于发出项被点击的信号
+    itemClicked = pyqtSignal(int)  # 自定义信号，用于发出项被点击的信号
 
     def __init__(self, avatar_path, name, recent_msg, index, parent=None):
         super().__init__(parent)
         
         self.index = index  # 保存项的索引
 
+        # self.ui = uic.loadUi("./UIfiles/ChatListItem.ui")
+        
         layout = QHBoxLayout(self)
         
         avatar_label = QLabel() # 头像
@@ -39,7 +42,9 @@ class ChatListItemWidget(QWidget):
         # 将名字标签的大小策略设置为 Expand，以便它占用更多的水平空间
         name_label.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
 
-    def emitItemClickedSignal(self):
-        # 手动触发项点击信号，同时发送项的索引
-        self.itemClickedWithIndex.emit(self.index)
-        print("click signal sent")
+
+
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            # 手动触发项点击信号，同时发送项的索引
+            self.itemClicked.emit(self.index)

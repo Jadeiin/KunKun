@@ -10,12 +10,13 @@ import json
 from public import share
 from chatListItem import ChatListItemWidget
 from datetime import datetime
+import room
 
 class ChatUI(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        self.ui = uic.loadUi("/Users/mac/tyx/xiao/BIT/junior-1/z_summer_course/IM/PP/client/UIfiles/chat.ui")
-        # self.ui = uic.loadUi("./UIfiles/chat.ui")
+        # self.ui = uic.loadUi("/Users/mac/tyx/xiao/BIT/junior-1/z_summer_course/IM/PP/client/UIfiles/chat.ui")
+        self.ui = uic.loadUi("./UIfiles/chat.ui")
 
         # init
         # 点击好友选择聊天，重新加载聊天记录
@@ -27,16 +28,23 @@ class ChatUI(QWidget):
         # self.ui.addFriendLineBtn.clicked.connect(self.addFriend)
         avatar_path = "./graphSource/profPhoto.jpg"  # Replace with actual path
         name = "Paimon"  # Replace with actual name
-        recent_msg = "111"
-        self.ui.addFriendLineBtn.clicked.connect(lambda: self.additemInChatList(avatar_path, name, recent_msg)) # 使用 lambda 表达式来正确地连接信号和槽 --
+        recent_msg = "你好"
+        self.ui.addFriendLineBtn.clicked.connect(lambda: self.additemInChatList(avatar_path, name, recent_msg)) # 使用 lambda 表达式来正确地连接信号和槽
         
-        # 连接聊天框
-        for chat_widget in share.chat_list:
-            chat_widget.itemClickedWithIndex.connect(self.handleItemClicked) # 后面handle函数改成相应【点击聊天框】以后要实行的函数
+        self.connected_items = []  # 用于存储已连接的项的列表
+        self.connectAllItems()  # 聊天列表监听鼠标点击情况，初始化时连接所有聊天项
+
+    
 
     def handleItemClicked(self, index):
-        print(len(share.chat_list))
+        '''
+        聊天项被点击时执行该函数
+
+        Args:
+            index: 被点击聊天项在chatList当中的位置，可以直接用
+        '''
         print("Item clicked. Index:", index)
+        self.viewChatRecord(share.RoomOrderList[index][0])
     
     def sendTextToServer(self):
         # dictionary
@@ -98,22 +106,7 @@ class ChatUI(QWidget):
         self.add_friend = json.dumps(self.add_friend_dict)
         share.server.sendall(self.add_friend.encode())
         # 弹出新的聊天界面
-    
-    def viewChatRecord(self, roomd_id):
-        """
-        调用: 当点击消息列表中的聊天时调用
-        功能: 小红点消失, 列表不上升, 聊天框刷新，文字输入框不清空
-        """
-        # if 有小红点：
-        #     把小红点消掉
-        share.chat_page.ui.chattingRecordBrowser.clearHistory()  # 清聊天框
-        share.CurrentRoom = share.RoomDict[roomd_id]
-        # 显示新的聊天框
-        if len(share.CurrentRoom.msg) < 10:
-            1 # C2S发送拉取聊天消息的请求
-        for mg in share.CurrentRoom.msg:
-            self.ui.chattingRecordBrowser.append(
-                mg[0] + ": " + mg[1])    
+       
 
     def sendChatMsg(self, msg):
         """
@@ -158,17 +151,18 @@ class ChatUI(QWidget):
         # if 有小红点：
         #     把小红点消掉
         # 不上升
-        share.chat_page.ui.chattingRecordBrowser.clearHistory()  # 清聊天框
+        print("view!") # 成功
+        share.chat_page.ui.chattingRecordBrowser.clear()  # 清聊天框
         share.CurrentRoom = share.RoomDict[room_id]
         # 显示新的聊天框
-        # 读30条历史消息, 在textBrowser里显示出来
-        if len(share.CurrentRoom.msg) < 30:
+        # 读50条历史消息, 在textBrowser里显示出来
+        if len(share.CurrentRoom.msg) < 50:
             for item in share.CurrentRoom.msg:
                 self.ui.chattingRecordBrowser.append(
                     str(item[0]) + ":" + str(item[1]) )  # 聊天记录框显示文字 # 可以加时间
                 self.ui.chattingRecordBrowser.ensureCursorVisible()  # 自动翻滚到最后一行
         else:
-            for item in share.CurrentRoom.msg[-30:]:
+            for item in share.CurrentRoom.msg[-50:]:
                 self.ui.chattingRecordBrowser.append(
                     str(item[0]) + ":" + str(item[1]) )  # 聊天记录框显示文字 # 可以加时间
                 self.ui.chattingRecordBrowser.ensureCursorVisible()  # 自动翻滚到最后一行
@@ -183,15 +177,30 @@ class ChatUI(QWidget):
 
         # avatar_path = "./graphSource/profPhoto.jpg"  # Replace with actual path
         # name = "Paimon"  # Replace with actual name
-        
-        chat_widget = ChatListItemWidget(avatar_path, name, recent_msg, len(share.chat_list)) # 一个新的聊天好友列表的框
+        # recent_msg = "111"
+        index = len(share.chat_list)
+        chat_widget = ChatListItemWidget(avatar_path, name, recent_msg, index) # 一个新的聊天好友列表的框
         share.chat_list.append(chat_widget)
 
         list_item = QListWidgetItem(self.ui.chatList)
         list_item.setSizeHint(chat_widget.sizeHint())
         
         self.ui.chatList.setItemWidget(list_item, chat_widget) # 向chatList中加入一个新的item：chat_widget
-    
+
+        self.connectItemClicked(chat_widget) # 连接最新的 chat_widget，持续监听
+        
+    def connectAllItems(self):
+        '''初始化连接所有聊天项'''
+        for chat_widget in share.chat_list:
+            self.connectItemClicked(chat_widget)
+
+    def connectItemClicked(self, chat_widget):
+        '''新建聊天项时，将新的聊天项加入监听列表，且和鼠标点击判断建立连接'''
+        print("monitoring mouse press...")
+        if chat_widget not in self.connected_items:
+            chat_widget.itemClicked.connect(self.handleItemClicked)
+            self.connected_items.append(chat_widget)
+
     def chatRecordScrolledToTop(self, value):
         '''判断鼠标滚轮达最顶端，刷新显示更多聊天记录'''
         if value == 0:
@@ -200,6 +209,11 @@ class ChatUI(QWidget):
             # load more chat records
 
 if __name__ == "__main__":
+    # 调试
+    share.RoomOrderList.append((1, 2023))
+    share.RoomDict[1] = room.Room()
+    share.RoomDict[1].msg.append(("Paimon","你好","2023-08"))
+
     app = QApplication(sys.argv)
     share.chat_page = ChatUI()
     share.chat_page.ui.show()
