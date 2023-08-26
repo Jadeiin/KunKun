@@ -13,39 +13,6 @@
   <property name="windowTitle">
    <string>Widget</string>
   </property>
-  <widget class="QTextEdit" name="msgTextEdit">
-   <property name="geometry">
-    <rect>
-     <x>350</x>
-     <y>410</y>
-     <width>541</width>
-     <height>151</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="sendMsgBtn">
-   <property name="geometry">
-    <rect>
-     <x>800</x>
-     <y>520</y>
-     <width>71</width>
-     <height>32</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>发送</string>
-   </property>
-  </widget>
-  <widget class="QTextBrowser" name="chattingRecordBrowser">
-   <property name="geometry">
-    <rect>
-     <x>350</x>
-     <y>61</y>
-     <width>541</width>
-     <height>311</height>
-    </rect>
-   </property>
-  </widget>
   <widget class="QLabel" name="usrProfPhoto">
    <property name="geometry">
     <rect>
@@ -63,19 +30,6 @@
    </property>
    <property name="scaledContents">
     <bool>true</bool>
-   </property>
-  </widget>
-  <widget class="QLabel" name="chatName">
-   <property name="geometry">
-    <rect>
-     <x>380</x>
-     <y>20</y>
-     <width>58</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Name</string>
    </property>
   </widget>
   <widget class="Line" name="line">
@@ -104,54 +58,6 @@
     <enum>Qt::Vertical</enum>
    </property>
   </widget>
-  <widget class="QLabel" name="label">
-   <property name="geometry">
-    <rect>
-     <x>360</x>
-     <y>380</y>
-     <width>58</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>文件</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_2">
-   <property name="geometry">
-    <rect>
-     <x>430</x>
-     <y>380</y>
-     <width>58</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>表情</string>
-   </property>
-  </widget>
-  <widget class="QWidget" name="layoutWidget">
-   <property name="geometry">
-    <rect>
-     <x>80</x>
-     <y>0</y>
-     <width>261</width>
-     <height>33</height>
-    </rect>
-   </property>
-   <layout class="QHBoxLayout" name="horizontalLayout">
-    <item>
-     <widget class="QLineEdit" name="createGroupLineEdit"/>
-    </item>
-    <item>
-     <widget class="QPushButton" name="createGroupBtn">
-      <property name="text">
-       <string>+</string>
-      </property>
-     </widget>
-    </item>
-   </layout>
-  </widget>
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
@@ -175,7 +81,7 @@
    <property name="geometry">
     <rect>
      <x>300</x>
-     <y>26</y>
+     <y>16</y>
      <width>39</width>
      <height>32</height>
     </rect>
@@ -188,7 +94,7 @@
    <property name="geometry">
     <rect>
      <x>80</x>
-     <y>30</y>
+     <y>20</y>
      <width>212</width>
      <height>21</height>
     </rect>
