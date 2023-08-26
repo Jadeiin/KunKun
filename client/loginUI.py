@@ -2,6 +2,7 @@ import sys
 from hashlib import sha1
 import json
 from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox
+from PyQt5.QtGui import QMovie
 from PyQt5 import uic
 
 from public import share
@@ -19,6 +20,13 @@ class LoginUI(QWidget):
     def __init__(self):
         super().__init__()
         self.ui = uic.loadUi("./UIfiles/login.ui")
+        self.backGround = self.ui.backGround
+        # 创建 QMovie 对象并设置动态图像文件路径
+        movie = QMovie("./graphSource/loginBackground1.gif")
+        self.backGround.setMovie(movie)
+
+        # 启动动画
+        movie.start()
 
         self.ui.loginBtn.clicked.connect(self.login)  # 点击登录按钮
         self.ui.regBtn.clicked.connect(self.goToRegister)  # 点击注册按钮
@@ -46,10 +54,14 @@ class LoginUI(QWidget):
         QMessageBox.warning(None, "错误", "忘记活该啊！！！")  # 以后再加
 
     def goToChat(self):
+        # 给服务端发送登录的消息
+        self.go_to_chat_dict = {"type":"loadroom"}
+        self.go_to_chat_dict["userid"] = share.User().userID
+        share.server.sendall(json.dumps(self.go_to_chat_dict).encode())
+        # 打开ChatUI界面
         share.chat_page = ChatUI()
         share.chat_page.ui.show()
         self.ui.close()
-
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

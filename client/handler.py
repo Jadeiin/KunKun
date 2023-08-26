@@ -1,11 +1,11 @@
 import json
 import logging
-from datetime import datetime
 from PyQt5.QtCore import QThread, QSocketNotifier, pyqtSignal
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QPlainTextEdit, QMessageBox
 
 from public import share
 import room
+from datetime import datetime
 
 
 class ListenThread(QThread):
@@ -51,7 +51,7 @@ class ListenThread(QThread):
     def acceptLogin(self, msg):
         if msg["result"] == True:
             share.User.userID = msg["userid"]
-            share.login_page.goToChat()  # 从登录界面进入聊天界面
+            share.login_page.goToChat()  # 从登录界面进入聊天界面  
         else:
             share.User.name = ""
             error_message = (0, "登录失败", "用户名或密码错误")  # 封装窗口标题和消息内容
@@ -80,57 +80,55 @@ class ListenThread(QThread):
             share.chat_page.sendChatMsg(msg)  # 已打开聊天界面就send
         else:
             share.chat_page.receiveUnreadMsg(msg)  # 未打开聊天记录就小红点
-
+        
     def acceptRoom(self, msg):
         """加好友成功或者建立群聊成功"""
         if msg["result"] == True:
             new_room = room.Room()  # 新建一个房间
-            new_room.roomID = msg["roomid"]
-            new_room.adminID = msg["adminid"]
-            new_room.memberID = msg["memberid"]
+            new_room.roomID    = msg["roomid"]
+            new_room.adminID   = msg["adminid"]
+            new_room.memberID  = msg["memberid"]
             new_room.room_name = msg["roomname"]
             share.RoomDict[new_room.roomID] = new_room  # 并把房间放到房间字典中
-            share.RoomOrderList.append((new_room.roomID, None))  #
+            share.RoomOrderList.append((new_room.roomID, None))  # 
             share.RoomOrderList.sort(
-                key=lambda item: datetime.strptime(item[1], '%Y-%m-%dT%H:%M:%S.%f'))
-
+                        key=lambda item: datetime.strptime(item[1], '%Y-%m-%dT%H:%M:%S.%f'))
+            
             share.chat_page.ui.msgTextEdit.clear()  # 清空输入框的内容
             share.chat_page.ui.chattingRecordBrowser.clearHistory()  # 清空聊天记录框
             # 显示新群聊名字
 
             # 消息列表在最前面添加一个新的
-
+            
         else:
             error_message = (0, "错误", "创建聊天失败")  # 封装窗口标题和消息内容
             self.notifySignal.emit(error_message)
 
-    # 登录成功后, 接收room的列表, 给UI中的数据赋值
 
+    # 登录成功后, 接收room的列表, 给UI中的数据赋值
     def receiveRoomList(self, msg):
         """登录成功后, 接收该用户的消息列表, 并发送拉取消息的请求"""
-        if msg["result"] == True:
+        if msg["result"] == True:       
             # 登录成功后, 接收room的列表
             login_room = msg["rooms"]
             for item in login_room:
                 new_room = room.Room()
-                new_room.roomID = item["roomid"]
-                new_room.room_name = item["roomname"]
+                new_room.roomID       = item["roomid"]
+                new_room.room_name    = item["roomname"]
                 new_room.lastest_time = item["lasttime"]
                 share.RoomDict[new_room.roomID] = new_room  # 并把房间放到房间字典中
-                share.RoomOrderList.append(
-                    (new_room.roomID, new_room.lastest_time))  # 房间id放到房间列表
-
+                share.RoomOrderList.append((new_room.roomID, new_room.lastest_time))  # 房间id放到房间列表
+            
             # 按照room顺序, 并发送拉取消息的请求
-            room_dict = {"type": "roommessage"}
+            room_dict = {"type":"roommessage"}
             room_dict["userid"] = share.User().userID
-            room_dict["size"] = 50
+            room_dict["size"]   = 50
             for (room_id, last_time) in share.RoomOrderList:
-                room_dict["roomid"] = room_id
+                room_dict["roomid"] = room_id           
                 if len(share.RoomDict[room_id].msg) == 0:
                     room_dict["lasttime"] = last_time  # 最后一条消息的时间
                 else:
-                    # 最老的一条消息的时间
-                    room_dict["lasttime"] = share.RoomDict[room_id].msg[0][2]
+                    room_dict["lasttime"] = share.RoomDict[room_id].msg[0][2]  # 最老的一条消息的时间
                 # 发送消息给服务端
                 share.server.sendall(json.dumps(room_dict.encode()))
         else:
@@ -153,7 +151,7 @@ class ListenThread(QThread):
             error_message = (0, "错误", "获取聊天消息失败")
             self.notifySignal.emit(error_message)
 
-
+        
 # 创建 QApplication 实例和 QMainWindow 实例等代码...
 
 def handleErrors(error_message):

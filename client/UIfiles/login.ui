@@ -80,14 +80,26 @@
      <height>291</height>
     </rect>
    </property>
+   <property name="minimumSize">
+    <size>
+     <width>421</width>
+     <height>291</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>421</width>
+     <height>291</height>
+    </size>
+   </property>
    <property name="text">
     <string/>
    </property>
    <property name="pixmap">
-    <pixmap>../graphSource/loginBackground.jpg</pixmap>
+    <pixmap>../graphSource/loginBackground1.gif</pixmap>
    </property>
    <property name="scaledContents">
-    <bool>false</bool>
+    <bool>true</bool>
    </property>
   </widget>
   <widget class="QPushButton" name="regBtn">
