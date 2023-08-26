@@ -1,0 +1,13 @@
+{
+    "type": "acceptloadroom",
+    "result": true,
+    "roomids": [
+        1,
+        2
+    ]
+}
+
+{
+    "type": "acceptloadroom",
+    "result": false
+}

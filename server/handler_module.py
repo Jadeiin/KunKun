@@ -39,7 +39,7 @@ def create_room(data):
     member_ids = data["memberid"]
     room_id = db.insert_room(room_name)
     with lock:
-        if room_id is None or not db.insert_room_admins(room_id, admin_ids) or not db.insert_room_members(room_id, member_ids):
+        if not db.insert_room_admins(room_id, admin_ids) or not db.insert_room_members(room_id, member_ids):
             logging.debug(f"Client room creation failed")
             return {"type": "accpetroom", "result": False}, {users[admin_ids]}
         else:
@@ -52,15 +52,16 @@ def send_msg(data):
     sender_id = data["userid"]
     room_id = data["roomid"]
     content = data["content"]
-    tm = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
-    msg_id = db.insert_message(sender_id, room_id, content, tm)
+    msgtype = data["msgtype"]
+    sendtime = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
+    msg_id = db.insert_message(sender_id, room_id, content, msgtype, sendtime)
     with lock:
         if msg_id is None:
             logging.debug(f"Client message send failed")
             return {"type": "acceptmsg", "result": False}, {users[sender_id]}
         else:
             logging.debug(f"Client message send successed")
-            return {"type": "acceptmsg", "result": True, "msgid": msg_id, "userid": sender_id, "roomid": room_id, "content": content, "time": tm}, {users.get(item) for item in db.query_room_members(room_id) if item in users}
+            return {"type": "acceptmsg", "result": True, "msgid": msg_id, "userid": sender_id, "roomid": room_id, "content": content, "msgtype": msgtype, "time": sendtime}, {users.get(item) for item in db.query_room_members(room_id) if item in users}
 
 
 def handler(conn, addr):
