@@ -1,0 +1,50 @@
+@startuml
+title SendMsg procedure
+'author Jadeiin
+'version 1.0.0
+skinparam participant {
+	FontSize 14
+	handwritten true
+}
+
+box "Server"
+participant Database_Module #Lime
+participant Handler_Module #Cyan
+participant Server_Sender_Module #Cyan
+end box
+box "Client"
+participant Client_Sender_Module #Cyan
+participant ListenThread_Module #Cyan
+participant pyqtSignal #Silver
+participant Broadcast_Module #Silver
+participant User_Module #Magenta
+participant Room_Module #Magenta
+participant User_RegisterUI #Magenta
+participant User_LoginUI #Magenta
+participant User_ChatUI #Magenta
+end box
+
+autonumber
+User_ChatUI -> User_ChatUI : sendMsgBtn.clicked()
+User_ChatUI -> User_ChatUI : msgTextEdit.toPlainText()
+User_Module -> User_ChatUI : text_msg_dict.append()
+Room_Module -> User_ChatUI : text_msg_dict.append()
+User_ChatUI -> User_ChatUI : msgTextEdit.clear()
+User_ChatUI -> Client_Sender_Module : sendTextToServer()
+Client_Sender_Module -> Handler_Module : server.sendall()
+
+Handler_Module -> Database_Module : send_msg()
+Database_Module -> Handler_Module : insert_message()
+Handler_Module -> Server_Sender_Module : send()
+Server_Sender_Module -> ListenThread_Module : server.sendall()
+
+ListenThread_Module -> pyqtSignal : acceptMsg()
+ListenThread_Module -> pyqtSignal : receiveMsg()
+pyqtSignal -> User_ChatUI : handleErrors()
+ListenThread_Module -> User_ChatUI : sendChatMsg()
+ListenThread_Module -> User_ChatUI : receiveUnreadMsg()
+User_ChatUI -> User_ChatUI : viewChatRecord()
+User_ChatUI -> User_ChatUI : ISaid()
+User_ChatUI -> User_ChatUI : youSaid()
+
+@enduml

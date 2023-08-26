@@ -1,0 +1,46 @@
+@startuml
+title CreateRoom procedure
+'author Jadeiin
+'version 1.0.0
+skinparam participant {
+	FontSize 14
+	handwritten true
+}
+
+box "Server"
+participant Database_Module #Lime
+participant Handler_Module #Cyan
+participant Server_Sender_Module #Cyan
+end box
+box "Client"
+participant Client_Sender_Module #Cyan
+participant ListenThread_Module #Cyan
+participant pyqtSignal #Silver
+participant Broadcast_Module #Silver
+participant User_Module #Magenta
+participant User_RegisterUI #Magenta
+participant User_LoginUI #Magenta
+participant User_ChatUI #Magenta
+end box
+
+autonumber
+User_ChatUI -> User_ChatUI : addFriendLineEdit.toPlainText()
+User_ChatUI -> User_ChatUI : groupNameLineEdit.toPlainText()
+User_ChatUI -> Client_Sender_Module : send()
+Client_Sender_Module -> Handler_Module : server.sendall()
+
+Handler_Module -> Database_Module : create_room()
+Database_Module -> Handler_Module : insert_room()
+Database_Module -> Handler_Module : insert_room_admins()
+Database_Module -> Handler_Module : insert_room_members()
+Handler_Module -> Server_Sender_Module : send()
+Server_Sender_Module -> ListenThread_Module : server.sendall()
+
+ListenThread_Module -> pyqtSignal : acceptRoom()
+pyqtSignal -> User_ChatUI : handleErrors()
+ListenThread_Module -> Broadcast_Module : RoomDict.append()
+ListenThread_Module -> Broadcast_Module : RoomOrderList.append()
+ListenThread_Module -> User_ChatUI : msgTextEdit.clear()
+ListenThread_Module -> User_ChatUI : chattingRecordBrowser.clearHistory()
+
+@enduml

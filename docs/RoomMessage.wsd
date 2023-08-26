@@ -1,0 +1,45 @@
+@startuml
+title RoomMessage procedure
+'author Jadeiin
+'version 1.0.0
+skinparam participant {
+	FontSize 14
+	handwritten true
+}
+
+box "Server"
+participant Database_Module #Lime
+participant Handler_Module #Cyan
+participant Server_Sender_Module #Cyan
+end box
+box "Client"
+participant Client_Sender_Module #Cyan
+participant ListenThread_Module #Cyan
+participant pyqtSignal #Silver
+participant Broadcast_Module #Silver
+participant User_Module #Magenta
+participant User_RegisterUI #Magenta
+participant User_LoginUI #Magenta
+participant User_ChatUI #Magenta
+end box
+
+autonumber
+User_ChatUI -> User_ChatUI : 
+User_ChatUI -> User_ChatUI : 
+User_ChatUI -> Client_Sender_Module : send()
+Client_Sender_Module -> Handler_Module : server.sendall()
+
+Handler_Module -> Database_Module : 
+Database_Module -> Handler_Module : 
+Database_Module -> Handler_Module : 
+Handler_Module -> Server_Sender_Module : send()
+Server_Sender_Module -> ListenThread_Module : server.sendall()
+
+ListenThread_Module -> pyqtSignal : receiveRoomMessage()
+pyqtSignal -> User_ChatUI : handleErrors()
+ListenThread_Module -> Broadcast_Module : 
+ListenThread_Module -> Broadcast_Module :
+ListenThread_Module -> User_ChatUI :
+ListenThread_Module -> User_ChatUI :
+
+@enduml

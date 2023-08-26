@@ -1,0 +1,44 @@
+@startuml
+title UserRegister procedure
+'author Jadeiin
+'version 1.0.0
+skinparam participant {
+	FontSize 14
+	handwritten true
+}
+
+box "Server"
+participant Database_Module #Lime
+participant Handler_Module #Cyan
+participant Server_Sender_Module #Cyan
+end box
+box "Client"
+participant Client_Sender_Module #Cyan
+participant ListenThread_Module #Cyan
+participant pyqtSignal #Silver
+participant Broadcast_Module #Silver
+participant User_Module #Magenta
+participant User_RegisterUI #Magenta
+participant User_LoginUI #Magenta
+participant User_ChatUI #Magenta
+end box
+
+autonumber
+User_LoginUI -> User_LoginUI : regBtn.clicked()
+User_LoginUI -> User_RegisterUI : goToRegister()
+User_RegisterUI -> User_RegisterUI : usrRegLineEdit()
+User_RegisterUI -> User_RegisterUI : pwdRegLineEdit()
+User_RegisterUI -> User_RegisterUI : pwdReconfirmLineEdit()
+User_RegisterUI -> Client_Sender_Module : send()
+Client_Sender_Module -> Handler_Module : server.sendall()
+
+Handler_Module -> Database_Module : register()
+Database_Module -> Handler_Module : insert_user()
+Handler_Module -> Server_Sender_Module : send()
+Server_Sender_Module -> ListenThread_Module : server.sendall()
+
+ListenThread_Module -> pyqtSignal : acceptRegister()
+pyqtSignal -> User_RegisterUI : handleErrors()
+User_RegisterUI -> User_LoginUI : goToLogin()
+
+@enduml
