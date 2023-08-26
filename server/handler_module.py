@@ -40,10 +40,10 @@ def create_room(data):
     room_id = db.insert_room(room_name)
     with lock:
         if not db.insert_room_admins(room_id, admin_ids) or not db.insert_room_members(room_id, member_ids):
-            logging.debug(f"Client room creation failed")
+            logging.debug("Client room creation failed")
             return {"type": "accpetroom", "result": False}, {users[admin_ids]}
         else:
-            logging.debug(f"Client room creation successed")
+            logging.debug("Client room creation successed")
             return {"type": "acceptroom", "result": True, "roomid": room_id, "adminid": admin_ids, "memberid": member_ids, "roomname": room_name}, {users.get(item) for item in member_ids if item in users}
 
 
@@ -57,31 +57,31 @@ def send_msg(data):
     msg_id = db.insert_message(sender_id, room_id, content, msgtype, sendtime)
     with lock:
         if msg_id is None:
-            logging.debug(f"Client message send failed")
+            logging.debug("Client message send failed")
             return {"type": "acceptmsg", "result": False}, {users[sender_id]}
         else:
-            logging.debug(f"Client message send successed")
+            logging.debug("Client message send successed")
             return {"type": "acceptmsg", "result": True, "msgid": msg_id, "userid": sender_id, "roomid": room_id, "content": content, "msgtype": msgtype, "time": sendtime}, {users.get(item) for item in db.query_room_members(room_id) if item in users}
 
 
 def load_room(addr, data):
     if (rooms := db.query_user_rooms(data["userid"])) is None:
-        logging.debug(f"Client load room failed")
+        logging.debug("Client load room failed")
         return {"type": "acceptloadroom", "result": False}, {addr}
     else:
-        logging.debug(f"Client load room successed")
+        logging.debug("Client load room successed")
         return {"type": "acceptloadroom", "result": True, "rooms": rooms}, {addr}
 
 
 def room_message(addr, data):
     if data["userid"] not in db.query_room_members(data["roomid"]):
-        logging.debug(f"Client fetch room messages failed: Not in room")
-        return {"type": "acceptroommessage", "result": False}, {addr}
+        logging.debug("Client fetch room messages failed: Not in room")
+        return {"type": "acceptroommessage", "result": False, "roomid": data["roomid"]}, {addr}
     room_messages = db.query_room_messages(
         data["roomid"], data["size"], data["lasttime"])
     # None 暂时也算成功 因为无法在客户端判断是否异常
-    logging.debug(f"Client fetch room messages successed")
-    return {"type": "acceptroommessage", "result": True, "messages": room_messages}, {addr}
+    logging.debug("Client fetch room messages successed")
+    return {"type": "acceptroommessage", "result": True, "roomid": data["roomid"], "messages": room_messages}, {addr}
 
 
 def handler(conn, addr):

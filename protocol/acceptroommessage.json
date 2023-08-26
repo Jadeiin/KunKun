@@ -1,6 +1,7 @@
 {
     "type": "acceptroommessage",
     "result": true,
+    "roomid": 1,
     "messages": [
         {
             "msgid": 3,
@@ -21,5 +22,6 @@
 
 {
     "type": "acceptroommessage",
-    "result": false
+    "result": false,
+    "roomid": 1
 }
