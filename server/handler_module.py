@@ -11,6 +11,11 @@ users = {}    # id -> ip
 links = {}    # ip -> id
 
 
+def online_users(addr):
+    global users
+    with lock:
+        return {"type": "onlineusers", "result": True, "users": users}, {addr}
+
 def register(addr, data):
     if data["username"] == "" or (user_id := db.insert_user(data["username"], data["userpwdhash"])) is None:
         logging.debug(f"Client registration failed, {addr}")
@@ -25,6 +30,7 @@ def login(addr, data):
         logging.debug(f"Client login failed, {addr}")
         return {"type": "acceptlogin", "result": False}, {addr}
     else:
+        global users
         with lock:
             users[user_id] = addr
             links[addr] = user_id
@@ -34,9 +40,10 @@ def login(addr, data):
 
 def create_room(data):
     # TODO: avoid someone using other user id to create room
+    global users
     room_name = data["roomname"]
-    admin_ids = data["adminid"]
-    member_ids = data["memberid"]
+    admin_ids = set(data["adminid"])
+    member_ids = set(data["memberid"])
     room_id = db.insert_room(room_name)
     with lock:
         if not db.insert_room_admins(room_id, admin_ids) or not db.insert_room_members(room_id, member_ids):
@@ -49,6 +56,7 @@ def create_room(data):
 
 def send_msg(data):
     # TODO: avoid someone using other user id to send message
+    global users
     sender_id = data["userid"]
     room_id = data["roomid"]
     content = data["content"]

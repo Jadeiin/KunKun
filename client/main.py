@@ -1,8 +1,8 @@
-from handler import *
 import socket
 import sys
 
 from public import share
+from handler import *
 from loginUI import LoginUI
 
 if __name__ == "__main__":
