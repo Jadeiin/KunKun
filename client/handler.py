@@ -112,16 +112,19 @@ class ListenThread(QThread):
         """登录成功后, 接收该用户的消息列表, 并发送拉取消息的请求"""
         if msg["result"] == True:
             # 登录成功后, 接收room的列表
-            login_room = msg["rooms"].reverse() # 服务端发过来的是从新到旧
-            for item in login_room:
-                new_room = room.Room()
-                new_room.roomID       = item["roomid"]
-                new_room.room_name    = item["roomname"]
-                new_room.lastest_time = item["lasttime"]
-                share.RoomDict[new_room.roomID] = new_room  # 并把房间放到房间字典中
-                share.RoomOrderList.insert(0, (new_room.roomID, new_room.lastest_time))  # 房间id放到房间列表
-                avatar_path = "./graphSource/profPhoto.jpg"
-                share.chat_page.additemInChatList(avatar_path, new_room.roomID, "hello")
+            login_room = list(reversed(msg["rooms"])) # 服务端发过来的是从新到旧
+            print(login_room)
+            # login_room = msg["rooms"].reverse() # 服务端发过来的是从新到旧
+            if login_room != []:
+                for item in login_room:
+                    new_room = room.Room()
+                    new_room.roomID       = item["roomid"]
+                    new_room.room_name    = item["roomname"]
+                    new_room.lastest_time = item["lasttime"]
+                    share.RoomDict[new_room.roomID] = new_room  # 并把房间放到房间字典中
+                    share.RoomOrderList.insert(0, (new_room.roomID, new_room.lastest_time))  # 房间id放到房间列表
+                    avatar_path = "./graphSource/profPhoto.jpg"
+                    share.chat_page.additemInChatList(avatar_path, new_room.roomID, "hello")
             else:
                 error_message = (1, "提示", "没有更多聊天")
                 self.notifySignal.emit(error_message)
@@ -137,7 +140,7 @@ class ListenThread(QThread):
                 else:
                     room_dict["lasttime"] = share.RoomDict[room_id].msg[0][2]  # 最老的一条消息的时间
                 # 发送消息给服务端
-                share.server.sendall(json.dumps(room_dict.encode()))
+                share.server.sendall(json.dumps(room_dict).encode())
         else:
             error_message = (0, "错误", "打开聊天界面失败")
             self.notifySignal.emit(error_message)
