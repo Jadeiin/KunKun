@@ -63,7 +63,7 @@ class ListenThread(QThread):
             self.notifySignal.emit(error_message)
         else:
             share.User.name = ""
-            error_message = (0, "注册失败", "用户名或密码设置不符合规范")  # 封装窗口标题和消息内容
+            error_message = (0, "注册失败", "账户已存在")  # 封装窗口标题和消息内容
             self.notifySignal.emit(error_message)
 
     def acceptMsg(self, msg):
@@ -93,11 +93,9 @@ class ListenThread(QThread):
             share.RoomDict[new_room.roomID] = new_room  # 并把房间放到房间字典中
             share.RoomOrderList.insert(0, (new_room.roomID, new_room.lastest_time))  # 
             
-            # 清空输入框的内容, 清空聊天记录框
-            share.chat_page.ui.msgTextEdit.clear()  # 清空输入框的内容
-            share.chat_page.ui.chattingRecordBrowser.clearHistory()  # 清空聊天记录框
-
-            # 显示新群聊名字
+            # # 清空输入框的内容, 清空聊天记录框（不需要了）
+            # share.chat_page.ui.msgTextEdit.clear()  # 清空输入框的内容
+            # share.chat_page.ui.chattingRecordBrowser.clearHistory()  # 清空聊天记录框
 
             # 消息列表在最前面添加一个新的
             avatar_path = "./graphSource/profPhoto.jpg"  # Replace with actual path
@@ -123,7 +121,7 @@ class ListenThread(QThread):
                 share.RoomDict[new_room.roomID] = new_room  # 并把房间放到房间字典中
                 share.RoomOrderList.insert(0, (new_room.roomID, new_room.lastest_time))  # 房间id放到房间列表
                 avatar_path = "./graphSource/profPhoto.jpg"
-                share.chat_page.additemInChatList(avatar_path, new_room.roomID, "hello")
+                share.chat_page.additemInChatList(avatar_path, new_room.roomID, "hello") 
                             
             # 按照room顺序, 并发送拉取消息的请求
             room_dict = {"type":"roommessage"}

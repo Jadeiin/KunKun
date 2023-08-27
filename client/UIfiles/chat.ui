@@ -46,25 +46,6 @@
     </rect>
    </property>
   </widget>
-  <widget class="QLabel" name="usrProfPhoto">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>60</y>
-     <width>51</width>
-     <height>51</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string/>
-   </property>
-   <property name="pixmap">
-    <pixmap>../source/profPhoto1.jpg</pixmap>
-   </property>
-   <property name="scaledContents">
-    <bool>true</bool>
-   </property>
-  </widget>
   <widget class="QLabel" name="chatName">
    <property name="geometry">
     <rect>
@@ -104,7 +85,7 @@
     <enum>Qt::Vertical</enum>
    </property>
   </widget>
-  <widget class="QLabel" name="label">
+  <widget class="QLabel" name="file">
    <property name="geometry">
     <rect>
      <x>360</x>
@@ -117,7 +98,7 @@
     <string>文件</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_2">
+  <widget class="QLabel" name="sticker">
    <property name="geometry">
     <rect>
      <x>430</x>
@@ -141,7 +122,11 @@
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout">
     <item>
-     <widget class="QLineEdit" name="createGroupLineEdit"/>
+     <widget class="QLineEdit" name="createGroupLineEdit">
+      <property name="placeholderText">
+       <string>创建聊天室</string>
+      </property>
+     </widget>
     </item>
     <item>
      <widget class="QPushButton" name="createGroupBtn">
@@ -152,7 +137,7 @@
     </item>
    </layout>
   </widget>
-  <widget class="QLabel" name="label_3">
+  <widget class="QLabel" name="usrProfPhoto">
    <property name="geometry">
     <rect>
      <x>10</x>
@@ -171,7 +156,7 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QPushButton" name="addFriendLineBtn">
+  <widget class="QPushButton" name="addFriendBtn">
    <property name="geometry">
     <rect>
      <x>300</x>
@@ -192,6 +177,9 @@
      <width>212</width>
      <height>21</height>
     </rect>
+   </property>
+   <property name="placeholderText">
+    <string>添加好友</string>
    </property>
   </widget>
   <widget class="QListWidget" name="chatList">

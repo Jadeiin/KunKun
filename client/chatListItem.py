@@ -11,10 +11,10 @@ class ChatListItemWidget(QWidget):
 
     itemClicked = pyqtSignal(int)  # 自定义信号，用于发出项被点击的信号
 
-    def __init__(self, avatar_path, name, recent_msg, index, parent=None):
+    def __init__(self, avatar_path, name, recent_msg, roomID, parent=None):
         super().__init__(parent)
         
-        self.index = index  # 保存项的索引
+        self.roomid = roomID  # 保存项的索引
 
         self.setObjectName("ChatListItemWidget")
         self.resize(281, 71)
@@ -69,20 +69,23 @@ class ChatListItemWidget(QWidget):
         
         layout.addWidget(self.frame)
         
-        # 调用重新翻译函数
-        self.retranslateUi()
+    #     # 调用重新翻译函数
+    #     self.retranslateUi()
 
-    def retranslateUi(self):
+    # def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("ChatListItemWidget", "Form"))
-        self.chatName.setText(_translate("ChatListItemWidget", "Paimon"))
-        self.recentMsg.setText(_translate("ChatListItemWidget", "<html><head/><body><p><span style=\" color:#a9a9a9;\">rec_msg_hello~</span></p></body></html>"))
+        self.chatName.setText(_translate("ChatListItemWidget", name)) # name
+        self.recentMsg.setText(_translate("ChatListItemWidget", "<html><head/><body><p><span style=\" color:#a9a9a9;\">"+ recent_msg +"</span></p></body></html>")) # recMsg
         self.msgTime.setText(_translate("ChatListItemWidget", "<html><head/><body><p align=\"right\"><span style=\" color:#a9a9a9;\">2023/8/26</span></p></body></html>"))
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
-            # 手动触发项点击信号，同时发送项的索引
-            self.itemClicked.emit(self.index)
+            # 手动触发项点击信号，同时发送项的 roomID
+            self.itemClicked.emit(self.roomid)
+
+            # 点击后item背景颜色变深，实现点击效果
+            self.setStyleSheet("QWidget{background-color: rgb(220, 220, 220)}") # rgb后面三个数字可以更改颜色
 
 
 if __name__ == "__main__":

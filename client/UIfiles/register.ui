@@ -13,6 +13,19 @@
   <property name="windowTitle">
    <string>Register</string>
   </property>
+  <widget class="QLineEdit" name="emailLineEdit">
+   <property name="geometry">
+    <rect>
+     <x>70</x>
+     <y>100</y>
+     <width>201</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <property name="placeholderText">
+    <string>邮箱</string>
+   </property>
+  </widget>
   <widget class="QLineEdit" name="usrRegLineEdit">
    <property name="geometry">
     <rect>
@@ -37,19 +50,6 @@
    </property>
    <property name="placeholderText">
     <string>密码</string>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="pwdReconfirmLineEdit">
-   <property name="geometry">
-    <rect>
-     <x>70</x>
-     <y>220</y>
-     <width>201</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="placeholderText">
-    <string>确认密码</string>
    </property>
   </widget>
   <widget class="QPushButton" name="regBtn">
@@ -97,17 +97,17 @@
     <string>返回</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="emailLineEdit">
+  <widget class="QLineEdit" name="pwdReconfirmLineEdit">
    <property name="geometry">
     <rect>
      <x>70</x>
-     <y>100</y>
+     <y>220</y>
      <width>201</width>
      <height>21</height>
     </rect>
    </property>
    <property name="placeholderText">
-    <string>邮箱</string>
+    <string>确认密码</string>
    </property>
   </widget>
  </widget>

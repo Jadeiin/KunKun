@@ -56,7 +56,7 @@ class LoginUI(QWidget):
     def goToChat(self):
         # 给服务端发送登录的消息
         self.go_to_chat_dict = {"type":"loadroom"}
-        self.go_to_chat_dict["userid"] = share.User().userID
+        self.go_to_chat_dict["userid"] = share.User.userID
         share.server.sendall(json.dumps(self.go_to_chat_dict).encode())
         # 打开ChatUI界面
         share.chat_page = ChatUI()

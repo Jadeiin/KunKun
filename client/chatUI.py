@@ -29,9 +29,10 @@ class ChatUI(QWidget):
         # 输入框发送文字
         self.ui.sendMsgBtn.clicked.connect(self.sendTextToServer)
     
-        # self.ui.addFriendLineBtn.clicked.connect(lambda: self.additemInChatList(random.choice([avatar_path,avatar_path2]), name, recent_msg)) # 使用 lambda 表达式来正确地连接信号和槽
-        self.ui.addFriendLineBtn.clicked.connect(self.addFriend)
-        
+        # self.ui.addFriendBtn.clicked.connect(lambda: self.additemInChatList(random.choice([avatar_path,avatar_path2]), name, recent_msg)) # 使用 lambda 表达式来正确地连接信号和槽
+        self.ui.addFriendBtn.clicked.connect(self.addFriend)
+        self.ui.createGroupBtn.clicked.connect(self.createGroup)
+
         self.connected_items = []  # 用于存储已连接的项的列表
         self.connectAllItems()  # 聊天列表监听鼠标点击情况，初始化时连接所有聊天项
 
@@ -84,8 +85,7 @@ class ChatUI(QWidget):
         self.create_group_dict = {"type": "createroom"}
         self.create_group_dict["adminid"] = share.User.userID
         # 以后还得修改，判断群聊中的人数
-        self.create_group_dict["memberid"] = self.ui.addFriendLineEdit.toPlainText(
-        ).split()
+        self.create_group_dict["memberid"] = self.ui.createGroupLineEdit.text().split()
         self.create_group_dict["roomname"] = "群聊"
         # self.create_group_dict["roomname"] = groupNameLineEdit.toPlainText().encode("utf-8")
         # send
@@ -104,7 +104,7 @@ class ChatUI(QWidget):
         self.add_friend = json.dumps(self.add_friend_dict)
         share.server.sendall(self.add_friend.encode())
         # 弹出新的聊天界面
-       
+    
     def viewChatRecord(self, room_id):
         # if 有小红点：
         #     把小红点消掉
@@ -112,19 +112,17 @@ class ChatUI(QWidget):
         print("view!") # 成功
         share.chat_page.ui.chattingRecordBrowser.clear()  # 清聊天框
         share.CurrentRoom = share.RoomDict[room_id]
+        
         # 显示新的聊天框
-        # 读50条历史消息, 在textBrowser里显示出来
-        # if len(share.CurrentRoom.msg) < 50:
+        # 改聊天室名字
+        share.chat_page.chatName.setText(share.CurrentRoom.room_name)
+        
+        # 读历史消息, 在textBrowser里显示出来
         for item in share.CurrentRoom.msg:
             self.ui.chattingRecordBrowser.append(
                 str(item[0]) + ":" + str(item[1]) )  # 聊天记录框显示文字 # 可以加时间
             self.ui.chattingRecordBrowser.ensureCursorVisible()  # 自动翻滚到最后一行
-        # else:
-        #     for item in share.CurrentRoom.msg[-50:]:
-        #         self.ui.chattingRecordBrowser.append(
-        #             str(item[0]) + ":" + str(item[1]) )  # 聊天记录框显示文字 # 可以加时间
-        #         self.ui.chattingRecordBrowser.ensureCursorVisible()  # 自动翻滚到最后一行
-
+        
     def sendChatMsg(self, msg):
         """
         调用: 当自己发消息成功(acceptMsg)或接收到别人的消息(sendmsg)时调用该函数
@@ -158,9 +156,9 @@ class ChatUI(QWidget):
             self.ui.chattingRecordBrowser.append( 
                 str(msg["userid"]) + ": " + msg["content"])  # 在聊天框里加文字
             self.ui.chattingRecordBrowser.ensureCursorVisible()  # 自动翻滚到最后一行
-    
+
     def receiveUnreadMsg(self, msg):
-        # 上升到顶端 不用判断当前消息框是否在list顶端了，应已经判断过了
+        # 更新room列表
         for index, (room_id, _) in enumerate(share.RoomOrderList):
             if room_id == share.CurrentRoom.roomID:  # RoomOrderList:(roomid, time)
                 share.RoomOrderList.pop(index)
@@ -179,15 +177,15 @@ class ChatUI(QWidget):
 
         # 加小红点
         QMessageBox.information(self, "未读消息", "111") # 后面改成标柱红点 
-        
+    
     def displayChatList(self):
         self.ui.chatList.clear()
         # for avatar_path, usr_name in enumerate(): # 从客户端读过来
             # self.additemInChatList(avatar_path, usr_name)
 
-    def additemInChatList(self, avatar_path, roomid, recent_msg):
+    def additemInChatList(self, avatar_path, name, recent_msg, roomid):
         '''向聊天列表中间加入新的item'''
-        
+
         name = share.RoomDict[roomid]
         recent_msg = recent_msg[:10]+"..." if len(recent_msg) > 10 else recent_msg  # 防止文字过多只选前10个字
         chat_widget = ChatListItemWidget(avatar_path, name, recent_msg, roomid) # 一个新的聊天好友列表的框
@@ -201,9 +199,12 @@ class ChatUI(QWidget):
 
         self.connectItemClicked(chat_widget) # 连接最新的 chat_widget，持续监听
     
-    def deletItemInChatList(self, index):
-        index_to_remove = index
-
+    def deletItemInChatList(self, roomid):
+        for (index, item) in enumerate(share.chat_list):
+            if roomid == item.roomid:
+                index_to_remove = index
+        # else: 异常处理
+            
         # 从 QListWidget 中移除该项
         item_to_remove = self.ui.chatList.takeItem(index_to_remove)
 
