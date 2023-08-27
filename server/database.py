@@ -1,5 +1,6 @@
 import sqlite3
 import logging
+from datetime import datetime
 
 
 class Database:
@@ -37,14 +38,14 @@ class Database:
             logging.error("Error inserting user: %s", e)
             return None
 
-    def insert_room(self, room_name: str):
+    def insert_room(self, room_name: str, create_time: str):
         try:
             with self._connect() as conn:
                 cursor = conn.cursor()
                 cursor.execute("""
-                    INSERT INTO Room(RoomName)
-                    VALUES (?)
-                    """, (room_name,))
+                    INSERT INTO Room(RoomName, RoomCreateTime)
+                    VALUES (?, ?)
+                    """, (room_name, create_time))
                 room_id = cursor.lastrowid
                 conn.commit()
             return room_id
@@ -142,21 +143,29 @@ class Database:
             with self._connect() as conn:
                 result = conn.execute("""
                     SELECT
-                        r.RoomID,
-                        r.RoomName,
-                        (
-                            SELECT MsgSendtime
-                            FROM Msg m
-                            WHERE m.RoomID = r.RoomID
-                            ORDER BY MsgSendtime DESC
-                            LIMIT 1
-                        ) AS LastMessageSendTime
-                    FROM
-                        Room r
-                    LEFT JOIN
-                        RoomMember rm ON r.RoomID = rm.RoomID
-                    WHERE
-                        rm.UserID = ?
+                        R.RoomID,
+                        R.RoomName,
+                        COALESCE(LastMsg.MsgType, NULL) AS LastMsgType,
+                        COALESCE(LastMsg.MsgContent, NULL) AS LastMsgContent,
+                        COALESCE(LastMsg.MsgSendtime, R.RoomCreateTime) AS LastMsgSendtime
+                    FROM Room R
+                    LEFT JOIN (
+                        SELECT
+                            M.RoomID,
+                            M.MsgType,
+                            M.MsgContent,
+                            M.MsgSendtime,
+                            ROW_NUMBER() OVER (PARTITION BY M.RoomID ORDER BY M.MsgSendtime DESC) AS rn
+                        FROM Msg M
+                        WHERE M.MsgSendtime = (
+                            SELECT MAX(MsgSendtime)
+                            FROM Msg
+                            WHERE RoomID = M.RoomID
+                        )
+                    ) LastMsg ON R.RoomID = LastMsg.RoomID AND LastMsg.rn = 1
+                    LEFT JOIN RoomMember RM ON R.RoomID = RM.RoomID
+                    WHERE RM.UserID = ?
+                    ORDER BY LastMsgSendtime DESC;
                     """, (user_id,)
                 ).fetchall()
                 # return set(item[0] for item in user_rooms)
@@ -165,7 +174,9 @@ class Database:
                 room = {
                     "roomid": row[0],
                     "roomname": row[1],
-                    "lasttime": row[2]
+                    "msgtype": row[2],
+                    "content": row[3],
+                    "lasttime": row[4]
                 }
                 user_rooms.append(room)
             return user_rooms
@@ -242,7 +253,8 @@ if __name__ == "__main__":
             f"Inserted user info: {user_id}, {user_name}, {user_pwd_sha1}")
 
     room_name = "testroom"
-    room_id = db.insert_room(room_name)
+    room_create_time = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
+    room_id = db.insert_room(room_name, room_create_time)
     logging.debug(f"Inserted room info: {room_id}, {room_name}")
 
     db.insert_room_admins(room_id, {user_id})
@@ -254,18 +266,17 @@ if __name__ == "__main__":
     user_rooms = db.query_user_rooms(user_id)
     logging.debug(f"Queried user rooms: {user_id}, {user_rooms}")
 
-    msg_content = "testmsg"
-    from datetime import datetime
-    msg_send_time = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
-    # how we design debug handler?
-    if (msg_id := db.insert_message(user_id, room_id, msg_content, msg_send_time)):
-        logging.debug(
-            f"Inserted msg info: {msg_id}, {user_id}, {room_id}, {msg_content}, {msg_send_time}")
+    for i in range(20):
+        msg_send_time = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
+        msg_content = "testmsg at " + msg_send_time
+        # how we design debug handler?
+
+        if (msg_id := db.insert_message(user_id, room_id, msg_content, 1, msg_send_time)):
+            logging.debug(
+                f"Inserted msg info: {msg_id}, {user_id}, {room_id}, {msg_content}, {msg_send_time}")
     # else:
-        # logging.error()
+    # logging.error()
 
-    # user_ip = db.query_user_ip(user_id)
-    # logging.debug(f"Queried user ip: {user_id}, {user_ip}")
-
-    # user_id = db.query_user_id(user_ip)
-    # logging.debug(f"Queried user id: {user_ip}, {user_id}")
+    room_current_time = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
+    room_messages = db.query_room_messages(room_id, 50, room_current_time)
+    logging.debug(f"Queried room messages: {room_id}, {room_messages}")

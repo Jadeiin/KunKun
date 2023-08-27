@@ -16,6 +16,7 @@ def online_users(addr):
     with lock:
         return {"type": "onlineusers", "result": True, "users": users}, {addr}
 
+
 def register(addr, data):
     if data["username"] == "" or (user_id := db.insert_user(data["username"], data["userpwdhash"])) is None:
         logging.debug(f"Client registration failed, {addr}")
@@ -42,16 +43,17 @@ def create_room(data):
     # TODO: avoid someone using other user id to create room
     global users
     room_name = data["roomname"]
-    admin_ids = set(data["adminid"])
-    member_ids = set(data["memberid"])
-    room_id = db.insert_room(room_name)
+    admin_ids = data["adminid"]
+    member_ids = data["memberid"]
+    createtime = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
+    room_id = db.insert_room(room_name, createtime)
     with lock:
-        if not db.insert_room_admins(room_id, admin_ids) or not db.insert_room_members(room_id, member_ids):
+        if not db.insert_room_admins(room_id, set(admin_ids)) or not db.insert_room_members(room_id, set(member_ids)):
             logging.debug("Client room creation failed")
             return {"type": "accpetroom", "result": False}, {users[admin_ids]}
         else:
             logging.debug("Client room creation successed")
-            return {"type": "acceptroom", "result": True, "roomid": room_id, "adminid": admin_ids, "memberid": member_ids, "roomname": room_name}, {users.get(item) for item in member_ids if item in users}
+            return {"type": "acceptroom", "result": True, "roomid": room_id, "adminid": admin_ids, "memberid": member_ids, "roomname": room_name, "createtime": createtime}, {users.get(item) for item in member_ids if item in users}
 
 
 def send_msg(data):
@@ -69,7 +71,7 @@ def send_msg(data):
             return {"type": "acceptmsg", "result": False}, {users[sender_id]}
         else:
             logging.debug("Client message send successed")
-            return {"type": "acceptmsg", "result": True, "msgid": msg_id, "userid": sender_id, "roomid": room_id, "content": content, "msgtype": msgtype, "time": sendtime}, {users.get(item) for item in db.query_room_members(room_id) if item in users}
+            return {"type": "acceptmsg", "result": True, "msgid": msg_id, "userid": sender_id, "roomid": room_id, "content": content, "msgtype": msgtype, "sendtime": sendtime}, {users.get(item) for item in db.query_room_members(room_id) if item in users}
 
 
 def load_room(addr, data):
