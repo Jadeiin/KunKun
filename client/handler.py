@@ -51,7 +51,7 @@ class ListenThread(QThread):
     def acceptLogin(self, msg):
         if msg["result"] == True:
             share.User.userID = msg["userid"]
-            share.login_page.goToChat()  # 从登录界面进入聊天界面  
+            share.login_page.goToChat()  # 从登录界面进入聊天界面
         else:
             share.User.name = ""
             error_message = (0, "登录失败", "用户名或密码错误")  # 封装窗口标题和消息内容
@@ -80,7 +80,7 @@ class ListenThread(QThread):
             share.chat_page.sendChatMsg(msg)  # 已打开聊天界面就send
         else:
             share.chat_page.receiveUnreadMsg(msg)  # 未打开聊天记录就小红点
-        
+
     def acceptRoom(self, msg):
         """加好友成功或者建立群聊成功"""
         if msg["result"] == True:
@@ -91,8 +91,8 @@ class ListenThread(QThread):
             new_room.room_name    = msg["roomname"]
             new_room.lastest_time = msg["createtime"]
             share.RoomDict[new_room.roomID] = new_room  # 并把房间放到房间字典中
-            share.RoomOrderList.insert(0, (new_room.roomID, new_room.lastest_time))  # 
-            
+            share.RoomOrderList.insert(0, (new_room.roomID, new_room.lastest_time))  #
+
             # # 清空输入框的内容, 清空聊天记录框（不需要了）
             # share.chat_page.ui.msgTextEdit.clear()  # 清空输入框的内容
             # share.chat_page.ui.chattingRecordBrowser.clearHistory()  # 清空聊天记录框
@@ -110,7 +110,7 @@ class ListenThread(QThread):
     # 登录成功后, 接收room的列表, 给UI中的数据赋值
     def receiveRoomList(self, msg):
         """登录成功后, 接收该用户的消息列表, 并发送拉取消息的请求"""
-        if msg["result"] == True:       
+        if msg["result"] == True:
             # 登录成功后, 接收room的列表
             login_room = msg["rooms"].reverse() # 服务端发过来的是从新到旧
             for item in login_room:
@@ -121,14 +121,17 @@ class ListenThread(QThread):
                 share.RoomDict[new_room.roomID] = new_room  # 并把房间放到房间字典中
                 share.RoomOrderList.insert(0, (new_room.roomID, new_room.lastest_time))  # 房间id放到房间列表
                 avatar_path = "./graphSource/profPhoto.jpg"
-                share.chat_page.additemInChatList(avatar_path, new_room.roomID, "hello") 
-                            
+                share.chat_page.additemInChatList(avatar_path, new_room.roomID, "hello")
+            else:
+                error_message = (1, "提示", "没有更多聊天")
+                self.notifySignal.emit(error_message)
+
             # 按照room顺序, 并发送拉取消息的请求
             room_dict = {"type":"roommessage"}
-            room_dict["userid"] = share.User().userID
+            room_dict["userid"] = share.User.userID
             room_dict["size"]   = 50
             for (room_id, last_time) in share.RoomOrderList:
-                room_dict["roomid"] = room_id           
+                room_dict["roomid"] = room_id
                 if len(share.RoomDict[room_id].msg) == 0:
                     room_dict["lasttime"] = last_time  # 最后一条消息的时间
                 else:
@@ -155,7 +158,7 @@ class ListenThread(QThread):
             error_message = (0, "错误", "获取聊天消息失败")
             self.notifySignal.emit(error_message)
 
-        
+
 # 创建 QApplication 实例和 QMainWindow 实例等代码...
 
 def handleErrors(error_message):
