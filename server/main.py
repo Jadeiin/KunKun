@@ -3,10 +3,13 @@ import socket
 import logging
 import signal
 from threading import Thread
-from handler_module import handler
+from socket_handler import handler
+from pyftpdlib.handlers import FTPHandler
+from pyftpdlib.servers import FTPServer
+from ftp_handler import SQLiteAuthorizer
 
 # Config part
-logging.basicConfig(level=logging.DEBUG,
+logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s - %(levelname)s - %(message)s")
 port = 7979
 
@@ -24,13 +27,20 @@ if __name__ == "__main__":
     server.listen()
 
     host = socket.gethostbyname(socket.gethostname())
-    logging.debug("Listen at %s:%d", host, port)
+    logging.info("Listen at %s:%d", host, port)
     logging.info("Server started...")
 
-    signal.signal(signal.SIGINT, signal_handler)
+    # signal.signal(signal.SIGINT, signal_handler)
+
+    # authorizer.adduser("PP", "PP", "files/", perm="radfwMT")
+    FTPhandler = FTPHandler
+    FTPhandler.authorizer = SQLiteAuthorizer()
+    fileserver = FTPServer(("", port + 1), FTPhandler)
+    ftp_thread = Thread(target=fileserver.serve_forever, daemon=True)
+    ftp_thread.start()
 
     while True:
         conn, addr = server.accept()
-        thread = Thread(target=handler, daemon=True, # 不要在循环里加新建线程 不然每次连接都会新建线程
-                        args=(conn, addr))
-        thread.start()
+        socket_thread = Thread(target=handler, daemon=True,  # 不要在循环里加新建线程 不然每次连接都会新建线程
+                               args=(conn, addr))
+        socket_thread.start()

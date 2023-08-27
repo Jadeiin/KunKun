@@ -1,0 +1,11 @@
+{
+	"type": "loadfriend",
+	"added": [
+		2,
+		3
+	],
+	"pending": [
+		4,
+		5
+	]
+}

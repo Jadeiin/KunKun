@@ -241,32 +241,32 @@ if __name__ == "__main__":
                         format="%(asctime)s - %(levelname)s - %(message)s")
     db = Database("testdb.db")
 
-    logging.debug("Database test started")
+    logging.info("Database test started")
     # user_ip = "127.0.0.1"
     user_name = "testuser"
     user_pwd_sha1 = "9ad4cf12ea8c7c42000a7af92864e80e807a0718"
     user_id = db.insert_user(user_name, user_pwd_sha1)
     if user_id is None:
         user_id = db.query_user_login(user_name, user_pwd_sha1)
-        logging.debug(
+        logging.info(
             f"Queried user login: {user_id}, {user_name}, {user_pwd_sha1}")
     else:
-        logging.debug(
+        logging.info(
             f"Inserted user info: {user_id}, {user_name}, {user_pwd_sha1}")
 
     room_name = "testroom"
     room_create_time = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
     room_id = db.insert_room(room_name, room_create_time)
-    logging.debug(f"Inserted room info: {room_id}, {room_name}")
+    logging.info(f"Inserted room info: {room_id}, {room_name}")
 
     db.insert_room_admins(room_id, {user_id})
     db.insert_room_members(room_id, {user_id})
 
     room_members = db.query_room_members(room_id)
-    logging.debug(f"Queried room members: {room_id}, {room_members}")
+    logging.info(f"Queried room members: {room_id}, {room_members}")
 
     user_rooms = db.query_user_rooms(user_id)
-    logging.debug(f"Queried user rooms: {user_id}, {user_rooms}")
+    logging.info(f"Queried user rooms: {user_id}, {user_rooms}")
 
     for i in range(20):
         msg_send_time = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
@@ -274,11 +274,11 @@ if __name__ == "__main__":
         # how we design debug handler?
 
         if (msg_id := db.insert_message(user_id, room_id, msg_content, 1, msg_send_time)):
-            logging.debug(
+            logging.info(
                 f"Inserted msg info: {msg_id}, {user_id}, {room_id}, {msg_content}, {msg_send_time}")
     # else:
     # logging.error()
 
     room_current_time = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
     room_messages = db.query_room_messages(room_id, 50, room_current_time)
-    logging.debug(f"Queried room messages: {room_id}, {room_messages}")
+    logging.info(f"Queried room messages: {room_id}, {room_messages}")
