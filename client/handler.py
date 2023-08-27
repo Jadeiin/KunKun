@@ -23,30 +23,26 @@ class ListenThread(QThread):
 
     def handleSocketActivation(self, socket):
         # if socket == self.server: 这个去了注释好像接收不到消息
-        try:
-            # listen and receive message
-            msg = self.server.recv(1024).decode().rstrip("\r\n")
-            msg = json.loads(msg)
-            # message type
-            if msg["type"] == "acceptlogin":
-                self.acceptLogin(msg)
-            elif msg["type"] == "acceptregister":
-                self.acceptRegister(msg)
-            elif msg["type"] == "acceptmsg":
-                self.acceptMsg(msg)
-            elif msg["type"] == "acceptroom":
-                self.acceptRoom(msg)
-            elif msg["type"] == "sendmsg":
-                self.receiveMsg(msg)
-            elif msg["type"] == "acceptloadroom":
-                self.receiveRoomList(msg)
-            elif msg["type"] == "acceptroommessage":  # 收到50条聊天消息
-                self.receiveRoomMessage(msg)
-            else:
-                logging.error("Accept message type error!")
-        except Exception as e:
-            error_message = (0, "错误", str(e))  # 将窗口标题和消息内容封装为元组
-            self.notifySignal.emit(error_message)  # 发送错误信号
+        # listen and receive message
+        msg = self.server.recv(1024).decode().rstrip("\r\n")
+        msg = json.loads(msg)
+        # message type
+        if msg["type"] == "acceptlogin":
+            self.acceptLogin(msg)
+        elif msg["type"] == "acceptregister":
+            self.acceptRegister(msg)
+        elif msg["type"] == "acceptmsg":
+            self.acceptMsg(msg)
+        elif msg["type"] == "acceptroom":
+            self.acceptRoom(msg)
+        elif msg["type"] == "sendmsg":
+            self.receiveMsg(msg)
+        elif msg["type"] == "acceptloadroom":
+            self.receiveRoomList(msg)
+        elif msg["type"] == "acceptroommessage":  # 收到50条聊天消息
+            self.receiveRoomMessage(msg)
+        else:
+            logging.error("Accept message type error!")
 
     def acceptLogin(self, msg):
         if msg["result"] == True:
@@ -113,8 +109,6 @@ class ListenThread(QThread):
         if msg["result"] == True:
             # 登录成功后, 接收room的列表
             login_room = list(reversed(msg["rooms"])) # 服务端发过来的是从新到旧
-            print(login_room)
-            # login_room = msg["rooms"].reverse() # 服务端发过来的是从新到旧
             if login_room != []:
                 for item in login_room:
                     new_room = room.Room()
@@ -129,31 +123,32 @@ class ListenThread(QThread):
                 error_message = (1, "提示", "没有更多聊天")
                 self.notifySignal.emit(error_message)
 
-            # 按照room顺序, 并发送拉取消息的请求
-            room_dict = {"type":"roommessage"}
-            room_dict["userid"] = share.User.userID
-            room_dict["size"]   = 50
-            for (room_id, last_time) in share.RoomOrderList:
-                room_dict["roomid"] = room_id
-                if len(share.RoomDict[room_id].msg) == 0:
-                    room_dict["lasttime"] = last_time  # 最后一条消息的时间
-                else:
-                    room_dict["lasttime"] = share.RoomDict[room_id].msg[0][2]  # 最老的一条消息的时间
-                # 发送消息给服务端
-                share.server.sendall(json.dumps(room_dict).encode())
+            # # 按照room顺序, 并发送拉取消息的请求
+            # room_dict = {"type":"roommessage"}
+            # room_dict["userid"] = share.User.userID
+            # room_dict["size"]   = 50
+            # for (room_id, last_time) in share.RoomOrderList:
+            #     room_dict["roomid"] = room_id
+            #     if len(share.RoomDict[room_id].msg) == 0:
+            #         room_dict["lasttime"] = last_time  # 最后一条消息的时间
+            #     else:
+            #         room_dict["lasttime"] = share.RoomDict[room_id].msg[0][2]  # 最老的一条消息的时间
+            #     # 发送消息给服务端
+            #     share.server.sendall(json.dumps(room_dict).encode())
         else:
             error_message = (0, "错误", "打开聊天界面失败")
             self.notifySignal.emit(error_message)
 
     def receiveRoomMessage(self, msg):
-        """接收某一房间中的50条消息"""
+        """接收某一房间中的n条消息 默认50"""
         if msg["result"] == True:
             room_id = msg["roomid"]
             tmp_mesages = msg["messages"]  # 从新消息到旧的顺序发来的
-            for item in tmp_mesages:
-                new_msg = (
-                    item["sender"], item["content"], item["sendtime"], item["msgtype"], item["msgid"])
-                share.RoomDict[room_id].msg.insert(0, new_msg)
+            if tmp_mesages != []:
+                for item in tmp_mesages:
+                    new_msg = (
+                        item["sender"], item["content"], item["sendtime"], item["msgtype"], item["msgid"])
+                    share.RoomDict[room_id].msg.insert(0, new_msg)
             else:
                 error_message = (1, "提示", "没有更多聊天信息")
                 self.notifySignal.emit(error_message)

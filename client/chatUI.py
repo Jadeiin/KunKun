@@ -44,6 +44,16 @@ class ChatUI(QWidget):
             index: 被点击聊天项在chatList当中的位置，可以直接用
         '''
         print("Item clicked. Index:", index)
+
+        if len(share.RoomDict[index].msg) == 0:
+            room_dict = {"type":"roommessage"}
+            room_dict["userid"] = share.User.userID
+            room_dict["size"]   = 50
+            room_dict["roomid"] = index
+            room_dict["lasttime"] = share.RoomDict[index].lastest_time  # loadroom 给出的时间
+            # 发送消息给服务端
+            share.server.sendall(json.dumps(room_dict).encode())
+
         self.viewChatRecord(index)
 
     def sendTextToServer(self):

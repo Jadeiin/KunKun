@@ -5,14 +5,16 @@
     "messages": [
         {
             "msgid": 3,
-            "sender": 2,
+            "userid": 2,
+            "username": "demo",
             "msgtype": 1,
             "content": "test",
             "sendtime": "2023-08-24T12:32:08.908557"
         },
         {
             "msgid": 2,
-            "sender": 1,
+            "userid": 1,
+            "username": "test",
             "msgtype": 1,
             "content": "test",
             "sendtime": "2023-08-24T12:12:08.908557"

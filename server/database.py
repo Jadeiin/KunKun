@@ -189,8 +189,9 @@ class Database:
             with self._connect() as conn:
                 result = conn.execute(
                     """
-                    SELECT MsgID, MsgSender, MsgType, MsgContent, MsgSendtime
-                    FROM Msg WHERE RoomID = ? AND MsgSendtime <= ?
+                    SELECT MsgID, MsgSender, UserName, MsgType, MsgContent, MsgSendtime
+                    FROM Msg JOIN User ON Msg.MsgSender = User.UserID
+                    WHERE RoomID = ? AND MsgSendtime <= ?
                     ORDER BY MsgSendtime DESC
                     LIMIT ?
                     """,
@@ -200,10 +201,11 @@ class Database:
             for row in result:
                 message = {
                     "msgid": row[0],
-                    "sender": row[1],
-                    "msgtype": row[2],
-                    "content": row[3],
-                    "sendtime": row[4]
+                    "userid": row[1],
+                    "username": row[2],
+                    "msgtype": row[3],
+                    "content": row[4],
+                    "sendtime": row[5]
                 }
                 room_messages.append(message)
             return room_messages
