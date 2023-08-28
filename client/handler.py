@@ -81,7 +81,7 @@ class ListenThread(QThread):
             new_room.room_name    = msg["roomname"]
             new_room.lastest_time = msg["createtime"]
             share.RoomDict[new_room.roomID] = new_room  # 并把房间放到房间字典中
-            share.RoomOrderList.insert(0, (new_room.roomID, new_room.lastest_time))  #
+            share.RoomOrderList.insert(0, new_room.roomID)  #
 
             # # 清空输入框的内容, 清空聊天记录框（不需要了）
             # share.chat_page.ui.msgTextEdit.clear()  # 清空输入框的内容
@@ -111,7 +111,7 @@ class ListenThread(QThread):
                     new_room.lastest_time = item["lasttime"]
                     last_message = item["content"]
                     share.RoomDict[new_room.roomID] = new_room  # 并把房间放到房间字典中
-                    share.RoomOrderList.insert(0, (new_room.roomID, new_room.lastest_time))  # 房间id放到房间列表
+                    share.RoomOrderList.insert(0, new_room.roomID)  # 房间id放到房间列表
                     avatar_path = "./graphSource/profPhoto.jpg"
                     share.chat_page.additemInChatList(avatar_path, new_room.roomID, last_message)
             else:

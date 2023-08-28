@@ -11,7 +11,7 @@ from public import share
 
 class usrInfoUI(QWidget):
 
-    def __init__(self, prof_path, usr_name, parent=None):
+    def __init__(self, prof_path, usr_name, usr_id, parent=None):
         super().__init__(parent)
         self.ui = uic.loadUi("./UIfiles/usrInfo.ui")
 
@@ -23,6 +23,7 @@ class usrInfoUI(QWidget):
         self.ui.usrName.setText("User Name: " + usr_name)
         
         # 设置usrID
+        self.ui.usrID.setText("ID: " + usr_id)
 
         # 点击关闭按钮后关闭窗口
         self.ui.closeWdBtn.clicked.connect(self.closeWindow)

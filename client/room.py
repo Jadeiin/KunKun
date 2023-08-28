@@ -8,3 +8,4 @@ class Room():
         self.memberID  = []
         self.msg     = []  # ("memberid","contents","sendtime")
         self.lastest_time = None
+        # (后续可以加重要程度)

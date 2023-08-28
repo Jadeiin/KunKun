@@ -21,5 +21,5 @@ class share:
     # 创建房间列表
     CurrentRoom   = room.Room()
     RoomDict      = {}       # 房间列表是一个字典，key=roomID, value=类的对象
-    RoomOrderList = []  # (roomid，time)(后续可以加重要程度)
+    RoomOrderList = []  # 存放roomid
     chat_list     = []  # 用于存储 ChatListItemWidget 实例的列表
