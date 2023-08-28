@@ -1,0 +1,13 @@
+{
+	"type": "delroom",
+	"result": true,
+	"userid": 1,
+	"roomid": 1
+}
+
+{
+	"type": "delroom",
+	"result": false,
+	"userid": 1,
+	"roomid": 1
+}

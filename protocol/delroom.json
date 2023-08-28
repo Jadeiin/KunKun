@@ -1,5 +1,5 @@
 {
-	"type": "leaveroom",
+	"type": "delroom",
 	"userid": 1,
 	"roomid": 1
 }

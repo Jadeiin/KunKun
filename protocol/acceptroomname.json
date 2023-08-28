@@ -1,0 +1,7 @@
+{
+	"type": "acceptroomname",
+	"result": true,
+	"userid": 1,
+	"roomid": 1,
+	"roomname": "test"
+}

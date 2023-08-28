@@ -1,0 +1,15 @@
+{
+	"type": "onlineusers",
+	"onlineusers": [
+		{
+			"userid": 1,
+			"username": "test",
+			"conn": "127.0.0.1:43601"
+		},
+		{
+			"userid": 2,
+			"username": "demo",
+			"conn": "127.0.0.1:43602"
+		},
+	]
+}
