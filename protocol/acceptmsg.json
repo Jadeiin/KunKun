@@ -3,6 +3,7 @@
 	"result": true,
 	"msgid": 1,
 	"userid": 1,
+	"username": "test",
 	"roomid": 1,
     "msgtype": 1,
 	"content": "test message.",
@@ -14,6 +15,7 @@
 	"result": true,
 	"msgid": 2,
 	"userid": 1,
+	"username": "test",
 	"roomid": 1,
     "msgtype": 2,
 	"content": "test.png", // FTP "2_test.png"

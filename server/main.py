@@ -17,6 +17,7 @@ port = 7979
 def signal_handler(signal, frame):
     # Add SIGINT handler for killing the threads
     logging.info("Caught Ctrl+C, shutting down...")
+    fileserver.close_all()
     server.close()
     sys.exit()
 
@@ -30,7 +31,7 @@ if __name__ == "__main__":
     logging.info("Listen at %s:%d", host, port)
     logging.info("Server started...")
 
-    # signal.signal(signal.SIGINT, signal_handler)
+    signal.signal(signal.SIGINT, signal_handler)
 
     # authorizer.adduser("PP", "PP", "files/", perm="radfwMT")
     FTPhandler = FTPHandler

@@ -24,6 +24,7 @@ class Database:
     """
 
     def insert_user(self, user_name: str, user_pwd_sha1: str):
+        """插入注册用户"""
         try:
             with self._connect() as conn:
                 cursor = conn.cursor()
@@ -39,6 +40,7 @@ class Database:
             return None
 
     def insert_room(self, room_name: str, create_time: str):
+        """插入创建房间"""
         try:
             with self._connect() as conn:
                 cursor = conn.cursor()
@@ -54,6 +56,7 @@ class Database:
             return None
 
     def insert_room_admins(self, room_id: int, user_ids: set):
+        """插入房间管理员"""
         try:
             with self._connect() as conn:
                 conn.executemany("""
@@ -67,6 +70,7 @@ class Database:
             return False
 
     def insert_room_members(self, room_id: int, user_ids: set):
+        """插入房间成员"""
         try:
             with self._connect() as conn:
                 conn.executemany("""
@@ -80,6 +84,7 @@ class Database:
             return False
 
     def insert_message(self, sender_id: int, room_id: int, content: str, msgtype: int, send_time: str):
+        """插入消息"""
         try:
             with self._connect() as conn:
                 cursor = conn.cursor()
@@ -98,7 +103,25 @@ class Database:
     query part
     """
 
+    def query_user_name(self, user_id: int):
+        """查询用户名"""
+        try:
+            with self._connect() as conn:
+                user_name = conn.execute("""
+                    SELECT UserName FROM User
+                    WHERE UserID = ?
+                    """, (user_id,)
+                ).fetchone()
+            if user_name:
+                return user_name[0]
+            else:
+                return None
+        except sqlite3.Error as e:
+            logging.error("Error query user name: %s", e)
+            return None
+
     def query_user_login(self, user_name: str, user_pwd_sha1: str):
+        """检测用户登录"""
         try:
             with self._connect() as conn:
                 user_id = conn.execute("""
@@ -115,30 +138,33 @@ class Database:
             return None
 
     def query_room_members(self, room_id: int):
+        """查询房间成员"""
         try:
             with self._connect() as conn:
                 room_members = conn.execute(
                     "SELECT UserID FROM RoomMember WHERE RoomID = ?",
                     (room_id,)
                 ).fetchall()
-            return set(item[0] for item in room_members)
+            return [(item[0] for item in room_members)]
         except sqlite3.Error as e:
             logging.error("Error query room members: %s", e)
             return None
 
     def query_room_admins(self, room_id: int):
+        """查询房间管理员"""
         try:
             with self._connect() as conn:
                 room_admins = conn.execute(
                     "SELECT UserID FROM RoomAdmin WHERE RoomID = ?",
                     (room_id,)
                 ).fetchall()
-            return set(item[0] for item in room_admins)
+            return [(item[0] for item in room_admins)]
         except sqlite3.Error as e:
             logging.error("Error query room admins: %s", e)
             return None
 
     def query_user_rooms(self, user_id: int):
+        """查询用户所在房间"""
         try:
             with self._connect() as conn:
                 result = conn.execute("""
@@ -168,7 +194,7 @@ class Database:
                     ORDER BY LastMsgSendtime DESC;
                     """, (user_id,)
                 ).fetchall()
-                # return set(item[0] for item in user_rooms)
+                # return [item[0] for item in user_rooms]
             user_rooms = []
             for row in result:
                 room = {
@@ -185,17 +211,16 @@ class Database:
             return None
 
     def query_room_messages(self, room_id: int, size: int, lasttime: str):
+        """查询房间最近消息"""
         try:
             with self._connect() as conn:
-                result = conn.execute(
-                    """
+                result = conn.execute("""
                     SELECT MsgID, MsgSender, UserName, MsgType, MsgContent, MsgSendtime
                     FROM Msg JOIN User ON Msg.MsgSender = User.UserID
                     WHERE RoomID = ? AND MsgSendtime <= ?
                     ORDER BY MsgSendtime DESC
                     LIMIT ?
-                    """,
-                    (room_id, lasttime, size)
+                    """, (room_id, lasttime, size)
                 ).fetchall()
             room_messages = []
             for row in result:
@@ -212,8 +237,6 @@ class Database:
         except sqlite3.Error as e:
             logging.error("Error query room messages: %s", e)
             return None
-
-    # def query_user_id
 
     """
     delete part
