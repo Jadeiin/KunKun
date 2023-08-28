@@ -296,7 +296,7 @@ class ChatUI(QWidget):
         # for avatar_path, usr_name in enumerate(): # 从客户端读过来
         # self.additemInChatList(avatar_path, usr_name)
 
-    def additemInChatList(self, avatar_path, roomid, recent_msg):
+    def additemInChatList(self, avatar_path, roomid, recent_msg, index=0):
         '''向聊天列表中间加入新的item'''
 
         name = share.RoomDict[roomid].room_name
@@ -311,7 +311,7 @@ class ChatUI(QWidget):
         list_item = QListWidgetItem()
         list_item.setSizeHint(chat_widget.sizeHint())
 
-        self.ui.chatList.insertItem(0, list_item)
+        self.ui.chatList.insertItem(index, list_item)
         # 向chatList中加入一个新的item：chat_widget
         self.ui.chatList.setItemWidget(list_item, chat_widget)
 
