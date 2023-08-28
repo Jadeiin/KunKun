@@ -4,6 +4,7 @@ class User():
     def __init__(self):
         self.userID = 0  # defultID = 0
         self.name = ""  # defalut blank
+        self.pwd_hash = ""
         self.avatar = None
 
     def checkAccount(self):

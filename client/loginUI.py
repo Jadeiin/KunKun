@@ -33,18 +33,18 @@ class LoginUI(QWidget):
         self.ui.regBtn.clicked.connect(self.goToRegister)  # 点击注册按钮
         self.ui.findPwdBtn.clicked.connect(self.goToFindPwd)  # 点击忘记密码按钮
 
-    def login(self):
+    def login(self) :
         # dictionary
-        self.login_dict = {"type": "login"}
-        self.login_dict["username"] = self.ui.usrLoginLineEdit.text()
-        self.login_dict["userpwdhash"] = sha1(
+        login_dict = {"type": "login"}
+        login_dict["username"] = share.User.name = self.ui.usrLoginLineEdit.text()
+        login_dict["userpwdhash"] = share.User.pwd_hash = sha1(
             self.ui.pwdLoginLineEdit.text().encode()).hexdigest()
         # assignment
-        name = self.login_dict["username"]
-        print(self.login_dict)
+        name = login_dict["username"]
+        print(login_dict)
         # send
-        self.login_msg = json.dumps(self.login_dict)
-        share.server.sendall(self.login_msg.encode())
+        login_msg = json.dumps(login_dict)
+        share.server.sendall(login_msg.encode())
 
     def goToRegister(self):
         share.reg_page = Register()
