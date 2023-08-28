@@ -11,8 +11,5 @@
 	"userid": 2,
 	"roomid": 1,
     "msgtype": 2,
-	"content": {
-        "filename": "test.png",
-        "sha1": "c7cbd36c677f2f5646b3952035deabf244c71e21"
-    }
+	"content": "test.pngc7cbd36c677f2f5646b3952035deabf244c71e21"
 }

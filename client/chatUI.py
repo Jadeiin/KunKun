@@ -103,10 +103,8 @@ class ChatUI(QWidget):
             # FTP 上传文件
             self.sendFile(file_path, file_sha1.hexdigest())
             file_msg_dict = {"type": "sendmsg", "msgtype": 2}
-            file_msg_dict["content"] = {
-                "filename": Path(file_path).name,
-                "sha1": file_sha1.hexdigest()
-            }
+            file_msg_dict["content"] = Path(
+                file_path).name + file_sha1.hexdigest()  # sha1 40c
             file_msg_dict["userid"] = share.User.userID  # 再调整
             file_msg_dict["roomid"] = share.CurrentRoom.roomID  # 再调整
 
@@ -160,7 +158,7 @@ class ChatUI(QWidget):
         ftp = FTP()
         ftp.connect(share.addr, share.port+1)
         ftp.login(share.User.name, share.User.pwd_hash)
-        with open(file_name, "wb") as fp:
+        with open("files/" + file_name, "wb") as fp:
             ftp.retrbinary("RETR " + file_sha1, fp.write)
         ftp.quit()
 

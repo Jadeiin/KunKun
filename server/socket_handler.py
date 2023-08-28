@@ -75,7 +75,7 @@ def create_room(data):
             return {
                 "type": "accpetroom",
                 "result": False
-            }, {users[admin_ids]}
+            }, {users.get(item) for item in admin_ids if item in users}
         else:
             logging.info("Client room creation successed")
             return {
@@ -95,8 +95,8 @@ def send_msg(data):
     global users
     user_id = data["userid"]
     room_id = data["roomid"]
-    content = data["content"]
     msgtype = data["msgtype"]
+    content = data["content"]
     sendtime = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
     msg_id = db.insert_message(user_id, room_id, content, msgtype, sendtime)
     with lock:
@@ -115,8 +115,8 @@ def send_msg(data):
                 "userid": user_id,
                 "username": db.query_user_name(user_id),
                 "roomid": room_id,
-                "content": content,
                 "msgtype": msgtype,
+                "content": content,
                 "sendtime": sendtime
             }, {users.get(item) for item in db.query_room_members(room_id) if item in users}
 
