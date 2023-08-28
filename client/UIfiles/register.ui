@@ -48,6 +48,9 @@
      <height>21</height>
     </rect>
    </property>
+   <property name="echoMode">
+    <enum>QLineEdit::Password</enum>
+   </property>
    <property name="placeholderText">
     <string>密码</string>
    </property>
@@ -105,6 +108,9 @@
      <width>201</width>
      <height>21</height>
     </rect>
+   </property>
+   <property name="echoMode">
+    <enum>QLineEdit::Password</enum>
    </property>
    <property name="placeholderText">
     <string>确认密码</string>

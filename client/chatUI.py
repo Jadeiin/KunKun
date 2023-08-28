@@ -2,7 +2,7 @@ import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox, QSpacerItem, QFileDialog
 from PyQt5.QtWidgets import QMainWindow, QListWidget, QListWidgetItem, QHBoxLayout, QVBoxLayout, QLabel, QSizePolicy
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtCore import pyqtSignal, QPoint
+from PyQt5.QtCore import pyqtSignal, QPoint, QTimer
 from PyQt5 import QtCore, QtGui
 from PyQt5 import uic
 import json
@@ -57,6 +57,8 @@ class ChatUI(QWidget):
 
         # 显示聊天室管理界面
         self.ui.manageRoom.mousePressEvent = self.showManageRoom
+
+
 
     def showUsrInfo(self, event):
         share.usr_info_page = usrInfoUI(

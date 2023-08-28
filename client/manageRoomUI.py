@@ -7,6 +7,9 @@ from hashlib import sha1
 import json
 
 from memberListItem import MemberListItemWidget
+from usrInfoUI import usrInfoUI
+from public import share
+
 
 class manageRoomUI(QWidget):
     def __init__(self):
@@ -18,7 +21,8 @@ class manageRoomUI(QWidget):
         self.ui.delBtn.clicked.connect(self.test)  # 点击删除成员按钮
 
     def test(self):
-        print("111")
+        # 后面可以删掉
+        print("Button clicked")
 
     def loadMemberlist(self):
         '''
@@ -48,10 +52,19 @@ class manageRoomUI(QWidget):
     
     def handleItemClicked(self, index):
         '''
-        聊天项被点击时执行该函数
+        显示被点击成员的信息
         '''
         print("Item clicked. Index:", index)
-        self.viewChatRecord(index)
+        usrprof = "./graphSource/profPhoto.jpg"
+        usrname = "test"
+        usrID = "1231231231"
+        share.usr_info_page = usrInfoUI(prof_path=usrprof, usr_name=usrname, usr_id=usrID)
+        # 保证新窗口打开位置在原窗口中心
+        global_pos = self.ui.mapToGlobal(QPoint(0, 0))  # Parent widget's global position
+        x = global_pos.x() + 35  # x coordinate
+        y = global_pos.y() + 35  # y coordinate
+        share.usr_info_page.ui.move(x, y)  # Move the window
+        share.usr_info_page.ui.show()
     
 
 
