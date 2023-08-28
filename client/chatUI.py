@@ -163,9 +163,12 @@ class ChatUI(QWidget):
 
         # UI中列表移动或改变
         avatar_path = "./graphSource/profPhoto.jpg"  # Replace with actual path
+        print(share.chat_list)
         self.deletItemInChatList(msg_room_id)  # 删除当前item
+        # print(share.chat_list)
         self.additemInChatList(avatar_path, msg_room_id,
                                msg_content)  # 重新在顶部插入item
+        # print(share.chat_list)
 
         # 在room里面追加message
         if msg["userid"] == share.User.userID:  # 自己方向的气泡框，后期加效果
@@ -193,9 +196,12 @@ class ChatUI(QWidget):
 
         # UI中列表移动或改变
         avatar_path = "./graphSource/profPhoto.jpg"  # Replace with actual path
+        # print(share.chat_list)
         self.deletItemInChatList(msg_room_id)  # 删除当前item
+        # print(share.chat_list)
         self.additemInChatList(avatar_path, msg_room_id,
                                msg_content)  # 重新在顶部插入item
+        # print(share.chat_list)
 
         # 加小红点
         QMessageBox.information(self, "未读消息", "111")  # 后面改成标柱红点
@@ -215,7 +221,7 @@ class ChatUI(QWidget):
             ) if recent_msg is not None else ""
         chat_widget = ChatListItemWidget(
             avatar_path, name, recent_msg, roomid)  # 一个新的聊天好友列表的框
-        share.chat_list.append(chat_widget)
+        share.chat_list.insert(0, chat_widget)
 
         list_item = QListWidgetItem()
         list_item.setSizeHint(chat_widget.sizeHint())
