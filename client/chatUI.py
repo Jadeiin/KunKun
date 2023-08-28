@@ -58,17 +58,17 @@ class ChatUI(QWidget):
 
     def sendTextToServer(self):
         # dictionary
-        self.message_info = self.ui.msgTextEdit.toPlainText()
-        self.text_msg_dict = {"type": "sendmsg", "msgtype": 1}
-        self.text_msg_dict["content"] = self.message_info
-        self.text_msg_dict["userid"] = share.User.userID  # 再调整
-        self.text_msg_dict["roomid"] = share.CurrentRoom.roomID  # 再调整
+        message_info = self.ui.msgTextEdit.toPlainText()
+        text_msg_dict = {"type": "sendmsg", "msgtype": 1}
+        text_msg_dict["content"] = message_info
+        text_msg_dict["userid"] = share.User.userID  # 再调整
+        text_msg_dict["roomid"] = share.CurrentRoom.roomID  # 再调整
 
         self.ui.msgTextEdit.clear()  # 清空输入框的内容
 
         # send
-        self.text_msg = json.dumps(self.text_msg_dict)
-        share.server.sendall(self.text_msg.encode())
+        text_msg = json.dumps(text_msg_dict)
+        share.server.sendall(text_msg.encode())
 
     def sendDoc(self):
         pass
@@ -92,29 +92,34 @@ class ChatUI(QWidget):
     def createGroup(self):
         """add friends and create group"""
         # dictionary
-        self.create_group_dict = {"type": "createroom"}
-        self.create_group_dict["adminid"] = [share.User.userID]
+        create_group_dict = {"type": "createroom"}
+        create_group_dict["adminid"] = [share.User.userID]
         # 以后还得修改，判断群聊中的人数
-        self.create_group_dict["memberid"] = [
+        create_group_dict["memberid"] = [
             int(x) for x in self.ui.createGroupLineEdit.text().split()]
-        self.create_group_dict["roomname"] = "群聊"
-        # self.create_group_dict["roomname"] = groupNameLineEdit.toPlainText().encode("utf-8")
+        if share.User.userID not in create_group_dict["memberid"]:
+            create_group_dict["memberid"].append(share.User.userID)
+
+        create_group_dict["roomname"] = "群聊"
+        # create_group_dict["roomname"] = groupNameLineEdit.toPlainText().encode("utf-8")
         # send
-        self.create_group = json.dumps(self.create_group_dict)
-        share.server.sendall(self.create_group.encode())
+        create_group = json.dumps(create_group_dict)
+        share.server.sendall(create_group.encode())
 
     def addFriend(self):
         # dictinary
-        self.add_friend_dict = {"type": "createroom"}
-        self.add_friend_dict["adminid"] = [share.User.userID]
-        self.add_friend_dict["memberid"] = [
+        add_friend_dict = {"type": "createroom"}
+        add_friend_dict["adminid"] = [share.User.userID]
+        add_friend_dict["memberid"] = [
             int(x) for x in self.ui.addFriendLineEdit.text().split()]
-        self.add_friend_dict["roomname"] = ""
+        if share.User.userID not in add_friend_dict["memberid"]:
+            add_friend_dict["memberid"].append(share.User.userID)
+        add_friend_dict["roomname"] = ""
 
-        print(self.add_friend_dict)
+        print(add_friend_dict)
         # send
-        self.add_friend = json.dumps(self.add_friend_dict)
-        share.server.sendall(self.add_friend.encode())
+        add_friend = json.dumps(add_friend_dict)
+        share.server.sendall(add_friend.encode())
         # 弹出新的聊天界面
 
     def viewChatRecord(self, room_id):
