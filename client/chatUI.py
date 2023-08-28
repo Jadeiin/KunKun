@@ -210,8 +210,9 @@ class ChatUI(QWidget):
 
         name = share.RoomDict[roomid].room_name
         # 防止文字过多只选前10个字
-        recent_msg = recent_msg[:10] + \
+        recent_msg = (recent_msg[:10] +
             "..." if len(recent_msg) > 10 else recent_msg
+            ) if recent_msg is None else ""
         chat_widget = ChatListItemWidget(
             avatar_path, name, recent_msg, roomid)  # 一个新的聊天好友列表的框
         share.chat_list.append(chat_widget)
