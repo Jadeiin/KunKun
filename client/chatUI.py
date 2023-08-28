@@ -94,18 +94,18 @@ class ChatUI(QWidget):
         if file_path:
             print("Selected file:", file_path)
             with open(file_path, "rb") as fp:
-                sha1 = sha1()
+                file_sha1 = sha1()
                 while True:
                     data = fp.read()
                     if not data:
                         break
-                    sha1.update(data)
+                    file_sha1.update(data)
             # FTP 上传文件
-            self.sendFile(file_path, sha1.hexdigest())
+            self.sendFile(file_path, file_sha1.hexdigest())
             file_msg_dict = {"type": "sendmsg", "msgtype": 2}
             file_msg_dict["content"] = {
                 "filename": Path(file_path).name,
-                "sha1": sha1.hexdigest()
+                "sha1": file_sha1.hexdigest()
             }
             file_msg_dict["userid"] = share.User.userID  # 再调整
             file_msg_dict["roomid"] = share.CurrentRoom.roomID  # 再调整
