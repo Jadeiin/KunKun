@@ -39,6 +39,16 @@ class ListenThread(QThread):
             self.receiveRoomList(msg)
         elif msg["type"] == "acceptroommessage":  # 收到n条聊天消息
             self.receiveRoomMessage(msg)
+        elif msg["type"] == "acceptexitgroup":  # 主动退出群聊
+            self.acceptExitGroup(msg)
+        elif msg["type"] == "acceptkickgroup": # 被踢出群聊
+            self.acceptKickGroup(msg)
+        elif msg["type"] == "acceptmemberchange": # 群组人员变动
+            self.acceptMemberChange(msg)
+        elif msg["type"] == "acceptadminquit": # 管理员解散群聊
+            self.acceptAdminQuit(msg)
+        elif msg["type"] == "acceptchangeroomname":
+            self.acceptChangeRoomName(msg)
         else:
             logging.error("Accept message type error!")
 
@@ -150,6 +160,68 @@ class ListenThread(QThread):
         else:
             error_message = (0, "错误", "获取聊天消息失败")
             self.notifySignal.emit(error_message)
+            
+    def acceptChangeRoomName(self, msg):
+        if msg["result"] == True:
+            room_id  = msg["roomid"]
+            new_name = msg["newname"]
+            share.RoomDict[room_id].room_name
+            # 聊天项名字改变
+            room_index = share.RoomOrderList.index(room_id)
+            avater = share.RoomDict[room_id].avater
+            recent_msg = share.RoomDict[room_id].msg[-1][1] \
+                if len(share.RoomDict[room_id].msg) !=0 else ""
+            share.chat_page.deletItemInChatList(room_id)
+            share.chat_page.additemInChatList(avater, room_id, recent_msg, room_index)
+            # 聊天框名字改变
+            if room_id == share.CurrentRoom.roomID:
+                share.CurrentRoom.room_name = new_name
+                share.chat_page.ui.chatName.setText(new_name)
+    
+    # 主动退出群聊
+    def acceptExitGroup(self, msg):
+        if msg["result"] == True:
+            delet_roomid = msg["roomid"]
+            share.chat_page.deletItemInChatList(delet_roomid)
+            share.RoomOrderList.remove(delet_roomid)          
+            notice_message = (1,"提示", "已退出群聊"+share.RoomDict[delet_roomid].room_name)
+            self.notifySignal.emit(notice_message)
+            del share.RoomDict[delet_roomid]
+        else:
+            error_message = (0, "错误", "删除聊天失败")
+            self.notifySignal.emit(error_message)
+    
+    # 被踢出群聊
+    def acceptKickGroup(self, msg):
+        if msg["result"] == True:
+            delet_roomid = msg["roomid"]
+            share.chat_page.deletItemInChatList(delet_roomid)
+            share.RoomOrderList.remove(delet_roomid)          
+            notice_message = (1,"提示", "已被移出群聊"+share.RoomDict[delet_roomid].room_name)
+            self.notifySignal.emit(notice_message)
+            del share.RoomDict[delet_roomid]
+        else:
+            pass
+
+    # 群内其他成员变动
+    def acceptMemberChange(self, msg):
+        if msg["result"] == True:
+            if msg["change"] == 0:
+                share.RoomDict[msg["roomid"]].memberID.remove(msg["memberid"])
+            elif msg["change"] == 1:
+                share.RoomDict[msg["roomid"]].memberID.append(msg["memberid"]) 
+
+    # 管理员解散群聊
+    def acceptAdminQuit(self, msg):
+        if msg["result"] == True:
+            delet_roomid = msg["roomid"]
+            share.chat_page.deletItemInChatList(delet_roomid)
+            share.RoomOrderList.remove(delet_roomid)
+            notice_message = (1,"提示", "已被移出群聊"+share.RoomDict[delet_roomid].room_name)
+            self.notifySignal.emit(notice_message)
+            del share.RoomDict[delet_roomid]
+        else:
+            pass
 
 
 # 创建 QApplication 实例和 QMainWindow 实例等代码...

@@ -351,6 +351,39 @@ class ChatUI(QWidget):
             # self.scrolledToTop.emit()  # 发射信号
             print("Scrolled to the top!")
             # load more chat records
+            
+    def showGroupMemberInfo(self, user_id):
+        user_name = share.AllUsersDict[user_id].name
+        # user_avater = share.AllUsersDict[user_id].avatar
+        # 将参数传入显示函数
+
+    def changeRoomName(self, room_id, new_name):
+        change_name_dict = {"type":"changeroomname"}
+        change_name_dict["roomid"]  = room_id
+        change_name_dict["newname"] = new_name
+        share.server.sendall(json.dumps(change_name_dict).encode())
+
+    def exitGroup(self): # 主动退出群聊
+        ExitGroup = {"type":"exitgroup"}
+        ExitGroup["roomid"] = share.CurrentRoom.roomID
+        ExitGroup["userid"] = share.User.userID
+        exit_group = json.dumps(ExitGroup)
+        share.server.sendall(exit_group.encode())
+
+    def adminQuit(self): #管理员退出群聊
+        AdminQuit = {"type": "adminquit"}
+        AdminQuit["userid"] = share.User.userID
+        AdminQuit["roomid"] = share.CurrentRoom.roomID
+        admin_quit = json.dumps(AdminQuit)
+        share.server.sendall(admin_quit.encode())
+
+    def memberChange(self, change): #管理员增删群成员
+        MemberChange = {"type": "memberchange"}
+        MemberChange["userid"] = share.User.userID
+        MemberChange["roomid"] = share.CurrentRoom.roomID
+        MemberChange["change"] = change
+        member_change = json.dumps(MemberChange)
+        share.server.sendall(member_change.encode())
 
 
 if __name__ == "__main__":
