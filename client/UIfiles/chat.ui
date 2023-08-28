@@ -19,7 +19,7 @@
      <x>350</x>
      <y>410</y>
      <width>541</width>
-     <height>151</height>
+     <height>152</height>
     </rect>
    </property>
   </widget>
@@ -40,7 +40,7 @@
    <property name="geometry">
     <rect>
      <x>350</x>
-     <y>61</y>
+     <y>60</y>
      <width>541</width>
      <height>311</height>
     </rect>
@@ -50,13 +50,22 @@
    <property name="geometry">
     <rect>
      <x>380</x>
-     <y>20</y>
+     <y>19</y>
      <width>58</width>
      <height>16</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <family>Heiti SC</family>
+     <pointsize>15</pointsize>
+    </font>
+   </property>
    <property name="text">
     <string>Name</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
    </property>
   </widget>
   <widget class="Line" name="line">
@@ -97,6 +106,9 @@
    <property name="text">
     <string>文件</string>
    </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
   </widget>
   <widget class="QLabel" name="sticker">
    <property name="geometry">
@@ -109,6 +121,9 @@
    </property>
    <property name="text">
     <string>表情</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
    </property>
   </widget>
   <widget class="QWidget" name="layoutWidget">
@@ -156,41 +171,69 @@
     <bool>true</bool>
    </property>
   </widget>
-  <widget class="QPushButton" name="addFriendBtn">
-   <property name="geometry">
-    <rect>
-     <x>300</x>
-     <y>26</y>
-     <width>39</width>
-     <height>32</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>+</string>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="addFriendLineEdit">
-   <property name="geometry">
-    <rect>
-     <x>80</x>
-     <y>30</y>
-     <width>212</width>
-     <height>21</height>
-    </rect>
-   </property>
-   <property name="placeholderText">
-    <string>添加好友</string>
-   </property>
-  </widget>
   <widget class="QListWidget" name="chatList">
    <property name="geometry">
     <rect>
      <x>70</x>
      <y>60</y>
      <width>281</width>
-     <height>501</height>
+     <height>502</height>
     </rect>
    </property>
+   <property name="minimumSize">
+    <size>
+     <width>281</width>
+     <height>0</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>281</width>
+     <height>16777215</height>
+    </size>
+   </property>
+  </widget>
+  <widget class="QLabel" name="manageRoom">
+   <property name="geometry">
+    <rect>
+     <x>830</x>
+     <y>15</y>
+     <width>41</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; font-weight:700;&quot;&gt;···&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+   <property name="alignment">
+    <set>Qt::AlignCenter</set>
+   </property>
+  </widget>
+  <widget class="QWidget" name="">
+   <property name="geometry">
+    <rect>
+     <x>80</x>
+     <y>30</y>
+     <width>261</width>
+     <height>33</height>
+    </rect>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout_2">
+    <item>
+     <widget class="QLineEdit" name="addFriendLineEdit">
+      <property name="placeholderText">
+       <string>添加好友</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="addFriendBtn">
+      <property name="text">
+       <string>+</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
   </widget>
  </widget>
  <resources/>

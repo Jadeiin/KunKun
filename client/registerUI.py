@@ -2,6 +2,7 @@
 import sys
 from PyQt5 import uic
 from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox
+from PyQt5.QtCore import QPoint
 from hashlib import sha1
 import json
 
@@ -39,6 +40,12 @@ class Register(QWidget):
             QMessageBox.warning(None, "错误", "密码不一致")
 
     def goToLogin(self):
+        share.login_page.ui.show()
+        # 保证新窗口打开位置在原窗口中心
+        global_pos = self.ui.mapToGlobal(QPoint(0, 0))  # Parent widget's global position
+        x = global_pos.x() + (self.ui.width() - share.login_page.ui.width()) // 2  # x coordinate
+        y = global_pos.y() + (self.ui.height() - share.login_page.ui.height()) // 2  # y coordinate
+        share.login_page.ui.move(x, y)  # Move the window
         share.login_page.ui.show()
         self.ui.close()
 

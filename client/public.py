@@ -6,6 +6,8 @@ class share:
     login_page = None
     reg_page = None
     chat_page = None
+    manage_room_page = None
+    usr_info_page = None
     server = None
 
     # 创建用户

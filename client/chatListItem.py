@@ -7,6 +7,8 @@ from PyQt5 import uic
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sys
 
+from public import share
+
 class ChatListItemWidget(QWidget):
 
     itemClicked = pyqtSignal(int)  # 自定义信号，用于发出项被点击的信号
@@ -84,6 +86,8 @@ class ChatListItemWidget(QWidget):
             # 手动触发项点击信号，同时发送项的 roomID
             self.itemClicked.emit(self.roomid)
 
+            for item in share.chat_list:
+                item.setStyleSheet("QWidget{background-color: rgb(245, 245, 245)}") # 先把别的颜色都变浅
             # 点击后item背景颜色变深，实现点击效果
             self.setStyleSheet("QWidget{background-color: rgb(220, 220, 220)}") # rgb后面三个数字可以更改颜色
 

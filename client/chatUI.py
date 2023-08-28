@@ -1,9 +1,9 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox, QSpacerItem
+from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox, QSpacerItem, QFileDialog
 from PyQt5.QtWidgets import QMainWindow, QListWidget, QListWidgetItem, QHBoxLayout, QVBoxLayout, QLabel, QSizePolicy
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtCore import pyqtSignal
-from PyQt5 import QtCore
+from PyQt5.QtCore import pyqtSignal, QPoint
+from PyQt5 import QtCore, QtGui
 from PyQt5 import uic
 import json
 import random
@@ -13,30 +13,80 @@ from public import share
 from chatListItem import ChatListItemWidget
 from datetime import datetime
 import room
-
+from manageRoomUI import manageRoomUI
+from usrInfoUI import usrInfoUI
 
 class ChatUI(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
-        # self.ui = uic.loadUi("/Users/mac/tyx/xiao/BIT/junior-1/z_summer_course/IM/PP/client/UIfiles/chat.ui")
         self.ui = uic.loadUi("./UIfiles/chat.ui")
 
         # init
+        # 用户头像加载
+        self.usr_prof_photo_path = "./graphSource/profPhoto1.jpg" # 需要从服务端获得头像路径
+        self.ui.usrProfPhoto.setPixmap(QtGui.QPixmap(self.usr_prof_photo_path))
+        self.ui.usrProfPhoto.setScaledContents(True)
+        # 加载用户信息
+        self.usr_name = "test"
 
-        # 点击好友选择聊天，重新加载聊天记录
-        self.ui.chattingRecordBrowser.verticalScrollBar(
-        ).valueChanged.connect(self.chatRecordScrolledToTop)
+
+        
+        # 显示更多聊天记录
+        self.ui.chattingRecordBrowser.verticalScrollBar().valueChanged.connect(self.chatRecordScrolledToTop)
 
         # 输入框发送文字
         self.ui.sendMsgBtn.clicked.connect(self.sendTextToServer)
-
-        # self.ui.addFriendBtn.clicked.connect(lambda: self.additemInChatList(random.choice([avatar_path,avatar_path2]), name, recent_msg)) # 使用 lambda 表达式来正确地连接信号和槽
+    
+        # 加好友/创建群聊的按钮
         self.ui.addFriendBtn.clicked.connect(self.addFriend)
         self.ui.createGroupBtn.clicked.connect(self.createGroup)
-
+        
+        # 点击好友选择聊天，重新加载聊天记录
         self.connected_items = []  # 用于存储已连接的项的列表
         self.connectAllItems()  # 聊天列表监听鼠标点击情况，初始化时连接所有聊天项
 
+        # 点用户头像显示信息
+        self.ui.usrProfPhoto.mousePressEvent = self.showUsrInfo
+
+        # 发送文件功能
+        self.ui.file.mousePressEvent = self.sendFileLabelClicked # 获取 QLabel 对象，连接 QLabel 的点击事件到另一个函数
+
+        # 显示聊天室管理界面
+        self.ui.manageRoom.mousePressEvent = self.showManageRoom
+
+    def showUsrInfo(self,event):
+        share.usr_info_page = usrInfoUI(self.usr_prof_photo_path, self.usr_name)
+        # 保证新窗口打开位置在原窗口中心
+        global_pos = self.ui.mapToGlobal(QPoint(0, 0))  # Parent widget's global position
+        x = global_pos.x() + 25  # x coordinate
+        y = global_pos.y() + 60  # y coordinate
+        share.usr_info_page.ui.move(x, y)  # Move the window
+        share.usr_info_page.ui.show()
+    
+    def showManageRoom(self,event): # event不可省略
+        '''
+        显示管理聊天室的窗口
+        '''
+        share.manage_room_page = manageRoomUI()
+        # 保证新窗口打开位置在原窗口中心
+        global_pos = self.ui.mapToGlobal(QPoint(0, 0))  # Parent widget's global position
+        x = global_pos.x() + (self.ui.width() - share.manage_room_page.ui.width()) // 2  # x coordinate
+        y = global_pos.y() + (self.ui.height() - share.manage_room_page.ui.height()) // 2  # y coordinate
+        share.manage_room_page.ui.move(x, y)  # Move the window
+        share.manage_room_page.ui.show()
+        
+
+
+    
+    def sendFileLabelClicked(self, event):
+        '''
+        这里执行file点击事件的处理函数
+        可以在这里调用另一个函数或者执行其他操作
+        '''
+        file_path, _ = QFileDialog.getOpenFileName(self, "Select a File", "", "All Files (*)")
+        if file_path:
+            print("Selected file:", file_path)
+    
     def handleItemClicked(self, index):
         '''
         聊天项被点击时执行该函数
@@ -55,7 +105,7 @@ class ChatUI(QWidget):
             share.server.sendall(json.dumps(room_dict).encode())
 
         self.viewChatRecord(index)
-
+    
     def sendTextToServer(self):
         # dictionary
         message_info = self.ui.msgTextEdit.toPlainText()
@@ -139,13 +189,13 @@ class ChatUI(QWidget):
             self.ui.chattingRecordBrowser.append(
                 str(item[0]) + ":" + str(item[1]))  # 聊天记录框显示文字 # 可以加时间
             self.ui.chattingRecordBrowser.ensureCursorVisible()  # 自动翻滚到最后一行
-
+        
     def sendChatMsg(self, msg):
         """
         调用: 当自己发消息成功(acceptMsg)或接收到别人的消息(sendmsg)时调用该函数
         功能: 发msg, 消息列表上升, 聊天框追加
         """
-        # 更新room list
+        # 更新room list      
         # if 不在消息列表的最顶端：
         if share.CurrentRoom.roomID != share.RoomOrderList[0][0]:
             # 将最新的room移动到最顶端
@@ -248,6 +298,7 @@ class ChatUI(QWidget):
         # 如果需要，清理该项的资源
         item_to_remove = None
 
+        
     def connectAllItems(self):
         '''初始化连接所有聊天项'''
         for chat_widget in share.chat_list:
@@ -255,7 +306,6 @@ class ChatUI(QWidget):
 
     def connectItemClicked(self, chat_widget):
         '''新建聊天项时，将新的聊天项加入监听列表，且和鼠标点击判断建立连接'''
-
         print("monitoring mouse press...")
         if chat_widget not in self.connected_items:
             chat_widget.itemClicked.connect(self.handleItemClicked)
@@ -267,7 +317,6 @@ class ChatUI(QWidget):
             # self.scrolledToTop.emit()  # 发射信号
             print("Scrolled to the top!")
             # load more chat records
-
 
 if __name__ == "__main__":
     # 调试

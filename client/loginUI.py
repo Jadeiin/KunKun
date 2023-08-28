@@ -4,6 +4,8 @@ import json
 from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox
 from PyQt5.QtGui import QMovie
 from PyQt5 import uic
+from PyQt5.QtCore import QPoint
+
 
 from public import share
 from registerUI import Register
@@ -11,7 +13,6 @@ from chatUI import ChatUI
 
 
 class LoginUI(QWidget):
-    # class LoginUI():
     """
     C2S: login, register and forget password
     S2C: accept login and accept register
@@ -47,6 +48,12 @@ class LoginUI(QWidget):
 
     def goToRegister(self):
         share.reg_page = Register()
+
+        # 保证新窗口打开位置在原窗口中心
+        global_pos = self.ui.mapToGlobal(QPoint(0, 0))  # Parent widget's global position
+        x = global_pos.x() + (self.ui.width() - share.reg_page.ui.width()) // 2  # x coordinate
+        y = global_pos.y() + (self.ui.height() - share.reg_page.ui.height()) // 2  # y coordinate
+        share.reg_page.ui.move(x, y)  # Move the window
         share.reg_page.ui.show()
         self.ui.close()
 
@@ -60,6 +67,11 @@ class LoginUI(QWidget):
         share.server.sendall(json.dumps(self.go_to_chat_dict).encode())
         # 打开ChatUI界面
         share.chat_page = ChatUI()
+        # 保证新窗口打开位置在原窗口中心
+        global_pos = self.ui.mapToGlobal(QPoint(0, 0))  # Parent widget's global position
+        x = global_pos.x() + (self.ui.width() - share.chat_page.ui.width()) // 2  # x coordinate
+        y = global_pos.y() + (self.ui.height() - share.chat_page.ui.height()) // 2  # y coordinate
+        share.chat_page.ui.move(x, y)  # Move the window
         share.chat_page.ui.show()
         self.ui.close()
 
