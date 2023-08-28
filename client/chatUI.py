@@ -240,14 +240,10 @@ class ChatUI(QWidget):
         """
         # 更新room list
         # if 不在消息列表的最顶端：
-        if share.CurrentRoom.roomID != share.RoomOrderList[0][0]:
+        if share.CurrentRoom.roomID != share.RoomOrderList[0]:
             # 将最新的room移动到最顶端
-            # RoomOrderList:(roomid, time)
-            for index, (room_id, _) in enumerate(share.RoomOrderList):
-                if room_id == share.CurrentRoom.roomID:
-                    share.RoomOrderList.pop(index)
-                    share.RoomOrderList.insert(
-                        0, (msg["roomid"], msg["sendtime"]))
+            share.RoomOrderList.remove(share.CurrentRoom.roomID)
+            share.RoomOrderList.insert(0, msg["roomid"])
 
         # 在字典中找到room, 追加一条消息
         msg_room_id = msg["roomid"]
@@ -276,11 +272,8 @@ class ChatUI(QWidget):
 
     def receiveUnreadMsg(self, msg):
         # 更新room列表
-        for index, (room_id, _) in enumerate(share.RoomOrderList):
-            # RoomOrderList:(roomid, time)
-            if room_id == share.CurrentRoom.roomID:
-                share.RoomOrderList.pop(index)
-                share.RoomOrderList.insert(0, (msg["roomid"], msg["sendtime"]))
+        share.RoomOrderList.remove(share.CurrentRoom.roomID)
+        share.RoomOrderList.insert(0, msg["roomid"])
 
         # 追加
         msg_room_id = msg["roomid"]
@@ -374,7 +367,7 @@ if __name__ == "__main__":
     new_room.room_name = "聊天"
     new_room.lastest_time = "2023-08-27T14:17:10.547944"
     share.RoomDict[new_room.roomID] = new_room
-    share.RoomOrderList.insert(0, (new_room.roomID, new_room.lastest_time))
+    share.RoomOrderList.insert(0, new_room.roomID)
     # share.RoomDict[2].msg.append(("Paimon", "你好", "2023-08"))
     avatar_path = "./graphSource/profPhoto.jpg"
     share.chat_page.additemInChatList(
