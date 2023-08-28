@@ -3,6 +3,9 @@ import room
 
 
 class share:
+    addr = "127.0.0.1"
+    port = 7979
+
     login_page = None
     reg_page = None
     chat_page = None

@@ -9,9 +9,7 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     # 建立scket连接
     share.server = socket.socket()
-    addr = socket.gethostbyname(socket.gethostname())
-    port = 7979
-    share.server.connect((addr, port))
+    share.server.connect((share.addr, share.port))
 
     # 开线程接受消息
     listen_thread = ListenThread(share.server)
