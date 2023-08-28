@@ -39,7 +39,7 @@ class ListenThread(QThread):
             self.receiveMsg(msg)
         elif msg["type"] == "acceptloadroom":
             self.receiveRoomList(msg)
-        elif msg["type"] == "acceptroommessage":  # 收到50条聊天消息
+        elif msg["type"] == "acceptroommessage":  # 收到n条聊天消息
             self.receiveRoomMessage(msg)
         else:
             logging.error("Accept message type error!")

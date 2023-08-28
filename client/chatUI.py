@@ -212,7 +212,7 @@ class ChatUI(QWidget):
         # 防止文字过多只选前10个字
         recent_msg = (recent_msg[:10] +
             "..." if len(recent_msg) > 10 else recent_msg
-            ) if recent_msg is None else ""
+            ) if recent_msg is not None else ""
         chat_widget = ChatListItemWidget(
             avatar_path, name, recent_msg, roomid)  # 一个新的聊天好友列表的框
         share.chat_list.append(chat_widget)

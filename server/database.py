@@ -145,7 +145,7 @@ class Database:
                     "SELECT UserID FROM RoomMember WHERE RoomID = ?",
                     (room_id,)
                 ).fetchall()
-            return [(item[0] for item in room_members)]
+            return [(int(item[0]) for item in room_members)]
         except sqlite3.Error as e:
             logging.error("Error query room members: %s", e)
             return None
@@ -158,7 +158,7 @@ class Database:
                     "SELECT UserID FROM RoomAdmin WHERE RoomID = ?",
                     (room_id,)
                 ).fetchall()
-            return [(item[0] for item in room_admins)]
+            return [int((item[0]) for item in room_admins)]
         except sqlite3.Error as e:
             logging.error("Error query room admins: %s", e)
             return None
