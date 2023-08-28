@@ -6,5 +6,5 @@ class Room():
         self.room_name = ""
         self.adminID   = []
         self.memberID  = []
-        self.msg     = []  # ("memberid","contents","time")
+        self.msg     = []  # ("memberid","contents","sendtime")
         self.lastest_time = None

@@ -153,7 +153,7 @@ class ChatUI(QWidget):
             for index, (room_id, _) in enumerate(share.RoomOrderList):
                 if room_id == share.CurrentRoom.roomID:
                     share.RoomOrderList.pop(index)
-                    share.RoomOrderList.insert(0, (msg["roomid"], msg["time"]))
+                    share.RoomOrderList.insert(0, (msg["roomid"], msg["sendtime"]))
 
         # 在字典中找到room, 追加一条消息
         msg_room_id = msg["roomid"]
@@ -183,7 +183,7 @@ class ChatUI(QWidget):
             # RoomOrderList:(roomid, time)
             if room_id == share.CurrentRoom.roomID:
                 share.RoomOrderList.pop(index)
-                share.RoomOrderList.insert(0, (msg["roomid"], msg["time"]))
+                share.RoomOrderList.insert(0, (msg["roomid"], msg["sendtime"]))
 
         # 追加
         msg_room_id = msg["roomid"]
