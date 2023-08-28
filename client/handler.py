@@ -35,8 +35,6 @@ class ListenThread(QThread):
             self.acceptMsg(msg)
         elif msg["type"] == "acceptroom":
             self.acceptRoom(msg)
-        elif msg["type"] == "sendmsg":
-            self.receiveMsg(msg)
         elif msg["type"] == "acceptloadroom":
             self.receiveRoomList(msg)
         elif msg["type"] == "acceptroommessage":  # 收到n条聊天消息
@@ -63,19 +61,15 @@ class ListenThread(QThread):
             self.notifySignal.emit(error_message)
 
     def acceptMsg(self, msg):
-        """自己发送消息成功"""
+        """收到自己与别人发送的消息"""
         if msg["result"] == True:
-            share.chat_page.sendChatMsg(msg)  # 在自己的方向输出文字
+            if msg["roomid"] == share.CurrentRoom.roomID:
+                share.chat_page.sendChatMsg(msg)  # 已打开聊天界面就send
+            else:
+                share.chat_page.receiveUnreadMsg(msg)  # 未打开聊天记录就小红点
         else:
             error_message = (0, "错误", "消息发送失败")  # 封装窗口标题和消息内容
             self.notifySignal.emit(error_message)
-
-    def receiveMsg(self, msg):
-        """收到别人发送的消息"""
-        if msg["roomid"] == share.CurrentRoom.roomID:
-            share.chat_page.sendChatMsg(msg)  # 已打开聊天界面就send
-        else:
-            share.chat_page.receiveUnreadMsg(msg)  # 未打开聊天记录就小红点
 
     def acceptRoom(self, msg):
         """加好友成功或者建立群聊成功"""
