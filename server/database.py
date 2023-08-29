@@ -1,6 +1,5 @@
 import sqlite3
 import logging
-from datetime import datetime
 
 
 class Database:
@@ -33,7 +32,6 @@ class Database:
                     VALUES (?, ?)
                     """, (user_name, user_pwd_sha1))
                 user_id = cursor.lastrowid
-                conn.commit()
             return user_id
         except sqlite3.Error as e:
             logging.error("Error inserting user: %s", e)
@@ -49,7 +47,6 @@ class Database:
                     VALUES (?, ?)
                     """, (room_name, create_time))
                 room_id = cursor.lastrowid
-                conn.commit()
             return room_id
         except sqlite3.Error as e:
             logging.error("Error inserting room: %s", e)
@@ -63,7 +60,6 @@ class Database:
                     INSERT INTO RoomAdmin(RoomID, UserID)
                     VALUES (?, ?)
                     """, [(room_id, user_id) for user_id in user_ids])
-                conn.commit()
             return True
         except sqlite3.Error as e:
             logging.error("Error inserting room admin: %s", e)
@@ -77,7 +73,6 @@ class Database:
                     INSERT INTO RoomMember(RoomID, UserID)
                     VALUES (?, ?)
                     """, [(room_id, user_id) for user_id in user_ids])
-                conn.commit()
             return True
         except sqlite3.Error as e:
             logging.error("Error inserting room member: %s", e)
@@ -93,7 +88,6 @@ class Database:
                     VALUES (?, ?, ?, ?, ?)
                     """, (sender_id, room_id, content, msgtype, send_time))
                 msg_id = cursor.lastrowid
-                conn.commit()
             return msg_id
         except sqlite3.Error as e:
             logging.error("Error inserting message: %s", e)
@@ -117,7 +111,24 @@ class Database:
             else:
                 return None
         except sqlite3.Error as e:
-            logging.error("Error query user name: %s", e)
+            logging.error("Error querying user name: %s", e)
+            return None
+
+    def query_room_name(self, room_id: int):
+        """查询房间名"""
+        try:
+            with self._connect() as conn:
+                room_name = conn.execute("""
+                    SELECT RoomName FROM Room
+                    WHERE RoomID = ?
+                    """, (room_id,)
+                ).fetchone()
+            if room_name:
+                return room_name[0]
+            else:
+                return None
+        except sqlite3.Error as e:
+            logging.error("Error querying room name: %s", e)
             return None
 
     def query_user_login(self, user_name: str, user_pwd_sha1: str):
@@ -134,7 +145,7 @@ class Database:
             else:
                 return None
         except sqlite3.Error as e:
-            logging.error("Error query user login: %s", e)
+            logging.error("Error querying user login: %s", e)
             return None
 
     def query_room_members(self, room_id: int):
@@ -147,7 +158,7 @@ class Database:
                 ).fetchall()
             return list(int(item[0]) for item in room_members)
         except sqlite3.Error as e:
-            logging.error("Error query room members: %s", e)
+            logging.error("Error querying room members: %s", e)
             return None
 
     def query_room_admins(self, room_id: int):
@@ -160,7 +171,7 @@ class Database:
                 ).fetchall()
             return list(int(item[0]) for item in room_admins)
         except sqlite3.Error as e:
-            logging.error("Error query room admins: %s", e)
+            logging.error("Error querying room admins: %s", e)
             return None
 
     def query_user_rooms(self, user_id: int):
@@ -207,7 +218,7 @@ class Database:
                 user_rooms.append(room)
             return user_rooms
         except sqlite3.Error as e:
-            logging.error("Error query user members: %s", e)
+            logging.error("Error querying user rooms: %s", e)
             return None
 
     def query_room_messages(self, room_id: int, size: int, lasttime: str):
@@ -235,7 +246,7 @@ class Database:
                 room_messages.append(message)
             return room_messages
         except sqlite3.Error as e:
-            logging.error("Error query room messages: %s", e)
+            logging.error("Error querying room messages: %s", e)
             return None
 
     """
@@ -243,15 +254,51 @@ class Database:
     """
 
     # def delete_user(self, user_id: int)
-    # def delete_room(self, room_id: int)
     # def delete_messasge(self, msg_id: int)
+    def delete_room(self, room_id: int):
+        """删除房间"""
+        try:
+            with self._connect() as conn:
+                conn.execute("""
+                    DELETE FROM Room
+                    WHERE RoomID = ?
+                    """, (room_id,))
+            return True
+        except sqlite3.Error as e:
+            logging.error("Error deleting room: %s", e)
+            return False
 
+    def delete_room_members(self, room_id: int, memberid: set):
+        """删除房间成员"""
+        try:
+            with self._connect() as conn:
+                memberid_str = ', '.join(map(str, memberid))
+                query = f"""
+                DELETE FROM RoomMember
+                WHERE RoomID = ? AND UserID IN ({memberid_str})
+                """
+                conn.execute(query, (room_id,))
+            return True
+        except sqlite3.Error as e:
+            logging.error("Error deleting room members: %s", e)
+            return False
     """
     update part
     """
 
     # def update_user(self, user_id:int)
-    # def update_room(self, room_id:int)
+    def update_room_name(self, room_id: int, room_name: str):
+        """更改房间名"""
+        try:
+            with self._connect() as conn:
+                conn.execute("""
+                    UPDATE Room SET RoomName = ?
+                    WHERE RoomID = ?;
+                    """, (room_name, room_id))
+            return True
+        except sqlite3.Error as e:
+            logging.error("Error updating room name: %s", e)
+            return False
     # def update_messasge(self, msg_id: int)
     # 下面的情况比较复杂 可能需要删除/插入操作
     # def update_room_admins(self, room_id: int, user_ids: set)
@@ -259,38 +306,59 @@ class Database:
 
 
 if __name__ == "__main__":
+    from datetime import datetime
+    from random import sample
     # test module
     logging.basicConfig(level=logging.DEBUG,
                         format="%(asctime)s - %(levelname)s - %(message)s")
     db = Database("testdb.db")
 
     logging.info("Database test started")
+    logging.info("### User Part ###")
     # user_ip = "127.0.0.1"
-    user_name = "testuser"
-    user_pwd_sha1 = "9ad4cf12ea8c7c42000a7af92864e80e807a0718"
-    user_id = db.insert_user(user_name, user_pwd_sha1)
-    if user_id is None:
-        user_id = db.query_user_login(user_name, user_pwd_sha1)
-        logging.info(
-            f"Queried user login: {user_id}, {user_name}, {user_pwd_sha1}")
-    else:
-        logging.info(
-            f"Inserted user info: {user_id}, {user_name}, {user_pwd_sha1}")
+    user_ids = set()
+    for i in range(5):
+        user_name = str(i+1)
+        user_pwd_sha1 = "9ad4cf12ea8c7c42000a7af92864e80e807a0718"
+        user_id = db.insert_user(user_name, user_pwd_sha1)
+        if user_id is None:
+            user_id = db.query_user_login(user_name, user_pwd_sha1)
+            user_ids.add(user_id)
+            logging.info(
+                f"Queried user login: {user_id}, {user_name}, {user_pwd_sha1}")
+        else:
+            user_ids.add(user_id)
+            logging.info(
+                f"Inserted user info: {user_id}, {user_name}, {user_pwd_sha1}")
 
+    logging.info("### Room Part ###")
     room_name = "testroom"
     room_create_time = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
     room_id = db.insert_room(room_name, room_create_time)
     logging.info(f"Inserted room info: {room_id}, {room_name}")
 
-    db.insert_room_admins(room_id, {user_id})
-    db.insert_room_members(room_id, {user_id})
+    room_name = "test"
+    if db.update_room_name(room_id, room_name):
+        logging.info(f"Updated room name: {room_name}")
+    if room_name := db.query_room_name(room_id):
+        logging.info(f"Queried room name: {room_name}")
 
-    room_members = db.query_room_members(room_id)
-    logging.info(f"Queried room members: {room_id}, {room_members}")
+    if db.insert_room_admins(room_id, {user_id}):
+        logging.info(f"Inserted admins: {user_id}")
+    if db.insert_room_members(room_id, user_ids):
+        logging.info(f"Inserted members: {user_ids}")
 
-    user_rooms = db.query_user_rooms(user_id)
-    logging.info(f"Queried user rooms: {user_id}, {user_rooms}")
+    removed = set(sample(list(user_ids.difference({user_id})), 3))
+    if db.delete_room_members(room_id, removed):
+        logging.info(f"Deleted members: {removed}")
 
+    if room_members := db.query_room_members(room_id):
+        logging.info(f"Queried room members: {room_id}, {room_members}")
+
+    if user_rooms := db.query_user_rooms(user_id):
+        logging.info(f"Queried user rooms: {user_id}, {user_rooms}")
+
+    logging.info("### Message Part ###")
     for i in range(20):
         msg_send_time = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
         msg_content = "testmsg at " + msg_send_time
@@ -299,9 +367,12 @@ if __name__ == "__main__":
         if (msg_id := db.insert_message(user_id, room_id, msg_content, 1, msg_send_time)):
             logging.info(
                 f"Inserted msg info: {msg_id}, {user_id}, {room_id}, {msg_content}, {msg_send_time}")
-    # else:
-    # logging.error()
 
     room_current_time = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
-    room_messages = db.query_room_messages(room_id, 50, room_current_time)
-    logging.info(f"Queried room messages: {room_id}, {room_messages}")
+    if room_messages := db.query_room_messages(room_id, 50, room_current_time):
+        logging.info(f"Queried room messages: {room_id}, {room_messages}")
+
+    if db.delete_room(room_id):
+        logging.info(f"Deleted room: {room_id}")
+
+    logging.info("Database test ended")

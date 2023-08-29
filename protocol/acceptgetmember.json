@@ -2,7 +2,7 @@
 	"type": "acceptgetmember",
 	"userid": 1,
 	"roomid": 1,
-	"memberid": [
+	"member": [
 		{
 			"userid": 1,
 			"username": "test"
