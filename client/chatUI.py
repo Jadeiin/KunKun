@@ -204,7 +204,6 @@ class ChatUI(QWidget):
         chat_item = ChatBubbleItem1(name, time, msg, msg_type)
 
         # 如果是文件信息，点击消息进行接收
-        chat_item.messageClicked.connect(self.handleRecvFileMsgClicked)
         # 点击头像显示用户信息
         chat_item.photoClicked.connect(lambda: self.showUsrInfo(
             event="", user_avatar="", user_name="user_name",userid= "user_id"))
@@ -219,7 +218,6 @@ class ChatUI(QWidget):
         chat_item = ChatBubbleItem2(name, time, msg, msg_type)
 
         # 如果是文件信息，点击消息进行接收
-        # chat_item.messageLabelClicked.connect(self.handleRecvFileMsgClicked)
         # 点击头像显示用户信息
         chat_item.photoClicked.connect(lambda: self.showUsrInfo(
             event="", user_avatar="", user_name="user_name",userid= "user_id"))

@@ -4,6 +4,8 @@ from public import share
 from pathlib import Path
 from ftplib import FTP
 import subprocess
+from PyQt5.QtCore import QPoint
+from usrInfoUI import usrInfoUI
 class ChatBubbleItem1(QWidget):
     '''
     对方发送消息时的气泡框
@@ -89,8 +91,18 @@ class ChatBubbleItem1(QWidget):
         self.setupMessage(message, msg_type)
 
         # 点击头像时显示用户信息
-        self.profPhoto.mousePressEvent = self.photoClicked.emit
-
+        self.profPhoto.mousePressEvent = lambda event: self.showUsrInfo(
+            "",share.User.avatar, share.User.name, str(share.User.userID))
+        
+    def showUsrInfo(self, event, user_avatar, user_name, userid):   # event不可省略
+        share.usr_info_page = usrInfoUI(prof_path=user_avatar, usr_name=user_name, usr_id=userid)
+        # 保证新窗口打开位置在原窗口中心
+        # Parent widget's global position
+        global_pos = self.mapToGlobal(QPoint(0, 0))
+        x = global_pos.x() + 25  # x coordinate
+        y = global_pos.y() + 60  # y coordinate
+        share.usr_info_page.ui.move(x, y)  # Move the window
+        share.usr_info_page.ui.show()
     
     def setupMessage(self, message, msg_type):
         if msg_type == 1: # 文字信息
@@ -104,8 +116,6 @@ class ChatBubbleItem1(QWidget):
                                          "    text-decoration: underline;\n"
                                          "    color: blue;\n"
                                          "}")
-            # self.msgText.setOpenExternalLinks(True)
-            # self.msgText.linkActivated.connect(self.messageLinkActivated)
             self.msgText.mousePressEvent = self.messageLabelClicked
         
     def messageLabelClicked(self, event):
@@ -205,7 +215,6 @@ class ChatBubbleItem2(QWidget):
         self.horizontalLayout_4.setStretch(1, 40)
         self.horizontalLayout.addLayout(self.horizontalLayout_4)
 
-        
 
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("ChatBubbles", "Form"))
@@ -215,7 +224,18 @@ class ChatBubbleItem2(QWidget):
         self.setupMessage(message, msg_type)
 
         # 点击头像时显示用户信息
-        self.profPhoto.mousePressEvent = self.photoClicked.emit
+        self.profPhoto.mousePressEvent = lambda event: self.showUsrInfo(
+            "",share.User.avatar, share.User.name, str(share.User.userID))
+        
+    def showUsrInfo(self, event, user_avatar, user_name, userid):   # event不可省略
+        share.usr_info_page = usrInfoUI(prof_path=user_avatar, usr_name=user_name, usr_id=userid)
+        # 保证新窗口打开位置在原窗口中心
+        # Parent widget's global position
+        global_pos = self.mapToGlobal(QPoint(0, 0))
+        x = global_pos.x() + 25  # x coordinate
+        y = global_pos.y() + 60  # y coordinate
+        share.usr_info_page.ui.move(x, y)  # Move the window
+        share.usr_info_page.ui.show()
     
     def setupMessage(self, message, msg_type):
         if msg_type == 1: # 文字信息
@@ -229,8 +249,6 @@ class ChatBubbleItem2(QWidget):
                                          "    text-decoration: underline;\n"
                                          "    color: blue;\n"
                                          "}")
-            # self.msgText.setOpenExternalLinks(True)
-            # self.msgText.linkActivated.connect(self.messageLinkActivated)
 
             self.msgText.mousePressEvent = self.messageLabelClicked
     
