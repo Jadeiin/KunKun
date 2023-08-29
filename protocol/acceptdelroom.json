@@ -1,12 +1,12 @@
 {
-	"type": "delroom",
+	"type": "acceptdelroom",
 	"result": true,
 	"userid": 1,
 	"roomid": 1
 }
 
 {
-	"type": "delroom",
+	"type": "acceptdelroom",
 	"result": false,
 	"userid": 1,
 	"roomid": 1

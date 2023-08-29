@@ -1,5 +1,5 @@
 {
-	"type": "onlineusers",
+	"type": "acceptonlineusers",
 	"onlineusers": [
 		{
 			"userid": 1,
