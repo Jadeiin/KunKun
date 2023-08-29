@@ -1,5 +1,6 @@
 {
-	"type": "delmember",
+	"type": "changemember",
+    "mode": 0, // 0+ 1-
 	"userid": 1,
 	"roomdid": 1,
 	"memeberid": [

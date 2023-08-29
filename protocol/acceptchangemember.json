@@ -1,0 +1,23 @@
+{
+	"type": "changemember",
+    "result": true,
+    "mode": 0, // 0+ 1-
+	"userid": 1,
+	"roomdid": 1,
+	"memeberid": [
+		2,
+		3
+	]
+}
+
+{
+	"type": "changemember",
+    "result": false,
+    "mode": 0, // 0+ 1-
+	"userid": 1,
+	"roomdid": 1,
+	"memeberid": [
+		2,
+		3
+	]
+}

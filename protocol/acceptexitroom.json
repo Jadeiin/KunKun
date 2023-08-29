@@ -1,0 +1,11 @@
+{
+	"type": "acceptexitroom",
+	"result": true,
+	"userid": 1,
+	"roomid": 1 // send to all room members
+}
+
+{
+	"type": "acceptexitroom",
+	"result": fasle,
+}
