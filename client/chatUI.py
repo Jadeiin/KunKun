@@ -158,20 +158,20 @@ class ChatUI(QWidget):
             ftp.storbinary("STOR " + file_sha1, fp)
         ftp.quit()
 
-    def recvFile(self, file_name, file_sha1):
-        print(file_name, file_sha1)
-        if Path("files/" + file_name).if_file():
-            try:
-                subprocess.run(["xdg-open", "files/" + file_name], check=True)
-            except subprocess.CalledProcessError:
-                print("Error opening the file.")
-        else:
-            ftp = FTP()
-            ftp.connect(share.addr, share.port+1)
-            ftp.login(share.User.name, share.User.pwd_hash)
-            with open("files/" + file_name, "wb") as fp:
-                ftp.retrbinary("RETR " + file_sha1, fp.write)
-            ftp.quit()
+    # def recvFile(self, file_name, file_sha1):
+    #     print(file_name, file_sha1)
+    #     if Path("files/" + file_name).if_file():
+    #         try:
+    #             subprocess.run(["xdg-open", "files/" + file_name], check=True)
+    #         except subprocess.CalledProcessError:
+    #             print("Error opening the file.")
+    #     else:
+    #         ftp = FTP()
+    #         ftp.connect(share.addr, share.port+1)
+    #         ftp.login(share.User.name, share.User.pwd_hash)
+    #         with open("files/" + file_name, "wb") as fp:
+    #             ftp.retrbinary("RETR " + file_sha1, fp.write)
+    #         ftp.quit()
 
 
 
@@ -219,7 +219,7 @@ class ChatUI(QWidget):
         chat_item = ChatBubbleItem2(name, time, msg, msg_type)
 
         # 如果是文件信息，点击消息进行接收
-        chat_item.messageClicked.connect(self.handleRecvFileMsgClicked)
+        # chat_item.messageLabelClicked.connect(self.handleRecvFileMsgClicked)
         # 点击头像显示用户信息
         chat_item.photoClicked.connect(lambda: self.showUsrInfo(
             event="", user_avatar="", user_name="user_name",userid= "user_id"))

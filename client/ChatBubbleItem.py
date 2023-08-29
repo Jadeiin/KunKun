@@ -1,13 +1,15 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QWidget
 from public import share
-
+from pathlib import Path
+from ftplib import FTP
+import subprocess
 class ChatBubbleItem1(QWidget):
     '''
     对方发送消息时的气泡框
     '''
 
-    messageClicked = QtCore.pyqtSignal(str) 
+    # messageClicked = QtCore.pyqtSignal(str) 
     photoClicked = QtCore.pyqtSignal()
     
     def __init__(self, name, time, message, msg_type, parent=None):
@@ -102,10 +104,30 @@ class ChatBubbleItem1(QWidget):
                                          "    text-decoration: underline;\n"
                                          "    color: blue;\n"
                                          "}")
-            self.msgText.setOpenExternalLinks(True)
+            # self.msgText.setOpenExternalLinks(True)
+            # self.msgText.linkActivated.connect(self.messageLinkActivated)
+            self.msgText.mousePressEvent = self.messageLabelClicked
+        
+    def messageLabelClicked(self, event):
+        # 调用 recvFile 函数并传递相关参数
+        file_name = self.message[:-40]
+        file_sha1 = self.message[-40:]
+        self.recvFile(file_name, file_sha1)
 
-    def messageLinkActivated(self):
-        self.messageClicked.emit(self.message)  # Emit the signal when the link is clicked
+    def recvFile(self, file_name, file_sha1):
+        print(file_name, file_sha1)
+        if Path("files/" + file_name).is_file():
+            try:
+                subprocess.run(["xdg-open", "files/" + file_name], check=True)
+            except subprocess.CalledProcessError:
+                print("Error opening the file.")
+        else:
+            ftp = FTP()
+            ftp.connect(share.addr, share.port+1)
+            ftp.login(share.User.name, share.User.pwd_hash)
+            with open("files/" + file_name, "wb") as fp:
+                ftp.retrbinary("RETR " + file_sha1, fp.write)
+            ftp.quit()
 
 
 class ChatBubbleItem2(QWidget):
@@ -113,7 +135,7 @@ class ChatBubbleItem2(QWidget):
     自己发送消息时的气泡框
     '''
 
-    messageClicked = QtCore.pyqtSignal(str) 
+    # messageClicked = QtCore.pyqtSignal(str) 
     photoClicked = QtCore.pyqtSignal()
     
     def __init__(self, name, time, message, msg_type, parent=None):
@@ -207,7 +229,29 @@ class ChatBubbleItem2(QWidget):
                                          "    text-decoration: underline;\n"
                                          "    color: blue;\n"
                                          "}")
-            self.msgText.setOpenExternalLinks(True)
+            # self.msgText.setOpenExternalLinks(True)
+            # self.msgText.linkActivated.connect(self.messageLinkActivated)
 
-    def messageLinkActivated(self):
-        self.messageClicked.emit(self.message)  
+            self.msgText.mousePressEvent = self.messageLabelClicked
+    
+    def messageLabelClicked(self, event):
+        # 调用 recvFile 函数并传递相关参数
+        file_name = self.message[:-40]
+        file_sha1 = self.message[-40:]
+        self.recvFile(file_name, file_sha1)
+
+    def recvFile(self, file_name, file_sha1):
+        print(file_name, file_sha1)
+        if Path("files/" + file_name).is_file():
+            try:
+                subprocess.run(["xdg-open", "files/" + file_name], check=True)
+            except subprocess.CalledProcessError:
+                print("Error opening the file.")
+        else:
+            ftp = FTP()
+            ftp.connect(share.addr, share.port+1)
+            ftp.login(share.User.name, share.User.pwd_hash)
+            with open("files/" + file_name, "wb") as fp:
+                ftp.retrbinary("RETR " + file_sha1, fp.write)
+            ftp.quit()
+
