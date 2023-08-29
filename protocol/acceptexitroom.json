@@ -7,5 +7,7 @@
 
 {
 	"type": "acceptexitroom",
-	"result": false
+	"result": false,
+	"userid": 1,
+	"roomid": 1
 }

@@ -1,0 +1,15 @@
+{
+	"type": "acceptgetmember",
+	"userid": 1,
+	"roomid": 1,
+	"memberid": [
+		{
+			"userid": 1,
+			"username": "test"
+		},
+		{
+			"userid": 2,
+			"username": "demo"
+		}
+	]
+}
