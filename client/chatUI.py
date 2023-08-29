@@ -415,12 +415,6 @@ class ChatUI(QWidget):
             print("Scrolled to the top!")
             # load more chat records
 
-    def showGroupMemberInfo(self, user_id):
-        user_name = share.AllUsersDict[user_id].name
-        user_avatar = share.AllUsersDict[user_id].avatar
-        
-        # 将参数传入显示函数
-
     def changeRoomName(self, room_id, new_name):
         change_name_dict = {"type":"roomname"}
         change_name_dict["roomid"]  = room_id

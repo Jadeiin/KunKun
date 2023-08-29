@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QWidget
 from public import share
 from pathlib import Path
 from ftplib import FTP
-import subprocess
+import subprocess, os, platform
 from PyQt5.QtCore import QPoint
 from usrInfoUI import usrInfoUI
 class ChatBubbleItem1(QWidget):
@@ -259,10 +259,16 @@ class ChatBubbleItem2(QWidget):
         self.recvFile(file_name, file_sha1)
 
     def recvFile(self, file_name, file_sha1):
-        print(file_name, file_sha1)
+        # print(file_name, file_sha1)
         if Path("files/" + file_name).is_file():
             try:
-                subprocess.run(["xdg-open", "files/" + file_name], check=True)
+                filepath = "files/" + file_name
+                if platform.system() == 'Darwin':       # macOS
+                    subprocess.call(('open', filepath))
+                elif platform.system() == 'Windows':    # Windows
+                    os.startfile(filepath)
+                else:                                   # linux variants
+                    subprocess.call(('xdg-open', filepath))
             except subprocess.CalledProcessError:
                 print("Error opening the file.")
         else:
