@@ -1,7 +1,8 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QWidget
 from public import share
 
-class ChatBubbleItem1(object):
+class ChatBubbleItem1(QWidget):
     '''
     对方发送消息时的气泡框
     '''
@@ -16,6 +17,7 @@ class ChatBubbleItem1(object):
        
         self.setObjectName("ChatBubbles")
         self.resize(541, 83)
+        self.setMinimumSize(QtCore.QSize(400, 94))
         self.setStyleSheet("QWidget{\n"
                            "background-color: rgb(255, 255, 255)\n"
                            "}")
@@ -106,7 +108,7 @@ class ChatBubbleItem1(object):
         self.messageClicked.emit(self.message)  # Emit the signal when the link is clicked
 
 
-class ChatBubbleItem2(object):
+class ChatBubbleItem2(QWidget):
     '''
     自己发送消息时的气泡框
     '''
@@ -121,7 +123,7 @@ class ChatBubbleItem2(object):
 
         self.setObjectName("ChatBubbles")
         self.resize(541, 94)
-        self.setMinimumSize(QtCore.QSize(400, 0))
+        self.setMinimumSize(QtCore.QSize(400, 94))
         self.setStyleSheet("QWidget{\n"
             "background-color: rgb(255, 255, 255)\n"
             "}")

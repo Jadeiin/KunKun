@@ -201,15 +201,15 @@ class ChatUI(QWidget):
         chat_item = ChatBubbleItem1(name, time, msg, msg_type)
 
         # 如果是文件信息，点击消息进行接收
-        self.chatBubble.messageClicked.connect(self.handleRecvFileMsgClicked)
+        chat_item.messageClicked.connect(self.handleRecvFileMsgClicked)
         # 点击头像显示用户信息
         chat_item.photoClicked.connect(lambda: self.showUsrInfo(
             event="", user_avatar="", user_name="user_name",userid= "user_id"))
 
-        list_item = QtWidgets.QListWidgetItem(self.chatMsgList)
-        self.chatMsgList.addItem(list_item)
-        self.chatMsgList.setItemWidget(list_item, chat_item)
-        self.chatMsgList.scrollToBottom() # 保持自动显示最下方信息
+        list_item = QtWidgets.QListWidgetItem(self.ui.chatMsgList)
+        self.ui.chatMsgList.addItem(list_item)
+        self.ui.chatMsgList.setItemWidget(list_item, chat_item)
+        self.ui.chatMsgList.scrollToBottom() # 保持自动显示最下方信息
 
     def showSentMsg(self, name, time, msg, msg_type):
         chat_item = ChatBubbleItem2(name, time, msg, msg_type)
@@ -220,10 +220,10 @@ class ChatUI(QWidget):
         chat_item.photoClicked.connect(lambda: self.showUsrInfo(
             event="", user_avatar="", user_name="user_name",userid= "user_id"))
 
-        list_item = QtWidgets.QListWidgetItem(self.chatMsgList)
-        self.chatMsgList.addItem(list_item)
-        self.chatMsgList.setItemWidget(list_item, chat_item)
-        self.chatMsgList.scrollToBottom() # 保持自动显示最下方信息
+        list_item = QtWidgets.QListWidgetItem(self.ui.chatMsgList)
+        self.ui.chatMsgList.addItem(list_item)
+        self.ui.chatMsgList.setItemWidget(list_item, chat_item)
+        self.ui.chatMsgList.scrollToBottom() # 保持自动显示最下方信息
 
     def createGroup(self):
         """add friends and create group"""
@@ -270,18 +270,18 @@ class ChatUI(QWidget):
         # 改聊天室名字
         share.chat_page.ui.chatName.setText(share.CurrentRoom.room_name)
 
-        # 读历史消息, 在textBrowser里显示出来
+        # 读历史消息, 显示出来
         for item in share.CurrentRoom.msg:
             if item[0] == share.User.userID:
                 self.showSentMsg(
-                    str(share.User.name),
+                    item[5],
                     item[2],
                     item[1],
                     item[3]
                 )
             else:
                 self.showRecvMsg(
-                    str(share.AllUsersDict[item[0]].name),
+                    item[5],
                     item[2],
                     item[1],
                     item[3]
@@ -303,7 +303,7 @@ class ChatUI(QWidget):
         msg_room_id = msg["roomid"]
         msg_content = msg["content"]
         share.RoomDict[msg_room_id].msg.append(
-            (msg["userid"], msg_content, msg["sendtime"], msg["msgtype"], msg["msgid"]))
+            (msg["userid"], msg_content, msg["sendtime"], msg["msgtype"], msg["msgid"], msg["username"]))
 
         # UI中列表移动或改变
         avatar_path = "./graphSource/profPhoto.jpg"  # Replace with actual path
@@ -337,7 +337,7 @@ class ChatUI(QWidget):
         msg_room_id = msg["roomid"]
         msg_content = msg["content"]
         share.RoomDict[msg_room_id].msg.append(
-            (msg["userid"], msg_content, msg["sendtime"], msg["msgtype"], msg["msgid"]))
+            (msg["userid"], msg_content, msg["sendtime"], msg["msgtype"], msg["msgid"], msg["username"]))
 
         # UI中列表移动或改变
         avatar_path = "./graphSource/profPhoto.jpg"  # Replace with actual path

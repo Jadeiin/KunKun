@@ -150,7 +150,7 @@ class ListenThread(QThread):
             if tmp_mesages != []:
                 for item in tmp_mesages:
                     new_msg = (
-                        item["userid"], item["content"], item["sendtime"], item["msgtype"], item["msgid"])
+                        item["userid"], item["content"], item["sendtime"], item["msgtype"], item["msgid"], item["username"])
                     share.RoomDict[room_id].msg.insert(0, new_msg)
             else:
                 error_message = (1, "提示", "没有更多聊天信息")
