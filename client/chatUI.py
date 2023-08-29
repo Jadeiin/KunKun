@@ -14,7 +14,6 @@ from hashlib import sha1
 
 from public import share
 from chatListItem import ChatListItemWidget
-from datetime import datetime
 import room
 from manageRoomUI import manageRoomUI
 from usrInfoUI import usrInfoUI
@@ -163,6 +162,16 @@ class ChatUI(QWidget):
         with open("files/" + file_name, "wb") as fp:
             ftp.retrbinary("RETR " + file_sha1, fp.write)
         ftp.quit()
+
+
+    # 查询房间成员的memberid
+    def getMember(self, roomid):
+        GetMember = {"type": "getmember"}
+        GetMember["userid"] = share.User.userID
+        GetMember["roomid"] = roomid
+        get_member = json.dumps(GetMember)
+        share.server.sendall(get_member.encode())
+
 
     def sendEmoji(self):
         pass
@@ -382,9 +391,15 @@ class ChatUI(QWidget):
         MemberChange["mode"] = mode
         MemberChange["userid"] = share.User.userID
         MemberChange["roomid"] = share.CurrentRoom.roomID
-        MemberChange["memberid"] = memberid
+        if mode == 0:
+            MemberChange["memberid"] = list(set(memberid).intersection(set(share.CurrentRoom.memberID)))
+        elif mode == 1:
+            MemberChange["memberid"] = list(set(memberid).difference(set(share.CurrentRoom.memberID)))
         member_change = json.dumps(MemberChange)
         share.server.sendall(member_change.encode())
+
+
+
 
 
 if __name__ == "__main__":

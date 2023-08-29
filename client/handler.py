@@ -47,6 +47,8 @@ class ListenThread(QThread):
             self.acceptDelRoom(msg)
         elif msg["type"] == "acceptroomname":
             self.acceptRoomName(msg)
+        elif msg["type"] == "acceptgetmember":
+            self.acceptGetMember(msg)
         else:
             logging.error("Accept message type error!")
 
@@ -177,6 +179,18 @@ class ListenThread(QThread):
                 share.CurrentRoom.room_name = new_name
                 share.chat_page.ui.chatName.setText(new_name)
 
+    # 获取群组成员id和用户名
+    # 目前没有用到，后面需要再更改
+    def acceptGetMember(self, msg):
+        if msg["result"] == True:
+            for item in msg[]
+            room_id = msg["roomid"]
+            user_id = msg["userid"]
+            member = msg["member"] 
+
+
+
+
     # 主动退出群聊
     def acceptExitRoom(self, msg):
         if msg["result"] == True:
@@ -190,20 +204,47 @@ class ListenThread(QThread):
             error_message = (0, "错误", "删除聊天失败")
             self.notifySignal.emit(error_message)
 
+
     # 群内其他成员变动
     def acceptChangeMember(self, msg):
         if msg["result"] == True:
             if msg["mode"] == 0:
                 # 已知房间：
-                # 自己被踢
-                # 别人被踢
-                # share.RoomDict[msg["roomid"]].memberID.remove(msg["memberid"])
+                # 自己被踢:
+                if share.User.userID in msg["memberid"]:
+                    delet_roomid = msg["roomid"]
+                    share.chat_page.deletItemInChatList(delet_roomid)
+                    share.RoomOrderList.remove(delet_roomid)
+                    notice_message = (1,"提示", "已退出聊天 "+share.RoomDict[delet_roomid].room_name)
+                    self.notifySignal.emit(notice_message)
+                    del share.RoomDict[delet_roomid]
+                # 别人被踢:
+                else:
+                    share.RoomDict[msg["roomid"]].memberID.remove(msg["memberid"])
+                # 自己是管理员：
+                    if msg["userid"] == share.User.userID:   
+                        notice_message = (1,"提示", "踢出成员成功")
+                        self.notifySignal.emit(notice_message)  
+                    else:
+                        pass   
             elif msg["mode"] == 1:
                 # 未知房间：
                 # 自己被加 额外加载房间消息
+                if share.User.userID in msg["memberid"]:
+                        self.go_to_chat_dict = {"type":"loadroom"}
+                        self.go_to_chat_dict["userid"] = share.User.userID
+                        share.server.sendall(json.dumps(self.go_to_chat_dict).encode())
                 # 已知房间：
                 # 别人被加
-                # share.RoomDict[msg["roomid"]].memberID.append(msg["memberid"])
+                else:
+                    share.RoomDict[msg["roomid"]].memberID.append(msg["memberid"])
+                    if msg["userid"] == share.User.userID:
+                        notice_message = (1,"提示", "拉入成员成功")
+                        self.notifySignal.emit(notice_message)  
+                    else:
+                        pass
+
+
 
     # 管理员解散群聊
     def acceptDelRoom(self, msg):
