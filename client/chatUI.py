@@ -363,7 +363,8 @@ class ChatUI(QWidget):
 
     def showGroupMemberInfo(self, user_id):
         user_name = share.AllUsersDict[user_id].name
-        # user_avater = share.AllUsersDict[user_id].avatar
+        user_avatar = share.AllUsersDict[user_id].avatar
+        
         # 将参数传入显示函数
 
     def changeRoomName(self, room_id, new_name):
