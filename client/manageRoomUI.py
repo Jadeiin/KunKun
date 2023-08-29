@@ -17,15 +17,56 @@ class manageRoomUI(QWidget):
         
         share.member_list = []
         
-        self.ui = uic.loadUi("./UIfiles/manageRoom.ui")
+        if share.User.userID == share.CurrentRoom.adminID:
+            self.ui = uic.loadUi("./UIfiles/manageRoom.ui") #加载管理员界面
+            self.loadMemberlist()
+            self.ui.editChatNameBtn.clicked.connect(self.changeRoomName)  # 点击更改按钮
+            add_memberid = [int(x) for x in self.ui.addBtn.text().split()]
+            self.ui.addBtn.clicked.connect (lambda :self.memberChange(1,add_memberid))# 点击添加成员按钮
+            del_memberid = [int(x) for x in self.ui.delBtn.text().split()]
+            self.ui.delBtn.clicked.connect (lambda :self.memberChange(1,del_memberid))  # 点击删除成员按钮
+        else:
+            self.ui = uic.loadUi("./UIfiles/RoomInfoForNonAdmin.ui") #加载普通群成员界面
+            self.loadMemberlist()
+            self.ui.leaveRoomBtn.clicked.connect(self.exitRoom) #推出聊天
+            
         
-        self.ui.editChatNameBtn.clicked.connect(self.addItemInMemberList)  # 点击更改按钮
-        self.ui.addBtn.clicked.connect(self.test)  # 点击添加成员按钮
-        self.ui.delBtn.clicked.connect(self.test)  # 点击删除成员按钮
+        
+        
 
-    def test(self):
-        # 后面可以删掉
-        print("Button clicked")
+
+    def changeRoomName(self):
+        change_name_dict = {"type":"roomname"}
+        change_name_dict["roomid"]  = share.CurrentRoom.roomID
+        change_name_dict["roomname"] = self.ui.editChatNameEditLine.toPlainText()
+        self.ui.editChatNameEditLine.clear()
+        share.server.sendall(json.dumps(change_name_dict).encode())
+
+    def exitRoom(self): # 主动退出群聊
+        ExitGroup = {"type":"exitroom"}
+        ExitGroup["userid"] = share.User.userID
+        ExitGroup["roomid"] = share.CurrentRoom.roomID
+        exit_group = json.dumps(ExitGroup)
+        share.server.sendall(exit_group.encode())
+
+    def delRoom(self): #管理员退出群聊
+        AdminQuit = {"type": "delroom"}
+        AdminQuit["userid"] = share.User.userID
+        AdminQuit["roomid"] = share.CurrentRoom.roomID
+        admin_quit = json.dumps(AdminQuit)
+        share.server.sendall(admin_quit.encode())
+
+    def memberChange(self, mode, memberid): #管理员增删群成员
+        MemberChange = {"type": "changemember"}
+        MemberChange["mode"] = mode
+        MemberChange["userid"] = share.User.userID
+        MemberChange["roomid"] = share.CurrentRoom.roomID
+        if mode == 0:
+            MemberChange["memberid"] = list(set(memberid).intersection(set(share.CurrentRoom.memberID)))
+        elif mode == 1:
+            MemberChange["memberid"] = list(set(memberid).difference(set(share.CurrentRoom.memberID)))
+        member_change = json.dumps(MemberChange)
+        share.server.sendall(member_change.encode())
 
     def loadMemberlist(self):
         '''
