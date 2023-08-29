@@ -16,12 +16,16 @@ class manageRoomUI(QWidget):
         super().__init__()
         
         share.member_list = []
-        
+        # 管理员
         self.ui = uic.loadUi("./UIfiles/manageRoom.ui")
         
         self.ui.editChatNameBtn.clicked.connect(self.addItemInMemberList)  # 点击更改按钮
         self.ui.addBtn.clicked.connect(self.test)  # 点击添加成员按钮
         self.ui.delBtn.clicked.connect(self.test)  # 点击删除成员按钮
+        
+        # 非管理员
+        self.ui = uic.loadUi("./UIfiles/RoomInfoForNonAdmin.ui")
+        
 
     def test(self):
         # 后面可以删掉
