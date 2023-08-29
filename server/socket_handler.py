@@ -221,7 +221,7 @@ def exit_room(addr, data):
         st = {users.get(item)
               for item in db.query_room_members(room_id) if item in users}
 
-        if db.delete_room_members(room_id, set(user_id)):
+        if db.delete_room_members(room_id, {user_id}):
             logging.info("Client exit room successed")
             resp["result"] = True
             return resp, st
