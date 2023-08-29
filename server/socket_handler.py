@@ -72,7 +72,7 @@ def create_room(addr, data):
     member_ids = data["memberid"]
     createtime = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")
     resp = {
-        "type": "accpetroom",
+        "type": "acceptroom",
         "result": False
     }
 

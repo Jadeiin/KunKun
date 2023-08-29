@@ -95,14 +95,14 @@ class ChatBubbleItem1(QWidget):
             self.msgText.setText(message)
         elif msg_type == 2: # 文件信息
             self.msgText.setText(message[:-40]) # 去掉哈希
-            self.ui.msgText.setStyleSheet("QLabel {\n"
+            self.msgText.setStyleSheet("QLabel {\n"
                                          "    border-radius: 10px;\n"
                                          "    background-color:rgb(232, 253, 255);\n"
                                          "    padding: 5px;\n"
                                          "    text-decoration: underline;\n"
                                          "    color: blue;\n"
                                          "}")
-            self.ui.msgText.setOpenExternalLinks(True)
+            self.msgText.setOpenExternalLinks(True)
 
     def messageLinkActivated(self):
         self.messageClicked.emit(self.message)  # Emit the signal when the link is clicked
@@ -200,14 +200,14 @@ class ChatBubbleItem2(QWidget):
             self.msgText.setText(message)
         elif msg_type == 2: # 文件信息
             self.msgText.setText(message[:-40]) # 去掉哈希
-            self.ui.msgText.setStyleSheet("QLabel {\n"
+            self.msgText.setStyleSheet("QLabel {\n"
                                          "    border-radius: 10px;\n"
                                          "    background-color:rgb(232, 253, 255);\n"
                                          "    padding: 5px;\n"
                                          "    text-decoration: underline;\n"
                                          "    color: blue;\n"
                                          "}")
-            self.ui.msgText.setOpenExternalLinks(True)
+            self.msgText.setOpenExternalLinks(True)
 
     def messageLinkActivated(self):
         self.messageClicked.emit(self.message)  

@@ -159,17 +159,20 @@ class ChatUI(QWidget):
         ftp.quit()
 
     def recvFile(self, file_name, file_sha1):
-        ftp = FTP()
-        ftp.connect(share.addr, share.port+1)
-        ftp.login(share.User.name, share.User.pwd_hash)
-        with open("files/" + file_name, "wb") as fp:
-            ftp.retrbinary("RETR " + file_sha1, fp.write)
-        ftp.quit()
+        print(file_name, file_sha1)
+        if Path("files/" + file_name).if_file():
+            try:
+                subprocess.run(["xdg-open", "files/" + file_name], check=True)
+            except subprocess.CalledProcessError:
+                print("Error opening the file.")
+        else:
+            ftp = FTP()
+            ftp.connect(share.addr, share.port+1)
+            ftp.login(share.User.name, share.User.pwd_hash)
+            with open("files/" + file_name, "wb") as fp:
+                ftp.retrbinary("RETR " + file_sha1, fp.write)
+            ftp.quit()
 
-        try:
-            subprocess.run(["xdg-open", "files/" + file_name], check=True)
-        except subprocess.CalledProcessError:
-            print("Error opening the file.")
 
 
     # 查询房间成员的memberid
@@ -207,6 +210,7 @@ class ChatUI(QWidget):
             event="", user_avatar="", user_name="user_name",userid= "user_id"))
 
         list_item = QtWidgets.QListWidgetItem(self.ui.chatMsgList)
+        list_item.setSizeHint(chat_item.sizeHint()) 
         self.ui.chatMsgList.addItem(list_item)
         self.ui.chatMsgList.setItemWidget(list_item, chat_item)
         self.ui.chatMsgList.scrollToBottom() # 保持自动显示最下方信息
@@ -221,6 +225,7 @@ class ChatUI(QWidget):
             event="", user_avatar="", user_name="user_name",userid= "user_id"))
 
         list_item = QtWidgets.QListWidgetItem(self.ui.chatMsgList)
+        list_item.setSizeHint(chat_item.sizeHint()) 
         self.ui.chatMsgList.addItem(list_item)
         self.ui.chatMsgList.setItemWidget(list_item, chat_item)
         self.ui.chatMsgList.scrollToBottom() # 保持自动显示最下方信息
