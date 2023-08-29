@@ -29,11 +29,11 @@ def register(addr, data):
         "type": "acceptregister",
         "result": False
     }
-    
+
     if user_name == "" or (user_id := db.insert_user(data["username"], data["userpwdhash"])) is None:
         logging.info(f"Client registration failed, {addr}")
-        return  resp, {addr}
-    
+        return resp, {addr}
+
     logging.info(f"Client registration successed, {addr}")
     resp["result"] = True
     resp["userid"] = user_id
@@ -48,7 +48,7 @@ def login(addr, data):
         "type": "acceptlogin",
         "result": False
     }
-    
+
     if (user_id := db.query_user_login(user_name, user_pwd)) is None:
         logging.info(f"Client login failed, {addr}")
         return resp, {addr}
@@ -57,7 +57,7 @@ def login(addr, data):
     with lock:
         users[user_id] = addr
         links[addr] = user_id
-        
+
         logging.info(f"Client login successed, {addr}")
         resp["result"] = True
         resp["userid"] = user_id
@@ -75,26 +75,24 @@ def create_room(addr, data):
         "type": "accpetroom",
         "result": False
     }
-    
+
     if (room_id := db.insert_room(room_name, createtime)) is None:
         logging.info(f"Client room creation failed, {addr}")
         return resp, {addr}
-    
+
     if not db.insert_room_admins(room_id, set(admin_ids)) or not db.insert_room_members(room_id, set(member_ids)):  # 缺少部分回滚
         logging.info(f"Client room creation failed, {addr}")
         return resp, {addr}
-    
+
     global users
     with lock:
         logging.info("Client room creation successed")
         resp["result"] = True
-        resp.append({
-            "roomid": room_id,
-            "adminid": admin_ids,
-            "memberid": member_ids,
-            "roomname": room_name,
-            "createtime": createtime
-            })
+        resp["roomid"] = room_id
+        resp["adminid"] = admin_ids
+        resp["memberid"] = member_ids
+        resp["roomname"] = room_name
+        resp["createtime"] = createtime
         return resp, {users.get(item) for item in member_ids if item in users}
 
 
@@ -110,24 +108,22 @@ def send_msg(addr, data):
         "type": "acceptmsg",
         "result": False
     }
-    
+
     if (msg_id := db.insert_message(user_id, room_id, content, msgtype, sendtime)) is None:
         logging.info("Client message send failed")
         return resp, {addr}
-    
+
     global users
     with lock:
         logging.info("Client message send successed")
         resp["result"] = True
-        resp.append({
-            "msgid": msg_id,
-            "userid": user_id,
-            "username": db.query_user_name(user_id),
-            "roomid": room_id,
-            "msgtype": msgtype,
-            "content": content,
-            "sendtime": sendtime
-            })
+        resp["msgid"] = msg_id
+        resp["userid"] = user_id
+        resp["username"] = db.query_user_name(user_id)
+        resp["roomid"] = room_id
+        resp["msgtype"] = msgtype
+        resp["content"] = content
+        resp["sendtime"] = sendtime
         return resp, {users.get(item) for item in db.query_room_members(room_id) if item in users}
 
 
@@ -138,11 +134,11 @@ def load_room(addr, data):
         "type": "acceptloadroom",
         "result": False
     }
-    
+
     if (rooms := db.query_user_rooms(user_id)) is None:
         logging.info("Client load room failed")
         return resp, {addr}
-    
+
     logging.info("Client load room successed")
     resp["result"] = True
     resp["rooms"] = rooms
@@ -160,15 +156,15 @@ def room_message(addr, data):
         "result": False,
         "roomid": room_id
     }
-    
+
     if user_id not in db.query_room_members(room_id):
         logging.info("Client fetch room messages failed: Not in room")
         return resp, {addr}
-    
+
     if (room_messages := db.query_room_messages(room_id, size, lasttime)) is None:
         logging.info("Client fetch room messages failed")
         return resp, {addr}
-    
+
     logging.info("Client fetch room messages successed")
     resp["result"] = True
     resp["messages"] = room_messages
@@ -187,15 +183,15 @@ def change_roomname(addr, data):
         "roomid": room_id,
         "roomname": room_name
     }
-    
+
     if user_id not in db.query_room_admins(room_id):
         logging.info("Client change roomname failed: Not room admin")
         return resp, {addr}
-    
+
     if db.update_room_name(room_id, room_name) is None:
         logging.info("Client change roomname failed")
         return resp, {addr}
-        
+
     global users
     with lock:
         logging.info("Client change roomname successed")
@@ -213,21 +209,23 @@ def exit_room(addr, data):
         "userid": user_id,
         "roomid": room_id
     }
-    
+
     if user_id not in db.query_room_members(room_id):
         logging.info("Client exit room failed: Not in room")
         return resp, {addr}
-    
+
     global users
     with lock:
-        
-        st = {users.get(item) for item in db.query_room_members(room_id) if item in users}
-        
-        if db.delete_room_member(room_id, set(user_id)):
+
+        # 旧成员 包含欲退出的成员
+        st = {users.get(item)
+              for item in db.query_room_members(room_id) if item in users}
+
+        if db.delete_room_members(room_id, set(user_id)):
             logging.info("Client exit room successed")
             resp["result"] = True
             return resp, st
-        
+
         logging.info("Client exit room failed")
         return resp, {addr}
 
@@ -242,30 +240,32 @@ def del_room(addr, data):
         "userid": user_id,
         "roomid": room_id
     }
-    
+
     if user_id not in db.query_room_admins(room_id):
         logging.info("Client delete room failed: Not room admin")
         return resp, {addr}
-    
+
     global users
     with lock:
-        
-        st = {users.get(item) for item in db.query_room_members(room_id) if item in users}
-        
+
+        # 旧成员 包含原来所有的成员
+        st = {users.get(item)
+              for item in db.query_room_members(room_id) if item in users}
+
         if db.delete_room(room_id):
             logging.info("Client delete room successed")
             resp["result"] = True
             return resp, st
-        
+
         logging.info("Client delete room failed")
-        return resp, st
+        return resp, {addr}
 
 
 def change_member(addr, data):
     """管理员增删房间成员模块"""
     user_id = data["userid"]
     room_id = data["roomid"]
-    member_ids = data["memberid"] # list
+    member_ids = data["memberid"]  # list
     mode = data["mode"]
     resp = {
         "type": "acceptchangemember",
@@ -279,29 +279,31 @@ def change_member(addr, data):
     if user_id not in db.query_room_admins(room_id):
         logging.info("Client change room members failed: Not room admin")
         return resp, {addr}
-    
+
     global users
     with lock:
-        
-        st = {users.get(item) for item in db.query_room_members(room_id) if item in users}
-        
+
+        # 旧成员 没有添加或踢出成员
+        st = {users.get(item)
+              for item in db.query_room_members(room_id) if item in users}
+
         # 踢出房间成员
         if mode == 0:
-            
-            if db.delete_room_member(room_id, set(member_ids)):
+
+            if db.delete_room_members(room_id, set(member_ids)):
                 logging.info("Client delete room members successed")
                 resp["result"] = True
                 return resp, st
-            
+
             logging.info("Client delete room members failed")
             return resp, {addr}
-        
+
         # 邀请房间成员
         if db.insert_room_members(room_id, set(member_ids)):
             logging.info("Client add room members successed")
             resp["result"] = True
             return resp, {users.get(item) for item in db.query_room_members(room_id) if item in users}
-        
+
         logging.info("Client add room members failed")
         return resp, {addr}
 

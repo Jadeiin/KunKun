@@ -83,7 +83,7 @@ class ListenThread(QThread):
             self.notifySignal.emit(error_message)
 
     def acceptRoom(self, msg):
-        """加好友成功或者建立群聊成功"""
+        """加好友成功或者建立聊天成功"""
         if msg["result"] == True:
             new_room = room.Room()  # 新建一个房间
             new_room.roomID       = msg["roomid"]
@@ -186,12 +186,12 @@ class ListenThread(QThread):
             for item in msg[]
             room_id = msg["roomid"]
             user_id = msg["userid"]
-            member = msg["member"] 
+            member = msg["member"]
 
 
 
 
-    # 主动退出群聊
+    # 主动退出聊天
     def acceptExitRoom(self, msg):
         if msg["result"] == True:
             delet_roomid = msg["roomid"]
@@ -222,11 +222,11 @@ class ListenThread(QThread):
                 else:
                     share.RoomDict[msg["roomid"]].memberID.remove(msg["memberid"])
                 # 自己是管理员：
-                    if msg["userid"] == share.User.userID:   
+                    if msg["userid"] == share.User.userID:
                         notice_message = (1,"提示", "踢出成员成功")
-                        self.notifySignal.emit(notice_message)  
+                        self.notifySignal.emit(notice_message)
                     else:
-                        pass   
+                        pass
             elif msg["mode"] == 1:
                 # 未知房间：
                 # 自己被加 额外加载房间消息
@@ -240,13 +240,13 @@ class ListenThread(QThread):
                     share.RoomDict[msg["roomid"]].memberID.append(msg["memberid"])
                     if msg["userid"] == share.User.userID:
                         notice_message = (1,"提示", "拉入成员成功")
-                        self.notifySignal.emit(notice_message)  
+                        self.notifySignal.emit(notice_message)
                     else:
                         pass
 
 
 
-    # 管理员解散群聊
+    # 管理员解散聊天
     def acceptDelRoom(self, msg):
         if msg["result"] == True:
             delet_roomid = msg["roomid"]
