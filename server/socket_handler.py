@@ -159,6 +159,118 @@ def room_message(addr, data):
     }, {addr}
 
 
+def change_roomname(addr, data):
+    if data["userid"] not in db.query_room_members(data["roomid"]):
+        logging.info("Client change room name failed: Not in room")
+        return {
+            "type": "acceptchangeroom",
+            "result": False,
+            "useid": links[addr],
+            "roomid": data["roomid"],
+            "roomname": db.query_room_name(data["roomid"])
+        }, {addr}
+    logging.info("Client change room name successed")
+    room_id = data["roomid"]
+    room_name = data["newname"]
+    db.update_room_name(room_id, room_name)
+    return {
+        "type": "acceptchangeroom",
+        "result": True,
+        "userid": links[addr],
+        "roomid": room_id,
+        "roomname": room_name
+    }, {users.get(item) for item in db.query_room_members(room_id) if item in users}
+
+
+def exit_room(addr, data):
+    if data["userid"] not in db.query_room_members(data["roomid"]):
+        logging.info("Client exit room failed: Not in room")
+        return {
+            "type": "acceptexitroom",
+            "result": False
+        }, {addr}
+    logging.info("Client exit room successed")
+    room_id = data["roomid"]
+    user_id = data["userid"]
+    st = {users.get(item) for item in db.query_room_members(room_id) if item in users}
+    db.delete_room_member(room_id, set([user_id]))
+    return {
+        "type": "acceptchangeroom",
+        "result": True,
+        "userid": links[addr],
+        "roomid": room_id
+    }, st
+
+
+def del_room(addr, data):
+    user_id = data["userid"]
+    room_id = data["roomid"]
+    if user_id not in db.query_room_members(room_id):
+        logging.info("Client delete room failed: Not in room")
+        return {
+            "type": "acceptdelroom",
+            "result": False,
+            "userid": user_id,
+            "roomid": room_id
+        }, {addr}
+    if user_id not in db.query_room_admins(room_id):
+        logging.info("Client delete room failed: Not room admin")
+        return {
+            "type": "acceptdelroom",
+            "result": False,
+            "userid": user_id,
+            "roomid": room_id
+        }, {addr}
+    logging.info("Client delete room successed")
+    st = {users.get(item) for item in db.query_room_members(room_id) if item in users}
+    db.delete_room(room_id)
+    return {
+        "type": "acceptdelroom",
+        "result": True,
+        "userid": user_id,
+        "roomid": room_id
+    }, st
+
+
+def change_member(addr, data):
+    user_id = data["userid"]
+    room_id = data["roomid"]
+    member_ids = data["memberid"]
+    if user_id not in db.query_room_members(room_id):
+        logging.info("Client change room members failed: Not in room")
+        return {
+            "type": "acceptchangemember",
+            "result": False,
+            "userid": user_id,
+            "roomid": room_id,
+            "memberid": member_ids
+        }, {addr}
+    if user_id not in db.query_room_admins(room_id):
+        logging.info("Client change room members failed: Not room admin")
+        return {
+            "type": "acceptchangemember",
+            "result": False,
+            "userid": user_id,
+            "roomid": room_id,
+            "memberid": member_ids
+        }, {addr}
+    logging.info("Client change room members successed")
+    mode = data["mode"]
+    st = {users.get(item) for item in db.query_room_members(room_id) if item in users}
+    if mode == 0:
+        db.delete_room_member(room_id, set(member_ids))
+    else:
+        db.insert_room_members(room_id, set(member_ids))
+    return {
+        "type": "acceptchangemember",
+        "result": True,
+        "userid": user_id,
+        "roomid": room_id,
+        "memberid": member_ids
+    },
+    st if mode == 0 else {users.get(item) for item in db.query_room_members(room_id) if item in users}
+
+
 def handler(conn, addr):
     """socket 收发模块"""
     global db, clients, users, links
@@ -186,6 +298,14 @@ def handler(conn, addr):
                 resp, st = load_room(addr, data)
             elif data["type"] == "roommessage":
                 resp, st = room_message(addr, data)
+            elif data["type"] == "changeroomname":
+                resp, st = change_roomname(addr, data)
+            elif data["type"] == "exitroom":
+                resp, st = exit_room(addr, data)
+            elif data["type"] == "delroom":
+                resp, st = del_room(addr, data)
+            elif data["type"] == "changemember":
+                resp, st = change_member(addr, data)
             else:
                 raise ValueError("Received message in unknown type")
 
