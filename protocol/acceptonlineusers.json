@@ -1,5 +1,5 @@
 {
-	"type": "acceptonlineusers",
+	"type": "acceptonlineusers", //一定成功
 	"onlineusers": [
 		{
 			"userid": 1,

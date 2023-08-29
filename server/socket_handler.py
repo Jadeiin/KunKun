@@ -308,6 +308,38 @@ def change_member(addr, data):
         return resp, {addr}
 
 
+def get_member(addr, data):
+    """获取房间成员"""
+    user_id = data["userid"]
+    room_id = data["roomid"]
+    resp = {
+        "type": "acceptgetmember",
+        "result": False,
+        "userid": user_id,
+        "roomid": room_id
+    }
+
+    if (member_ids := db.query_room_members(room_id)) is None:
+        logging.info("Client get room members failed")
+        return resp, {addr}
+
+    if user_id not in member_ids:
+        logging.info("Client get room members failed: Not in room")
+        return resp, {addr}
+
+    member = []
+    for member_id in member_ids:
+        member.append({
+            "userid": member_id,  # 必然合法 不做判断
+            "username": db.query_user_name(member_id)
+        })
+
+    logging.info("Client get room members successed")
+    resp["result"] = True
+    resp["member"] = member
+    return resp, {addr}
+
+
 def handler(conn, addr):
     """socket 收发模块"""
     global db, clients, users, links
@@ -343,6 +375,8 @@ def handler(conn, addr):
                 resp, st = del_room(addr, data)
             elif data["type"] == "changemember":
                 resp, st = change_member(addr, data)
+            elif data["type"] == "getmember":
+                resp, st = get_member(addr, data)
             else:
                 raise ValueError("Received message in unknown type")
 

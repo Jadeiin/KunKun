@@ -1,5 +1,6 @@
 {
 	"type": "acceptgetmember",
+    "result": true,
 	"userid": 1,
 	"roomid": 1,
 	"member": [
