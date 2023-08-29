@@ -5,6 +5,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QPlainTextEd
 
 from public import share
 import room
+import user
 from datetime import datetime
 
 
@@ -175,15 +176,20 @@ class ListenThread(QThread):
                 share.CurrentRoom.room_name = new_name
                 share.chat_page.ui.chatName.setText(new_name)
 
+
     # 获取群组成员id和用户名
     # 目前没有用到，后面需要再更改
     def acceptGetMember(self, msg):
         if msg["result"] == True:
-            for item in msg[]
             room_id = msg["roomid"]
             user_id = msg["userid"]
-            member = msg["member"]
-
+            memberlist = msg["member"]
+            share.RoomDict[room_id].memberID = []
+            if len(memberlist)!=0:
+                for member in memberlist:
+                    new_user = user.User(user_id, room_id)
+                    share.AllUsersDict[member["userid"]] =  new_user
+                    share.RoomDict[room_id].memberID.append(member["userid"])
 
 
 
