@@ -37,18 +37,16 @@ class ListenThread(QThread):
             self.acceptRoom(msg)
         elif msg["type"] == "acceptloadroom":
             self.receiveRoomList(msg)
-        elif msg["type"] == "acceptroommessage":  # 收到n条聊天消息
+        elif msg["type"] == "acceptroommessage":
             self.receiveRoomMessage(msg)
-        elif msg["type"] == "acceptexitgroup":  # 主动退出群聊
-            self.acceptExitGroup(msg)
-        elif msg["type"] == "acceptkickgroup": # 被踢出群聊
-            self.acceptKickGroup(msg)
-        elif msg["type"] == "acceptmemberchange": # 群组人员变动
-            self.acceptMemberChange(msg)
-        elif msg["type"] == "acceptadminquit": # 管理员解散群聊
-            self.acceptAdminQuit(msg)
-        elif msg["type"] == "acceptchangeroomname":
-            self.acceptChangeRoomName(msg)
+        elif msg["type"] == "acceptexitroom":
+            self.acceptExitRoom(msg)
+        elif msg["type"] == "acceptchangemember":
+            self.acceptChangeMember(msg)
+        elif msg["type"] == "acceptdelroom":
+            self.acceptDelRoom(msg)
+        elif msg["type"] == "acceptroomname":
+            self.acceptRoomName(msg)
         else:
             logging.error("Accept message type error!")
 
@@ -161,11 +159,11 @@ class ListenThread(QThread):
         else:
             error_message = (0, "错误", "获取聊天消息失败")
             self.notifySignal.emit(error_message)
-            
-    def acceptChangeRoomName(self, msg):
+
+    def acceptRoomName(self, msg):
         if msg["result"] == True:
             room_id  = msg["roomid"]
-            new_name = msg["newname"]
+            new_name = msg["roomname"]
             share.RoomDict[room_id].room_name
             # 聊天项名字改变
             room_index = share.RoomOrderList.index(room_id)
@@ -178,47 +176,42 @@ class ListenThread(QThread):
             if room_id == share.CurrentRoom.roomID:
                 share.CurrentRoom.room_name = new_name
                 share.chat_page.ui.chatName.setText(new_name)
-    
+
     # 主动退出群聊
-    def acceptExitGroup(self, msg):
+    def acceptExitRoom(self, msg):
         if msg["result"] == True:
             delet_roomid = msg["roomid"]
             share.chat_page.deletItemInChatList(delet_roomid)
-            share.RoomOrderList.remove(delet_roomid)          
-            notice_message = (1,"提示", "已退出群聊"+share.RoomDict[delet_roomid].room_name)
+            share.RoomOrderList.remove(delet_roomid)
+            notice_message = (1,"提示", "已退出聊天 "+share.RoomDict[delet_roomid].room_name)
             self.notifySignal.emit(notice_message)
             del share.RoomDict[delet_roomid]
         else:
             error_message = (0, "错误", "删除聊天失败")
             self.notifySignal.emit(error_message)
-    
-    # 被踢出群聊
-    def acceptKickGroup(self, msg):
-        if msg["result"] == True:
-            delet_roomid = msg["roomid"]
-            share.chat_page.deletItemInChatList(delet_roomid)
-            share.RoomOrderList.remove(delet_roomid)          
-            notice_message = (1,"提示", "已被移出群聊"+share.RoomDict[delet_roomid].room_name)
-            self.notifySignal.emit(notice_message)
-            del share.RoomDict[delet_roomid]
-        else:
-            pass
 
     # 群内其他成员变动
-    def acceptMemberChange(self, msg):
+    def acceptChangeMember(self, msg):
         if msg["result"] == True:
-            if msg["change"] == 0:
-                share.RoomDict[msg["roomid"]].memberID.remove(msg["memberid"])
-            elif msg["change"] == 1:
-                share.RoomDict[msg["roomid"]].memberID.append(msg["memberid"]) 
+            if msg["mode"] == 0:
+                # 已知房间：
+                # 自己被踢
+                # 别人被踢
+                # share.RoomDict[msg["roomid"]].memberID.remove(msg["memberid"])
+            elif msg["mode"] == 1:
+                # 未知房间：
+                # 自己被加 额外加载房间消息
+                # 已知房间：
+                # 别人被加
+                # share.RoomDict[msg["roomid"]].memberID.append(msg["memberid"])
 
     # 管理员解散群聊
-    def acceptAdminQuit(self, msg):
+    def acceptDelRoom(self, msg):
         if msg["result"] == True:
             delet_roomid = msg["roomid"]
             share.chat_page.deletItemInChatList(delet_roomid)
             share.RoomOrderList.remove(delet_roomid)
-            notice_message = (1,"提示", "已被移出群聊"+share.RoomDict[delet_roomid].room_name)
+            notice_message = (1,"提示", "聊天 "+share.RoomDict[delet_roomid].room_name+" 已解散")
             self.notifySignal.emit(notice_message)
             del share.RoomDict[delet_roomid]
         else:

@@ -7,5 +7,5 @@
 
 {
 	"type": "acceptexitroom",
-	"result": fasle,
+	"result": false
 }

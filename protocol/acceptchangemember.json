@@ -1,7 +1,7 @@
 {
-	"type": "changemember",
+	"type": "acceptchangemember",
     "result": true,
-    "mode": 0, // 0+ 1-
+    "mode": 0, // 0- 1+
 	"userid": 1,
 	"roomdid": 1,
 	"memeberid": [
@@ -11,9 +11,9 @@
 }
 
 {
-	"type": "changemember",
+	"type": "acceptchangemember",
     "result": false,
-    "mode": 0, // 0+ 1-
+    "mode": 1, // 0- 1+
 	"userid": 1,
 	"roomdid": 1,
 	"memeberid": [
