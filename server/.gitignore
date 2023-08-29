@@ -1,2 +1,4 @@
 # SQLite3 database
 *.db
+# Uploaded files
+files/*
