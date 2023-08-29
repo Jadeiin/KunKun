@@ -6,6 +6,3 @@ class User():
         self.name     = name  # defalut blank
         self.avatar   = avatar
         self.pwd_hash = ""
-
-    def checkAccount(self):
-        print("Nothing")

@@ -275,19 +275,19 @@ class ChatUI(QWidget):
 
         # 读历史消息, 显示出来
         for item in share.CurrentRoom.msg:
-            if item[0] == share.User.userID:
+            if item["userid"] == share.User.userID:
                 self.showSentMsg(
-                    item[5],
-                    item[2],
-                    item[1],
-                    item[3]
+                    item["username"],
+                    item["sendtime"],
+                    item["content"],
+                    item["msgtype"]
                 )
             else:
                 self.showRecvMsg(
-                    item[5],
-                    item[2],
-                    item[1],
-                    item[3]
+                    item["username"],
+                    item["sendtime"],
+                    item["content"],
+                    item["msgtype"]
                 )  # 聊天记录框显示文字 # 可以加时间
 
     def sendChatMsg(self, msg):
@@ -305,30 +305,28 @@ class ChatUI(QWidget):
         # 在字典中找到room, 追加一条消息
         msg_room_id = msg["roomid"]
         msg_content = msg["content"]
-        share.RoomDict[msg_room_id].msg.append(
-            (msg["userid"], msg_content, msg["sendtime"], msg["msgtype"], msg["msgid"], msg["username"]))
+        del msg["type"], msg["result"], msg["roomid"]
+        share.RoomDict[msg_room_id].msg.append(msg)
 
         # UI中列表移动或改变
         avatar_path = "./graphSource/profPhoto.jpg"  # Replace with actual path
         print(share.chat_list)
         self.deletItemInChatList(msg_room_id)  # 删除当前item
-        # print(share.chat_list)
         self.additemInChatList(avatar_path, msg_room_id,
                                msg_content)  # 重新在顶部插入item
-        # print(share.chat_list)
 
         # 在room里面追加message
         if msg["userid"] == share.User.userID:  # 自己方向的气泡框，后期加效果
             self.showSentMsg(
                 msg["username"],
-                str(msg["sendtime"]), 
-                str(msg_content),
-                msg["msgtype"]) # 在聊天框里加文字
+                msg["sendtime"],
+                msg_content,
+                msg["msgtype"])  # 在聊天框里加文字
         else:  # 在对方方向的气泡框，后期加效果
             self.showRecvMsg(
                 msg["username"],
-                str(msg["sendtime"]), 
-                str(msg_content),
+                msg["sendtime"],
+                msg_content,
                 msg["msgtype"])  # 在聊天框里加文字
 
     def receiveUnreadMsg(self, msg):
@@ -339,20 +337,17 @@ class ChatUI(QWidget):
         # 追加
         msg_room_id = msg["roomid"]
         msg_content = msg["content"]
-        share.RoomDict[msg_room_id].msg.append(
-            (msg["userid"], msg_content, msg["sendtime"], msg["msgtype"], msg["msgid"], msg["username"]))
+        del msg["type"], msg["result"], msg["roomid"]
+        share.RoomDict[msg_room_id].msg.append(msg)
 
         # UI中列表移动或改变
         avatar_path = "./graphSource/profPhoto.jpg"  # Replace with actual path
-        # print(share.chat_list)
         self.deletItemInChatList(msg_room_id)  # 删除当前item
-        # print(share.chat_list)
         self.additemInChatList(avatar_path, msg_room_id,
                                msg_content)  # 重新在顶部插入item
-        # print(share.chat_list)
 
         # 加小红点
-        QMessageBox.information(self, "未读消息", "111")  # 后面改成标柱红点
+        QMessageBox.information(self, "未读消息", msg_content)  # 后面改成标柱红点
 
     def displayChatList(self):
         self.ui.chatList.clear()

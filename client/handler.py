@@ -148,9 +148,7 @@ class ListenThread(QThread):
             tmp_mesages = msg["messages"]  # 从新消息到旧的顺序发来的
             if tmp_mesages != []:
                 for item in tmp_mesages:
-                    new_msg = (
-                        item["userid"], item["content"], item["sendtime"], item["msgtype"], item["msgid"], item["username"])
-                    share.RoomDict[room_id].msg.insert(0, new_msg)
+                    share.RoomDict[room_id].msg.insert(0, item)
             else:
                 error_message = (1, "提示", "没有更多聊天信息")
                 self.notifySignal.emit(error_message)
@@ -166,7 +164,7 @@ class ListenThread(QThread):
             # 聊天项名字改变
             room_index = share.RoomOrderList.index(room_id)
             avater = share.RoomDict[room_id].avater
-            recent_msg = share.RoomDict[room_id].msg[-1][1] \
+            recent_msg = share.RoomDict[room_id].msg[-1]["content"] \
                 if len(share.RoomDict[room_id].msg) !=0 else ""
             share.chat_page.deletItemInChatList(room_id)
             share.chat_page.additemInChatList(avater, room_id, recent_msg, room_index)
