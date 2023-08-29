@@ -1,6 +1,6 @@
 import json
 import logging
-from PyQt5.QtCore import QThread, QSocketNotifier, pyqtSignal
+from PyQt5.QtCore import QThread, QSocketNotifier, pyqtSignal, QObject
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QPlainTextEdit, QMessageBox
 
 from public import share
@@ -9,18 +9,30 @@ import user
 from datetime import datetime
 
 
+class Signals(QObject):
+    goToChat = pyqtSignal()
+    sendChatMsg = pyqtSignal(dict)
+    receiveUnreadMsg = pyqtSignal(dict)
+    additemInChatList = pyqtSignal(str, int, str)
+    deletItemInChatList = pyqtSignal(int)
+    setChatName = pyqtSignal(str)
+
+
 class ListenThread(QThread):
     notifySignal = pyqtSignal(tuple)  # 修改错误信号为元组类型
 
     def __init__(self, server):
         super().__init__()
         self.server = server
-        self.socket_notifier = QSocketNotifier(
-            self.server.fileno(), QSocketNotifier.Read, self)
-        self.socket_notifier.activated.connect(self.handleSocketActivation)
+        self.signals = Signals()
+        # self.socket_notifier = QSocketNotifier(
+        #     self.server.fileno(), QSocketNotifier.Read, self)
+        # self.socket_notifier.activated.connect(self.handleSocketActivation)
 
     def run(self):
-        self.exec_()
+        # self.exec_()
+        while True:
+            self.handleSocketActivation(self.server)
 
     def handleSocketActivation(self, socket):
         # if socket == self.server: 这个去了注释好像接收不到消息
@@ -56,7 +68,7 @@ class ListenThread(QThread):
     def acceptLogin(self, msg):
         if msg["result"] == True:
             share.User.userID = msg["userid"]
-            share.login_page.goToChat()  # 从登录界面进入聊天界面
+            self.signals.goToChat.emit()  # 从登录界面进入聊天界面
         else:
             share.User.name = ""
             error_message = (0, "登录失败", "用户名或密码错误")  # 封装窗口标题和消息内容
@@ -75,9 +87,9 @@ class ListenThread(QThread):
         """收到自己与别人发送的消息"""
         if msg["result"] == True:
             if msg["roomid"] == share.CurrentRoom.roomID:
-                share.chat_page.sendChatMsg(msg)  # 已打开聊天界面就send
+                self.signals.sendChatMsg.emit(msg)  # 已打开聊天界面就send
             else:
-                share.chat_page.receiveUnreadMsg(msg)  # 未打开聊天记录就小红点
+                self.signals.receiveUnreadMsg.emit(msg)  # 未打开聊天记录就小红点
         else:
             error_message = (0, "错误", "消息发送失败")  # 封装窗口标题和消息内容
             self.notifySignal.emit(error_message)
@@ -98,7 +110,7 @@ class ListenThread(QThread):
             avatar_path = "./graphSource/profPhoto.jpg"  # Replace with actual path
             # room_name = "Paimon"  # Replace with actual name
             recent_msg = "你好, 你创建了新的聊天"
-            share.chat_page.additemInChatList(avatar_path, new_room.roomID, recent_msg)
+            self.signals.additemInChatList.emit(avatar_path, new_room.roomID, recent_msg)
         else:
             error_message = (0, "错误", "创建聊天失败")  # 封装窗口标题和消息内容
             self.notifySignal.emit(error_message)
@@ -120,23 +132,23 @@ class ListenThread(QThread):
                     share.RoomDict[new_room.roomID] = new_room  # 并把房间放到房间字典中
                     share.RoomOrderList.insert(0, new_room.roomID)  # 房间id放到房间列表
                     avatar_path = "./graphSource/profPhoto.jpg"
-                    share.chat_page.additemInChatList(avatar_path, new_room.roomID, last_message)
+                    self.signals.additemInChatList.emit(avatar_path, new_room.roomID, last_message)
             else:
                 error_message = (1, "提示", "没有更多聊天")
                 self.notifySignal.emit(error_message)
 
-            # # 按照room顺序, 并发送拉取消息的请求
-            # room_dict = {"type":"roommessage"}
-            # room_dict["userid"] = share.User.userID
-            # room_dict["size"]   = 50
-            # for (room_id, last_time) in share.RoomOrderList:
-            #     room_dict["roomid"] = room_id
-            #     if len(share.RoomDict[room_id].msg) == 0:
-            #         room_dict["lasttime"] = last_time  # 最后一条消息的时间
-            #     else:
-            #         room_dict["lasttime"] = share.RoomDict[room_id].msg[0][2]  # 最老的一条消息的时间
-            #     # 发送消息给服务端
-            #     share.server.sendall(json.dumps(room_dict).encode())
+            # 按照room顺序, 并发送拉取消息的请求
+            room_dict = {"type":"roommessage"}
+            room_dict["userid"] = share.User.userID
+            room_dict["size"]   = 50
+            for room_id in share.RoomOrderList:
+                room_dict["roomid"] = room_id
+                if len(share.RoomDict[room_id].msg) == 0:
+                    room_dict["lasttime"] = share.RoomDict[room_id].lastest_time  # 最后一条消息的时间
+                # else:
+                #     room_dict["lasttime"] = share.RoomDict[room_id].msg[0][2]  # 最老的一条消息的时间
+                # 发送消息给服务端
+                share.server.sendall(json.dumps(room_dict).encode())
         else:
             error_message = (0, "错误", "打开聊天界面失败")
             self.notifySignal.emit(error_message)
@@ -166,12 +178,12 @@ class ListenThread(QThread):
             avater = share.RoomDict[room_id].avater
             recent_msg = share.RoomDict[room_id].msg[-1]["content"] \
                 if len(share.RoomDict[room_id].msg) !=0 else ""
-            share.chat_page.deletItemInChatList(room_id)
-            share.chat_page.additemInChatList(avater, room_id, recent_msg, room_index)
+            self.signals.deletItemInChatList.emit(room_id)
+            self.signals.additemInChatList.emit(avater, room_id, recent_msg) # 少了 room_index
             # 聊天框名字改变
             if room_id == share.CurrentRoom.roomID:
                 share.CurrentRoom.room_name = new_name
-                share.chat_page.ui.chatName.setText(new_name)
+                self.signals.setChatName.emit(new_name)
 
 
     # 获取群组成员id和用户名
@@ -184,6 +196,7 @@ class ListenThread(QThread):
             share.RoomDict[room_id].memberID = []
             if len(memberlist)!=0:
                 for member in memberlist:
+                    share.member_list.append(member)
                     new_user = user.User(user_id, room_id)
                     share.RoomDict[room_id].memberID.append(member["userid"])
 
@@ -193,7 +206,7 @@ class ListenThread(QThread):
     def acceptExitRoom(self, msg):
         if msg["result"] == True:
             delet_roomid = msg["roomid"]
-            share.chat_page.deletItemInChatList(delet_roomid)
+            self.signals.deletItemInChatList.emit(delet_roomid)
             share.RoomOrderList.remove(delet_roomid)
             notice_message = (1,"提示", "已退出聊天 "+share.RoomDict[delet_roomid].room_name)
             self.notifySignal.emit(notice_message)
@@ -211,7 +224,7 @@ class ListenThread(QThread):
                 # 自己被踢:
                 if share.User.userID in msg["memberid"]:
                     delet_roomid = msg["roomid"]
-                    share.chat_page.deletItemInChatList(delet_roomid)
+                    self.signals.deletItemInChatList.emit(delet_roomid)
                     share.RoomOrderList.remove(delet_roomid)
                     notice_message = (1,"提示", "已退出聊天 "+share.RoomDict[delet_roomid].room_name)
                     self.notifySignal.emit(notice_message)
@@ -248,7 +261,7 @@ class ListenThread(QThread):
     def acceptDelRoom(self, msg):
         if msg["result"] == True:
             delet_roomid = msg["roomid"]
-            share.chat_page.deletItemInChatList(delet_roomid)
+            self.signals.deletItemInChatList.emit(delet_roomid)
             share.RoomOrderList.remove(delet_roomid)
             notice_message = (1,"提示", "聊天 "+share.RoomDict[delet_roomid].room_name+" 已解散")
             self.notifySignal.emit(notice_message)

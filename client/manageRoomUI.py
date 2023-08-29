@@ -14,9 +14,8 @@ from public import share
 class manageRoomUI(QWidget):
     def __init__(self):
         super().__init__()
-        
-        share.member_list = []
-        
+
+
         if share.User.userID == share.CurrentRoom.adminID:
             self.ui = uic.loadUi("./UIfiles/manageRoom.ui") #加载管理员界面
             self.loadMemberlist()
@@ -29,10 +28,10 @@ class manageRoomUI(QWidget):
             self.ui = uic.loadUi("./UIfiles/RoomInfoForNonAdmin.ui") #加载普通群成员界面
             self.loadMemberlist()
             self.ui.leaveRoomBtn.clicked.connect(self.exitRoom) #推出聊天
-            
-        
-        
-        
+
+
+
+
 
 
     def changeRoomName(self):
@@ -73,14 +72,14 @@ class manageRoomUI(QWidget):
         调用addItemInMemberList函数，
         根据服务端的到的聊天室成员信息创建
         '''
-        member_list = share.CurrentRoom.memberID
-        for index in member_list:
-            self.addItemInMemberList(index)
+        print(share.member_list)
+        for item in share.member_list:
+            self.addItemInMemberList(item["userid"], item["username"])
 
-    def addItemInMemberList(self, member_id):
+    def addItemInMemberList(self, member_id, username):
         # 新建成员item
-        avatar_path = share.AllUsersDict[member_id].avatar
-        name        = share.AllUsersDict[member_id].name
+        avatar_path = "files/avatar" + str(member_id)
+        name        = username
 
         member_widget = MemberListItemWidget(
             avatar_path=avatar_path, name=name, usrID=member_id)
@@ -93,14 +92,14 @@ class manageRoomUI(QWidget):
         self.connectItemClicked(member_widget) # 连接最新的 member_widget，持续监听
 
         share.member_list.append(member_widget)
-    
+
     def connectItemClicked(self, member_widget):
         '''新建聊天项时，将新的聊天项加入监听列表，且和鼠标点击判断建立连接'''
         print("Monitoring mouse press for member list...")
         # if member_widget not in self.connected_items:
         member_widget.itemClicked.connect(self.handleItemClicked)
             # self.connected_items.append(member_widget)
-    
+
     def handleItemClicked(self, usrid):
         '''
         显示被点击成员的信息
@@ -116,7 +115,7 @@ class manageRoomUI(QWidget):
         y = global_pos.y() + 35  # y coordinate
         share.usr_info_page.ui.move(x, y)  # Move the window
         share.usr_info_page.ui.show()
-    
+
 
 
 if __name__ == "__main__":

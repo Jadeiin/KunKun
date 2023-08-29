@@ -290,6 +290,8 @@ class ChatUI(QWidget):
                     item["msgtype"]
                 )  # 聊天记录框显示文字 # 可以加时间
 
+        self.getMember(share.CurrentRoom.roomID)
+
     def sendChatMsg(self, msg):
         """
         调用: 当自己发消息成功(acceptMsg)或接收到别人的消息(sendmsg)时调用该函数
