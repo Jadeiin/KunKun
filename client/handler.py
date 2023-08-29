@@ -56,7 +56,6 @@ class ListenThread(QThread):
     def acceptLogin(self, msg):
         if msg["result"] == True:
             share.User.userID = msg["userid"]
-            share.AllUsersDict[share.User.userID] = share.User  # 别忘了放把自己也加进去
             share.login_page.goToChat()  # 从登录界面进入聊天界面
         else:
             share.User.name = ""
@@ -188,7 +187,6 @@ class ListenThread(QThread):
             if len(memberlist)!=0:
                 for member in memberlist:
                     new_user = user.User(user_id, room_id)
-                    share.AllUsersDict[member["userid"]] =  new_user
                     share.RoomDict[room_id].memberID.append(member["userid"])
 
 
