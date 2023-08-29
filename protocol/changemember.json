@@ -3,7 +3,7 @@
     "mode": 0, // 0- 1+
 	"userid": 1,
 	"roomid": 1,
-	"memeberid": [
+	"memberid": [
 		2,
 		3
 	]
