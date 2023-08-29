@@ -14,6 +14,9 @@ from public import share
 class manageRoomUI(QWidget):
     def __init__(self):
         super().__init__()
+        
+        share.member_list = []
+        
         self.ui = uic.loadUi("./UIfiles/manageRoom.ui")
         
         self.ui.editChatNameBtn.clicked.connect(self.addItemInMemberList)  # 点击更改按钮
@@ -29,12 +32,17 @@ class manageRoomUI(QWidget):
         调用addItemInMemberList函数，
         根据服务端的到的聊天室成员信息创建
         '''
+        member_list = share.CurrentRoom.memberID
+        for index in member_list:
+            self.addItemInMemberList(index)
 
-    def addItemInMemberList(self):
+    def addItemInMemberList(self, member_id):
         # 新建成员item
+        avatar_path = share.AllUsersDict[member_id].avatar
+        name        = share.AllUsersDict[member_id].name
 
-        avatar_path = "./graphSource/profPhoto.jpg"  # Replace with actual path
-        member_widget = MemberListItemWidget(avatar_path=avatar_path, name="test", usrID="123")
+        member_widget = MemberListItemWidget(
+            avatar_path=avatar_path, name=name, usrID=member_id)
         list_item = QListWidgetItem()
         list_item.setSizeHint(member_widget.sizeHint())
         self.ui.memberList.addItem(list_item) # 调整顺序
@@ -42,6 +50,8 @@ class manageRoomUI(QWidget):
         self.ui.memberList.setItemWidget(list_item, member_widget) # 向memberList中加入一个新的item：member_widget
 
         self.connectItemClicked(member_widget) # 连接最新的 member_widget，持续监听
+
+        share.member_list.append(member_widget)
     
     def connectItemClicked(self, member_widget):
         '''新建聊天项时，将新的聊天项加入监听列表，且和鼠标点击判断建立连接'''
@@ -50,14 +60,14 @@ class manageRoomUI(QWidget):
         member_widget.itemClicked.connect(self.handleItemClicked)
             # self.connected_items.append(member_widget)
     
-    def handleItemClicked(self, index):
+    def handleItemClicked(self, usrid):
         '''
         显示被点击成员的信息
         '''
-        print("Item clicked. Index:", index)
-        usrprof = "./graphSource/profPhoto.jpg"
-        usrname = "test"
-        usrID = "1231231231"
+        print("Item clicked. Index:", usrid)
+        usrprof = share.AllUsersDict[usrid].avatar
+        usrname = share.AllUsersDict[usrid].name
+        usrID = str(usrid)
         share.usr_info_page = usrInfoUI(prof_path=usrprof, usr_name=usrname, usr_id=usrID)
         # 保证新窗口打开位置在原窗口中心
         global_pos = self.ui.mapToGlobal(QPoint(0, 0))  # Parent widget's global position

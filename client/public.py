@@ -22,3 +22,5 @@ class share:
     RoomDict      = {}       # 房间列表是一个字典，key=roomID, value=类的对象
     RoomOrderList = []  # 存放roomid
     chat_list     = []  # 用于存储 ChatListItemWidget 实例的列表
+
+    member_list = [] # 聊天室管理界面用于存放用户的列表

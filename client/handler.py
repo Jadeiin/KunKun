@@ -94,10 +94,6 @@ class ListenThread(QThread):
             share.RoomDict[new_room.roomID] = new_room  # 并把房间放到房间字典中
             share.RoomOrderList.insert(0, new_room.roomID)  #
 
-            # # 清空输入框的内容, 清空聊天记录框（不需要了）
-            # share.chat_page.ui.msgTextEdit.clear()  # 清空输入框的内容
-            # share.chat_page.ui.chattingRecordBrowser.clearHistory()  # 清空聊天记录框
-
             # 消息列表在最前面添加一个新的
             avatar_path = "./graphSource/profPhoto.jpg"  # Replace with actual path
             # room_name = "Paimon"  # Replace with actual name

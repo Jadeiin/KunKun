@@ -1,9 +1,9 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox, QSpacerItem, QFileDialog
-from PyQt5.QtWidgets import QMainWindow, QListWidget, QListWidgetItem, QHBoxLayout, QVBoxLayout, QLabel, QSizePolicy
+from PyQt5.QtWidgets import QListWidget, QListWidgetItem, QHBoxLayout, QVBoxLayout, QLabel, QSizePolicy
 from PyQt5.QtGui import QPixmap
 from PyQt5.QtCore import pyqtSignal, QPoint, QTimer
-from PyQt5 import QtCore, QtGui
+from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5 import uic
 import json
 import random
@@ -11,12 +11,14 @@ from pathlib import Path
 from ftplib import FTP
 from hashlib import sha1
 
+import subprocess
 
 from public import share
 from chatListItem import ChatListItemWidget
 import room
 from manageRoomUI import manageRoomUI
 from usrInfoUI import usrInfoUI
+from ChatBubbleItem import ChatBubbleItem1, ChatBubbleItem2
 
 
 class ChatUI(QWidget):
@@ -48,7 +50,9 @@ class ChatUI(QWidget):
         self.connectAllItems()  # 聊天列表监听鼠标点击情况，初始化时连接所有聊天项
 
         # 点用户头像显示信息
-        self.ui.usrProfPhoto.mousePressEvent = self.showUsrInfo
+        
+        self.ui.usrProfPhoto.mousePressEvent = lambda event: self.showUsrInfo(
+            "",share.User.avatar, share.User.name, str(share.User.userID))
 
         # 发送文件功能
         # 获取 QLabel 对象，连接 QLabel 的点击事件到另一个函数
@@ -59,9 +63,8 @@ class ChatUI(QWidget):
 
 
 
-    def showUsrInfo(self, event):
-        share.usr_info_page = usrInfoUI(
-            self.usr_prof_photo_path, self.usr_name)
+    def showUsrInfo(self, event, user_avatar, user_name, userid):   # event不可省略
+        share.usr_info_page = usrInfoUI(prof_path=user_avatar, usr_name=user_name, usr_id=userid)
         # 保证新窗口打开位置在原窗口中心
         # Parent widget's global position
         global_pos = self.ui.mapToGlobal(QPoint(0, 0))
@@ -163,6 +166,11 @@ class ChatUI(QWidget):
             ftp.retrbinary("RETR " + file_sha1, fp.write)
         ftp.quit()
 
+        try:
+            subprocess.run(["xdg-open", "files/" + file_name], check=True)
+        except subprocess.CalledProcessError:
+            print("Error opening the file.")
+
 
     # 查询房间成员的memberid
     def getMember(self, roomid):
@@ -178,16 +186,44 @@ class ChatUI(QWidget):
 
     def cutScreen(self):
         pass
+    
+    def handleRecvFileMsgClicked(self, message):
+        file_name = message[:-40]
+        file_sha1 = message[-40:]
+        self.recvFile(file_name, file_sha1)
 
-    def ISaid(self, msg):
-        self.ui.chattingRecordBrowser.append(
-            str(msg["userid"]) + ": " + msg["content"])  # 聊天记录框显示文字
-        self.ui.chattingRecordBrowser.ensureCursorVisible()  # 自动翻滚到最后一行
+    # def handleSentFileMsgClicked(self, message):
+    #     file_name = message[:-40]
+    #     file_sha1 = message[-40:]
+    #     self.recvFile(file_name, file_sha1)
+    
+    def showRecvMsg(self, name, time, msg, msg_type):
+        chat_item = ChatBubbleItem1(name, time, msg, msg_type)
 
-    def youSaid(self, msg):
-        self.ui.chattingRecordBrowser.append(
-            str(msg["userid"]) + ": " + msg["content"])  # 聊天记录框显示文字
-        self.ui.chattingRecordBrowser.ensureCursorVisible()  # 自动翻滚到最后一行
+        # 如果是文件信息，点击消息进行接收
+        self.chatBubble.messageClicked.connect(self.handleRecvFileMsgClicked)
+        # 点击头像显示用户信息
+        chat_item.photoClicked.connect(lambda: self.showUsrInfo(
+            event="", user_avatar="", user_name="user_name",userid= "user_id"))
+
+        list_item = QtWidgets.QListWidgetItem(self.chatMsgList)
+        self.chatMsgList.addItem(list_item)
+        self.chatMsgList.setItemWidget(list_item, chat_item)
+        self.chatMsgList.scrollToBottom() # 保持自动显示最下方信息
+
+    def showSentMsg(self, name, time, msg, msg_type):
+        chat_item = ChatBubbleItem2(name, time, msg, msg_type)
+
+        # 如果是文件信息，点击消息进行接收
+        chat_item.messageClicked.connect(self.handleRecvFileMsgClicked)
+        # 点击头像显示用户信息
+        chat_item.photoClicked.connect(lambda: self.showUsrInfo(
+            event="", user_avatar="", user_name="user_name",userid= "user_id"))
+
+        list_item = QtWidgets.QListWidgetItem(self.chatMsgList)
+        self.chatMsgList.addItem(list_item)
+        self.chatMsgList.setItemWidget(list_item, chat_item)
+        self.chatMsgList.scrollToBottom() # 保持自动显示最下方信息
 
     def createGroup(self):
         """add friends and create group"""
@@ -227,7 +263,7 @@ class ChatUI(QWidget):
         #     把小红点消掉
         # 不上升
         print("view!")  # 成功
-        share.chat_page.ui.chattingRecordBrowser.clear()  # 清聊天框
+        share.chat_page.ui.chatMsgList.clear()  # 清聊天框
         share.CurrentRoom = share.RoomDict[room_id]
 
         # 显示新的聊天框
@@ -236,9 +272,20 @@ class ChatUI(QWidget):
 
         # 读历史消息, 在textBrowser里显示出来
         for item in share.CurrentRoom.msg:
-            self.ui.chattingRecordBrowser.append(
-                str(item[0]) + ":" + str(item[1]))  # 聊天记录框显示文字 # 可以加时间
-            self.ui.chattingRecordBrowser.ensureCursorVisible()  # 自动翻滚到最后一行
+            if item[0] == share.User.userID:
+                self.showSentMsg(
+                    str(share.User.name),
+                    item[2],
+                    item[1],
+                    item[3]
+                )
+            else:
+                self.showRecvMsg(
+                    str(share.AllUsersDict[item[0]].name),
+                    item[2],
+                    item[1],
+                    item[3]
+                )  # 聊天记录框显示文字 # 可以加时间
 
     def sendChatMsg(self, msg):
         """
@@ -269,13 +316,17 @@ class ChatUI(QWidget):
 
         # 在room里面追加message
         if msg["userid"] == share.User.userID:  # 自己方向的气泡框，后期加效果
-            self.ui.chattingRecordBrowser.append(
-                str(share.User.userID) + ": " + msg["content"])  # 在聊天框里加文字
-            self.ui.chattingRecordBrowser.ensureCursorVisible()  # 自动翻滚到最后一行
+            self.showSentMsg(
+                share.User.name, 
+                str(msg["sendtime"]), 
+                str(msg_content),
+                msg["msgtype"]) # 在聊天框里加文字
         else:  # 在对方方向的气泡框，后期加效果
-            self.ui.chattingRecordBrowser.append(
-                str(msg["userid"]) + ": " + msg["content"])  # 在聊天框里加文字
-            self.ui.chattingRecordBrowser.ensureCursorVisible()  # 自动翻滚到最后一行
+            self.showRecvMsg(
+                share.AllUsersDict[msg["userid"]].name, 
+                str(msg["sendtime"]), 
+                str(msg_content),
+                msg["msgtype"])  # 在聊天框里加文字
 
     def receiveUnreadMsg(self, msg):
         # 更新room列表

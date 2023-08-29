@@ -16,6 +16,8 @@ class MemberListItemWidget(QWidget):
     def __init__(self, avatar_path, name, usrID, parent=None):
         super().__init__(parent)
 
+        self.usrID = usrID
+
         self.setObjectName("MemberListItemWidget")
         self.resize(191, 72)
         self.setMinimumSize(QtCore.QSize(191, 0))
@@ -53,16 +55,17 @@ class MemberListItemWidget(QWidget):
         font.setFamily("Heiti SC")
         self.memberID.setFont(font)
         self.memberID.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByMouse|QtCore.Qt.TextSelectableByMouse)
-        self.memberID.setText("ID: " + usrID)
+        self.memberID.setText("ID: " + str(usrID))
         
         layout.addWidget(self.frame)
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
-            # 手动触发项点击信号，同时发送项的 roomID
-            self.itemClicked.emit(1)
+            self.itemClicked.emit(self.usrID)
 
+            # self.itemClicked.emit(1)
             # for item in share.chat_list:
             #     item.setStyleSheet("QWidget{background-color: rgb(245, 245, 245)}") # 先把别的颜色都变浅
             # # 点击后item背景颜色变深，实现点击效果
             # self.setStyleSheet("QWidget{background-color: rgb(220, 220, 220)}") # rgb后面三个数字可以更改颜色
+            
