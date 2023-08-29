@@ -320,20 +320,20 @@ class ChatUI(QWidget):
         # 在room里面追加message
         if msg["userid"] == share.User.userID:  # 自己方向的气泡框，后期加效果
             self.showSentMsg(
-                share.User.name, 
+                msg["username"],
                 str(msg["sendtime"]), 
                 str(msg_content),
                 msg["msgtype"]) # 在聊天框里加文字
         else:  # 在对方方向的气泡框，后期加效果
             self.showRecvMsg(
-                share.AllUsersDict[msg["userid"]].name, 
+                msg["username"],
                 str(msg["sendtime"]), 
                 str(msg_content),
                 msg["msgtype"])  # 在聊天框里加文字
 
     def receiveUnreadMsg(self, msg):
         # 更新room列表
-        share.RoomOrderList.remove(share.CurrentRoom.roomID)
+        share.RoomOrderList.remove(msg["roomid"])
         share.RoomOrderList.insert(0, msg["roomid"])
 
         # 追加
