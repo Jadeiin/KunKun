@@ -50,14 +50,14 @@
     <widget class="QFrame" name="frame">
      <property name="minimumSize">
       <size>
-       <width>282</width>
-       <height>72</height>
+       <width>283</width>
+       <height>73</height>
       </size>
      </property>
      <property name="maximumSize">
       <size>
-       <width>282</width>
-       <height>72</height>
+       <width>283</width>
+       <height>73</height>
       </size>
      </property>
      <property name="frameShape">

@@ -35,8 +35,8 @@ class ChatUI(QWidget):
         self.usr_name = "test"
 
         # 显示更多聊天记录
-        self.ui.chattingRecordBrowser.verticalScrollBar(
-        ).valueChanged.connect(self.chatRecordScrolledToTop)
+        # self.ui.chattingRecordBrowser.verticalScrollBar(
+        # ).valueChanged.connect(self.chatRecordScrolledToTop)
 
         # 输入框发送文字
         self.ui.sendMsgBtn.clicked.connect(self.sendTextToServer)
