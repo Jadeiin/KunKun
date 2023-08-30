@@ -7,6 +7,7 @@ from PyQt5 import uic
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sys
 import shutil
+import os
 
 from public import share
 # from chatUI import ChatUI
@@ -35,7 +36,7 @@ class usrInfoUI(QWidget):
         self.ui.chatBtn.clicked.connect(self.creatChat)
 
         # 判断是否是用户，是用户则点击头像可以上传更换新头像
-        if usr_id == "2": 
+        if usr_id == str(share.User.userID): 
             self.ui.usrProf.mousePressEvent = self.editAvatar
     
     def editAvatar(self, event):
@@ -45,7 +46,13 @@ class usrInfoUI(QWidget):
 
         if file_path:  # 如果选择了文件
             # 把头像存入./files/avatar
-            avatar_path = "./files/avatar/userAvatar.png"  # 保存的头像为 png 格式?
+            path = './files/avatar'
+            if not os.path.exists(path):
+                os.makedirs(path)
+                print(f'路径 {path} 不存在，已创建成功。')
+            else:
+                print(f'路径 {path} 已经存在。')
+            avatar_path = "./files/avatar/"+ str(share.User.userID) +".png"  # 保存的头像为 png 格式?
             shutil.copy(file_path, avatar_path)
 
             # 把用户头像路径改为avatar

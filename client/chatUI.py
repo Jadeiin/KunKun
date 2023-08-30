@@ -11,7 +11,7 @@ import struct
 from pathlib import Path
 from ftplib import FTP
 from hashlib import sha1
-
+import os
 import subprocess
 
 from public import share
@@ -29,7 +29,10 @@ class ChatUI(QWidget):
 
         # init
         # 用户头像加载
-        self.usr_prof_photo_path = "./graphSource/profPhoto1.jpg"  # 需要从服务端获得头像路径
+        avatar_path = "./files/avatar/"+ str(share.User.userID) +".png"
+        if not os.path.exists(avatar_path):
+            avatar_path = "./graphSource/profPhoto1.jpg"
+        self.usr_prof_photo_path = avatar_path  # 需要从服务端获得头像路径
         self.ui.usrProfPhoto.setPixmap(QtGui.QPixmap(self.usr_prof_photo_path))
         self.ui.usrProfPhoto.setScaledContents(True)
         # 加载用户信息
