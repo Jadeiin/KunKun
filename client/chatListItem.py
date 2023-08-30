@@ -20,9 +20,9 @@ class ChatListItemWidget(QWidget):
         self.roomid = roomID  # 保存项的索引
 
         self.setObjectName("ChatListItemWidget")
-        self.resize(281, 71)
-        self.setMinimumSize(QtCore.QSize(281, 71))
-        self.setMaximumSize(QtCore.QSize(281, 71))
+        self.resize(279, 71)
+        self.setMinimumSize(QtCore.QSize(279, 71))
+        self.setMaximumSize(QtCore.QSize(279, 71))
         self.setAutoFillBackground(False)
         self.setStyleSheet("QWidget{\n"
                            "    background-color: rgb(245, 245, 245)\n"
@@ -32,17 +32,14 @@ class ChatListItemWidget(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)  # 设置布局的左、上、右、下边距为 0
 
         self.frame = QtWidgets.QFrame(self)
-        self.frame.setMinimumSize(QtCore.QSize(281, 71))
-        self.frame.setMaximumSize(QtCore.QSize(281, 71))
+        self.frame.setMinimumSize(QtCore.QSize(279, 71))
+        self.frame.setMaximumSize(QtCore.QSize(279, 71))
         self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame.setObjectName("frame")
         
         self.chatProf = QtWidgets.QLabel(self.frame)
         self.chatProf.setGeometry(QtCore.QRect(10, 10, 51, 51))
-        self.chatProf.setStyleSheet("QLabel{\n"
-                                   "    border-radius: 50%\n"
-                                   "}")
         self.chatProf.setText("")
         self.chatProf.setPixmap(QtGui.QPixmap(avatar_path))
         self.chatProf.setScaledContents(True)
