@@ -166,7 +166,7 @@ class ListenThread(QThread):
         if msg["result"] == True:
             room_id  = msg["roomid"]
             new_name = msg["roomname"]
-            share.RoomDict[room_id].room_name
+            share.RoomDict[room_id].room_name = new_name
             # 聊天项名字改变
             room_index = share.RoomOrderList.index(room_id)
             avatar = share.RoomDict[room_id].avatar
@@ -222,7 +222,7 @@ class ListenThread(QThread):
     def acceptChangeMember(self, msg):
         if msg["result"] == True:
             self_move = False
-            
+
             if msg["mode"] == 0:
                 for item in msg["memberid"]:
                     if share.User.userID == item:
