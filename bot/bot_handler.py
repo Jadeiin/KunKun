@@ -40,11 +40,8 @@ def handler(socket):
             data = json.loads(msg)
             if data["type"] == "sendmsg" and data["msgtype"] == 1 and data["content"][0:4] == "@bot":
                 resp = send_msg(data)
-            else:
-                raise ValueError("Received message in unknown type")
-
-            logging.info(f"resp: {resp}")
-            socket.sendall(json.dumps(resp).encode())
+                logging.info(f"resp: {resp}")
+                socket.sendall(json.dumps(resp).encode())
 
         except json.JSONDecodeError:
             logging.error(f"Received malformed message: {msg}")
