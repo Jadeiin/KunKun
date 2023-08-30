@@ -229,8 +229,8 @@ class ChatUI(QWidget):
         self.ui.chatMsgList.setItemWidget(list_item, chat_item)
         self.ui.chatMsgList.scrollToBottom() # 保持自动显示最下方信息
 
-    def showSentMsg(self, name, time, msg, msg_type):
-        chat_item = ChatBubbleItem2(name, time, msg, msg_type)
+    def showSentMsg(self, name, time, msg, msg_type, usrid):
+        chat_item = ChatBubbleItem2(name, time, msg, msg_type, usrid)
 
         # 如果是文件信息，点击消息进行接收
         # 点击头像显示用户信息
@@ -294,7 +294,8 @@ class ChatUI(QWidget):
                     item["username"],
                     item["sendtime"],
                     item["content"],
-                    item["msgtype"]
+                    item["msgtype"],
+                    item["userid"]
                 )
             else:
                 self.showRecvMsg(
@@ -337,7 +338,8 @@ class ChatUI(QWidget):
                 msg["username"],
                 msg["sendtime"],
                 msg_content,
-                msg["msgtype"])  # 在聊天框里加文字
+                msg["msgtype"],
+                msg["userid"])  # 在聊天框里加文字
         else:  # 在对方方向的气泡框，后期加效果
             self.showRecvMsg(
                 msg["username"],
