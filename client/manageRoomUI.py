@@ -16,14 +16,14 @@ class manageRoomUI(QWidget):
         super().__init__()
 
 
-        if share.User.userID == share.CurrentRoom.adminID:
+        if share.User.userID in share.CurrentRoom.adminID:
             # 无法知道自己是否是管理员
             self.ui = uic.loadUi("./UIfiles/manageRoom.ui") #加载管理员界面
             self.loadMemberlist()
             self.ui.editChatNameBtn.clicked.connect(self.changeRoomName)  # 点击更改按钮
-            add_memberid = [int(x) for x in self.ui.addBtn.text().split()]
+            add_memberid = [int(x) for x in self.ui.addEditLine.text().split()]
             self.ui.addBtn.clicked.connect (lambda :self.memberChange(1,add_memberid))# 点击添加成员按钮
-            del_memberid = [int(x) for x in self.ui.delBtn.text().split()]
+            del_memberid = [int(x) for x in self.ui.delEditLine.text().split()]
             self.ui.delBtn.clicked.connect (lambda :self.memberChange(1,del_memberid))  # 点击删除成员按钮
         else:
             self.ui = uic.loadUi("./UIfiles/RoomInfoForNonAdmin.ui") #加载普通群成员界面
@@ -38,7 +38,8 @@ class manageRoomUI(QWidget):
     def changeRoomName(self):
         change_name_dict = {"type":"roomname"}
         change_name_dict["roomid"]  = share.CurrentRoom.roomID
-        change_name_dict["roomname"] = self.ui.editChatNameEditLine.toPlainText()
+        change_name_dict["userid"]  = share.User.userID
+        change_name_dict["roomname"] = self.ui.editChatNameEditLine.text()
         self.ui.editChatNameEditLine.clear()
         share.sendMsg(change_name_dict)
 

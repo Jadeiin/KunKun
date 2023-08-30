@@ -7,6 +7,7 @@ class Room():
         self.adminID   = []
         self.memberID  = []
         self.msg     = []
+        self.avatar = "./graphSource/profPhoto1.jpg"
         # {"msgid","userid","username","msgtype","content","sendtime"}
         # 按照时间从久到近排序, 老消息放前边, 新消息放后边
         self.lastest_time = None

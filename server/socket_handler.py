@@ -93,7 +93,7 @@ def create_room(addr, data):
         resp["adminid"] = admin_ids
         resp["memberid"] = member_ids
         resp["roomname"] = room_name
-        resp["createtime"] = createtime
+        oesp["createtime"] = createtime
         return resp, {users.get(item) for item in member_ids if item in users}
 
 
@@ -386,7 +386,7 @@ def handler(conn, addr):
                 resp, st = load_room(addr, data)
             elif data["type"] == "roommessage":
                 resp, st = room_message(addr, data)
-            elif data["type"] == "changeroomname":
+            elif data["type"] == "roomname":
                 resp, st = change_roomname(addr, data)
             elif data["type"] == "exitroom":
                 resp, st = exit_room(addr, data)
