@@ -143,7 +143,7 @@ class ChatBubbleItem1(QWidget):
                 if platform.system() == 'Darwin':       # macOS
                     subprocess.call(('open', filepath))
                 elif platform.system() == 'Windows':    # Windows
-                    os.startfile(filepath)
+                    os.system("start " + filepath)
                 else:                                   # linux variants
                     subprocess.call(('xdg-open', filepath))
             except subprocess.CalledProcessError:
@@ -302,7 +302,7 @@ class ChatBubbleItem2(QWidget):
                 if platform.system() == 'Darwin':       # macOS
                     subprocess.call(('open', filepath))
                 elif platform.system() == 'Windows':    # Windows
-                    os.startfile(filepath)
+                    os.system("start " + filepath)
                 else:                                   # linux variants
                     subprocess.call(('xdg-open', filepath))
             except subprocess.CalledProcessError:

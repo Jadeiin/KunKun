@@ -1,9 +1,10 @@
 import logging
 import json
 import struct
-from threading import Lock
+from threading import Thread, Lock
 from datetime import datetime
 from database import Database
+from ai_avatar import generate_ai_avatar
 
 lock = Lock()
 db = Database("data.db")
@@ -32,12 +33,13 @@ def register(addr, data):
     }
 
     if user_name == "" or (user_id := db.insert_user(data["username"], data["userpwdhash"])) is None:
-        logging.info(f"Client registration failed, {addr}")
+        logging.error(f"Client registration failed, {addr}")
         return resp, {addr}
 
     logging.info(f"Client registration successed, {addr}")
     resp["result"] = True
     resp["userid"] = user_id
+    Thread(target=generate_ai_avatar, daemon=True, args=(user_id,)).start()
     return resp, {addr}
 
 
@@ -51,7 +53,7 @@ def login(addr, data):
     }
 
     if (user_id := db.query_user_login(user_name, user_pwd)) is None:
-        logging.info(f"Client login failed, {addr}")
+        logging.error(f"Client login failed, {addr}")
         return resp, {addr}
 
     global users
@@ -78,11 +80,11 @@ def create_room(addr, data):
     }
 
     if (room_id := db.insert_room(room_name, createtime)) is None:
-        logging.info(f"Client room creation failed, {addr}")
+        logging.error(f"Client room creation failed, {addr}")
         return resp, {addr}
 
     if not db.insert_room_admins(room_id, set(admin_ids)) or not db.insert_room_members(room_id, set(member_ids)):  # 缺少部分回滚
-        logging.info(f"Client room creation failed, {addr}")
+        logging.error(f"Client room creation failed, {addr}")
         return resp, {addr}
 
     global users
@@ -111,7 +113,7 @@ def send_msg(addr, data):
     }
 
     if (msg_id := db.insert_message(user_id, room_id, content, msgtype, sendtime)) is None:
-        logging.info("Client message send failed")
+        logging.error("Client message send failed")
         return resp, {addr}
 
     global users
@@ -137,7 +139,7 @@ def load_room(addr, data):
     }
 
     if (rooms := db.query_user_rooms(user_id)) is None:
-        logging.info("Client load room failed")
+        logging.error("Client load room failed")
         return resp, {addr}
 
     logging.info("Client load room successed")
@@ -159,11 +161,11 @@ def room_message(addr, data):
     }
 
     if user_id not in db.query_room_members(room_id):
-        logging.info("Client fetch room messages failed: Not in room")
+        logging.error("Client fetch room messages failed: Not in room")
         return resp, {addr}
 
     if (room_messages := db.query_room_messages(room_id, size, lasttime)) is None:
-        logging.info("Client fetch room messages failed")
+        logging.error("Client fetch room messages failed")
         return resp, {addr}
 
     logging.info("Client fetch room messages successed")
@@ -186,11 +188,11 @@ def change_roomname(addr, data):
     }
 
     if user_id not in db.query_room_admins(room_id):
-        logging.info("Client change roomname failed: Not room admin")
+        logging.error("Client change roomname failed: Not room admin")
         return resp, {addr}
 
     if db.update_room_name(room_id, room_name) is None:
-        logging.info("Client change roomname failed")
+        logging.error("Client change roomname failed")
         return resp, {addr}
 
     global users
@@ -223,7 +225,7 @@ def exit_room(addr, data):
             resp["result"] = True
             return resp, st
 
-        logging.info("Client exit room failed")
+        logging.error("Client exit room failed")
         return resp, {addr}
 
 
@@ -239,7 +241,7 @@ def del_room(addr, data):
     }
 
     if user_id not in db.query_room_admins(room_id):
-        logging.info("Client delete room failed: Not room admin")
+        logging.error("Client delete room failed: Not room admin")
         return resp, {addr}
 
     global users
@@ -254,7 +256,7 @@ def del_room(addr, data):
             resp["result"] = True
             return resp, st
 
-        logging.info("Client delete room failed")
+        logging.error("Client delete room failed")
         return resp, {addr}
 
 
@@ -274,7 +276,7 @@ def change_member(addr, data):
     }
 
     if user_id not in db.query_room_admins(room_id):
-        logging.info("Client change room members failed: Not room admin")
+        logging.error("Client change room members failed: Not room admin")
         return resp, {addr}
 
     global users
@@ -292,7 +294,7 @@ def change_member(addr, data):
                 resp["result"] = True
                 return resp, st
 
-            logging.info("Client delete room members failed")
+            logging.error("Client delete room members failed")
             return resp, {addr}
 
         # 邀请房间成员
@@ -304,7 +306,7 @@ def change_member(addr, data):
             resp["result"] = True
             return resp, {users.get(item) for item in db.query_room_members(room_id) if item in users}
 
-        logging.info("Client add room members failed")
+        logging.error("Client add room members failed")
         return resp, {addr}
 
 
@@ -320,16 +322,16 @@ def get_member(addr, data):
     }
 
     if (member_ids := db.query_room_members(room_id)) is None:
-        logging.info(
+        logging.error(
             "Client get room members failed: Could not query room members")
         return resp, {addr}
 
     if user_id not in member_ids:
-        logging.info("Client get room members failed: Not in room")
+        logging.error("Client get room members failed: Not in room")
         return resp, {addr}
 
     if (admin_ids := db.query_room_admins(room_id)) is None:
-        logging.info(
+        logging.error(
             "Client get room members failed: Could not query room admins")
         return resp, {addr}
 
