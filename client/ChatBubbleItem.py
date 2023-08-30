@@ -20,11 +20,12 @@ class ChatBubbleItem1(QWidget):
         self.message = message
        
         self.setObjectName("ChatBubbles")
-        self.resize(541, 83)
-        self.setMinimumSize(QtCore.QSize(400, 94))
+        self.resize(541, 118)
+        self.setMinimumSize(QtCore.QSize(541, 0))
+        self.setMaximumSize(QtCore.QSize(541, 16777215))
         self.setStyleSheet("QWidget{\n"
-                           "background-color: rgb(255, 255, 255)\n"
-                           "}")
+"background-color: rgb(255, 255, 255)\n"
+"}")
         self.horizontalLayout = QtWidgets.QHBoxLayout(self)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.horizontalLayout_4 = QtWidgets.QHBoxLayout()
@@ -40,7 +41,7 @@ class ChatBubbleItem1(QWidget):
         self.profPhoto.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.profPhoto.setObjectName("profPhoto")
         self.verticalLayout_2.addWidget(self.profPhoto)
-        spacerItem = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        spacerItem = QtWidgets.QSpacerItem(20, 2, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.verticalLayout_2.addItem(spacerItem)
         self.horizontalLayout_4.addLayout(self.verticalLayout_2)
         self.verticalLayout = QtWidgets.QVBoxLayout()
@@ -61,27 +62,36 @@ class ChatBubbleItem1(QWidget):
         self.verticalLayout.addLayout(self.horizontalLayout_2)
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+        self.verticalLayout_3 = QtWidgets.QVBoxLayout()
+        self.verticalLayout_3.setObjectName("verticalLayout_3")
         self.msgText = QtWidgets.QLabel(self)
+        self.msgText.setMaximumSize(QtCore.QSize(300, 16777215))
+        font = QtGui.QFont()
+        font.setFamily("Heiti SC")
+        font.setPointSize(14)
+        self.msgText.setFont(font)
         font = QtGui.QFont()
         font.setFamily("Heiti SC")
         self.msgText.setFont(font)
         self.msgText.setStyleSheet("QLabel {\n"
-            "    border-radius: 10px; /* Adjust the radius value as needed */\n"
-            "    background-color: rgb(235, 228, 255); /* Set the background color */\n"
-            "    padding: 5px; /* Add some padding to the label */\n"
-            "}")    
+"    border-radius: 10px; /* Adjust the radius value as needed */\n"
+"    background-color: rgb(235, 228, 255); /* Set the background color */\n"
+"    padding: 5px; /* Add some padding to the label */\n"
+"}")
+        self.msgText.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByMouse|QtCore.Qt.TextSelectableByMouse)
         self.msgText.setObjectName("msgText")
-        self.msgText.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByMouse|QtCore.Qt.TextSelectableByMouse) # 消息可用鼠标选择
-        self.horizontalLayout_3.addWidget(self.msgText)
-        spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_3.addItem(spacerItem2)
+        self.verticalLayout_3.addWidget(self.msgText)
+        spacerItem2 = QtWidgets.QSpacerItem(20, 2, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.verticalLayout_3.addItem(spacerItem2)
+        self.horizontalLayout_3.addLayout(self.verticalLayout_3)
+        spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_3.addItem(spacerItem3)
         self.verticalLayout.addLayout(self.horizontalLayout_3)
         self.horizontalLayout_4.addLayout(self.verticalLayout)
-        spacerItem3 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
-        self.horizontalLayout_4.addItem(spacerItem3)
+        spacerItem4 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        self.horizontalLayout_4.addItem(spacerItem4)
         self.horizontalLayout_4.setStretch(1, 40)
         self.horizontalLayout.addLayout(self.horizontalLayout_4)
-
         
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("ChatBubbles", "Form"))
@@ -154,11 +164,17 @@ class ChatBubbleItem2(QWidget):
         self.message = message
 
         self.setObjectName("ChatBubbles")
-        self.resize(541, 94)
-        self.setMinimumSize(QtCore.QSize(400, 94))
+        self.resize(535, 70)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.sizePolicy().hasHeightForWidth())
+        self.setSizePolicy(sizePolicy)
+        self.setMinimumSize(QtCore.QSize(535, 0))
+        self.setMaximumSize(QtCore.QSize(535, 16777215))
         self.setStyleSheet("QWidget{\n"
-            "background-color: rgb(255, 255, 255)\n"
-            "}")
+"background-color: rgb(255, 255, 255)\n"
+"}")
         self.horizontalLayout = QtWidgets.QHBoxLayout(self)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.horizontalLayout_4 = QtWidgets.QHBoxLayout()
@@ -185,17 +201,34 @@ class ChatBubbleItem2(QWidget):
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
         spacerItem2 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
         self.horizontalLayout_3.addItem(spacerItem2)
+        self.verticalLayout_3 = QtWidgets.QVBoxLayout()
+        self.verticalLayout_3.setObjectName("verticalLayout_3")
         self.msgText = QtWidgets.QLabel(self)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.msgText.sizePolicy().hasHeightForWidth())
+        self.msgText.setSizePolicy(sizePolicy)
+        self.msgText.setMaximumSize(QtCore.QSize(300, 16777215))
         font = QtGui.QFont()
         font.setFamily("Heiti SC")
         self.msgText.setFont(font)
         self.msgText.setStyleSheet("QLabel {\n"
-            "    border-radius: 10px; /* Adjust the radius value as needed */\n"
-            "    background-color:rgb(232, 253, 255);/* Set the background color */\n"
-            "    padding: 5px; /* Add some padding to the label */\n"
-            "}")
+"    border-radius: 10px; /* Adjust the radius value as needed */\n"
+"    background-color:rgb(232, 253, 255);/* Set the background color */\n"
+"    padding: 5px; /* Add some padding to the label */\n"
+"}")
+        self.msgText.setWordWrap(True)
+        self.msgText.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByMouse|QtCore.Qt.TextSelectableByMouse)
         self.msgText.setObjectName("msgText")
-        self.horizontalLayout_3.addWidget(self.msgText)
+        font = QtGui.QFont()
+        font.setFamily("Heiti SC")
+        font.setPointSize(14)
+        self.msgText.setFont(font)
+        self.verticalLayout_3.addWidget(self.msgText)
+        spacerItem3 = QtWidgets.QSpacerItem(20, 2, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.verticalLayout_3.addItem(spacerItem3)
+        self.horizontalLayout_3.addLayout(self.verticalLayout_3)
         self.verticalLayout.addLayout(self.horizontalLayout_3)
         self.horizontalLayout_4.addLayout(self.verticalLayout)
         self.verticalLayout_2 = QtWidgets.QVBoxLayout()
@@ -204,22 +237,21 @@ class ChatBubbleItem2(QWidget):
         self.profPhoto.setMinimumSize(QtCore.QSize(51, 51))
         self.profPhoto.setMaximumSize(QtCore.QSize(51, 51))
         self.profPhoto.setText("")
-        self.profPhoto.setPixmap(QtGui.QPixmap("../graphSource/profPhoto1.jpg"))
+        self.profPhoto.setPixmap(QtGui.QPixmap("../graphSource/profPhoto.jpg"))
         self.profPhoto.setScaledContents(True)
         self.profPhoto.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.profPhoto.setObjectName("profPhoto")
         self.verticalLayout_2.addWidget(self.profPhoto)
-        spacerItem3 = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
-        self.verticalLayout_2.addItem(spacerItem3)
+        spacerItem4 = QtWidgets.QSpacerItem(20, 2, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
+        self.verticalLayout_2.addItem(spacerItem4)
         self.horizontalLayout_4.addLayout(self.verticalLayout_2)
-        self.horizontalLayout_4.setStretch(1, 40)
+        self.horizontalLayout_4.setStretch(1, 10)
         self.horizontalLayout.addLayout(self.horizontalLayout_4)
 
 
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("ChatBubbles", "Form"))
-        self.nameAndTime.setText(_translate("ChatBubbles", time + "   " + name))
-        # self.msgText.setText(_translate("ChatBubbles", message))
+        self.nameAndTime.setText(_translate("ChatBubbles", time + "  " + name))
 
         self.setupMessage(message, msg_type)
 
@@ -232,8 +264,8 @@ class ChatBubbleItem2(QWidget):
         # 保证新窗口打开位置在原窗口中心
         # Parent widget's global position
         global_pos = self.mapToGlobal(QPoint(0, 0))
-        x = global_pos.x() + 25  # x coordinate
-        y = global_pos.y() + 60  # y coordinate
+        x = global_pos.x() + 500  # x coordinate
+        y = global_pos.y() + 35  # y coordinate
         share.usr_info_page.ui.move(x, y)  # Move the window
         share.usr_info_page.ui.show()
     

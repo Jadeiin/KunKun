@@ -62,10 +62,24 @@ class ChatUI(QWidget):
         # 显示聊天室管理界面
         self.ui.manageRoom.mousePressEvent = self.showManageRoom
 
+    def handleReloadChatUI(self):
+        # Move the window
+        global_pos = self.ui.mapToGlobal(QPoint(0, 0))
+        share.chat_page.ui.close()
+        # 重新加载 chatUI 内容
+        share.chat_page = ChatUI()  # 创建新的 chatUI 内容的方法，根据你的代码结构
+        # 保证新窗口打开位置在原窗口中心
+        x = global_pos.x()
+        y = global_pos.y()
+        share.chat_page.ui.move(x, y)
+        
+        share.chat_page.ui.show()
+        
 
 
     def showUsrInfo(self, event, user_avatar, user_name, userid):   # event不可省略
         share.usr_info_page = usrInfoUI(prof_path=user_avatar, usr_name=user_name, usr_id=userid)
+        share.usr_info_page.reloadChatUISignal.connect(self.handleReloadChatUI)
         # 保证新窗口打开位置在原窗口中心
         # Parent widget's global position
         global_pos = self.ui.mapToGlobal(QPoint(0, 0))
@@ -222,6 +236,7 @@ class ChatUI(QWidget):
 
         list_item = QtWidgets.QListWidgetItem(self.ui.chatMsgList)
         list_item.setSizeHint(chat_item.sizeHint()) 
+        # list_item.setSizeHint(QtCore.QSize(chat_item.width(), chat_item.height()+24))
         self.ui.chatMsgList.addItem(list_item)
         self.ui.chatMsgList.setItemWidget(list_item, chat_item)
         self.ui.chatMsgList.scrollToBottom() # 保持自动显示最下方信息

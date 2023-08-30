@@ -1,6 +1,7 @@
 from PyQt5.QtWidgets import QWidget, QMessageBox, QSpacerItem, QApplication
 from PyQt5.QtWidgets import QListWidget, QListWidgetItem, QHBoxLayout, QVBoxLayout, QLabel, QSizePolicy
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtGui import QPixmap, QFontMetrics, QFont
+
 from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5 import QtCore
 from PyQt5 import uic
@@ -71,15 +72,29 @@ class ChatListItemWidget(QWidget):
         
         layout.addWidget(self.frame)
         
-    #     # 调用重新翻译函数
-    #     self.retranslateUi()
-
-    # def retranslateUi(self):
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("ChatListItemWidget", "Form"))
         self.chatName.setText(_translate("ChatListItemWidget", name)) # name
         self.recentMsg.setText(_translate("ChatListItemWidget", "<html><head/><body><p><span style=\" color:#a9a9a9;\">"+ recent_msg +"</span></p></body></html>")) # recMsg
         self.msgTime.setText(_translate("ChatListItemWidget", "<html><head/><body><p align=\"right\"><span style=\" color:#a9a9a9;\">2023/8/26</span></p></body></html>"))
+        
+        # 设置合适的初始字号
+        initial_font_size = 20  # 初始字号
+
+        # 获取 QLabel 的高度
+        label_height = self.chatName.height()
+
+        # 设置字体大小以适应 QLabel 的高度
+        font = QFont()
+        font.setPointSize(initial_font_size)
+        font_metrics = QFontMetrics(font)
+        text = self.chatName.text()
+
+        # 根据 QLabel 的高度和文本内容的长度计算合适的字号
+        font_size = initial_font_size * label_height / font_metrics.height()
+        font.setPointSizeF(font_size)
+        self.chatName.setFont(font)
+
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
