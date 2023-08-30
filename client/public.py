@@ -41,11 +41,13 @@ class share:
         ftp.login(share.User.name, share.User.pwd_hash)
 
         if mode == 0:
-            remote_path = "files/" + file_para  # file sha1
+            remote_path = file_para  # file sha1
         elif mode == 1:
-            remote_path = "files/avatar/" + file_para  # userid + .png ?
+            remote_path = "avatar/" + file_para + ".png" # userid
         elif mode == 2:
-            remote_path = "files/avatar/room/" + file_para  # chatid + .png ?
+            remote_path = "avatar/room/" + file_para + ".png" # chatid
+
+        print("FTP: send" , file_path, "at" , remote_path)
 
         with open(file_path, "rb") as fp:
             ftp.storbinary("STOR " + remote_path, fp)
@@ -58,14 +60,19 @@ class share:
 
         if mode == 0:
             file_path = "files/" + file_para  # filename
-            remote_path = "files/" + file_sha1
+            remote_path = file_sha1
         elif mode == 1:
-            file_path = "files/avatar/" + file_para  # userid + .png ?
-            remote_path = file_path
+            file_path = "files/avatar/" + file_para + ".png" # userid
+            remote_path = "avatar/" + file_para + ".png"
         elif mode == 2:
-            file_path = "files/avatar/room/" + file_para  # chatid + .png ?
-            remote_path = file_path
+            file_path = "files/avatar/room/" + file_para + ".png" # chatid
+            remote_path = "avatar/room/" + file_para + ".png"
 
         with open(file_path, "wb") as fp:
-            ftp.retrbinary("RETR " + file_sha1, fp.write)
+            try:
+                if ftp.size(remote_path):
+                    print("FTP: recv" , remote_path, "at" , file_path)
+                    ftp.retrbinary("RETR " + remote_path, fp.write)
+            except:
+                pass
         ftp.quit()
