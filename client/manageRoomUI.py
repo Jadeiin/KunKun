@@ -16,10 +16,9 @@ class manageRoomUI(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.ui.setWindowTitle("Manage Room") # 设置窗口名字
-
         if share.User.userID in share.CurrentRoom.adminID:
             self.ui = uic.loadUi("./UIfiles/manageRoom.ui") #加载管理员界面
+            self.ui.setWindowTitle("Manage Room") # 设置窗口名字
             self.loadMemberlist()
             self.ui.editChatNameBtn.clicked.connect(self.changeRoomName)  # 点击更改按钮
             self.ui.addBtn.clicked.connect (lambda :self.memberChange(1)) # 点击添加成员按钮
@@ -27,6 +26,7 @@ class manageRoomUI(QWidget):
             self.ui.leaveRoomBtn.clicked.connect(self.delRoom) #解散聊天
         else:
             self.ui = uic.loadUi("./UIfiles/RoomInfoForNonAdmin.ui") #加载普通群成员界面
+            self.ui.setWindowTitle("Manage Room") # 设置窗口名字
             self.loadMemberlist()
             self.ui.leaveRoomBtn.clicked.connect(self.exitRoom) #退出聊天
 

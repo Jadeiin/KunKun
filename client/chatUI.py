@@ -226,8 +226,8 @@ class ChatUI(QWidget):
     #     file_sha1 = message[-40:]
     #     self.recvFile(file_name, file_sha1)
     
-    def showRecvMsg(self, name, time, msg, msg_type):
-        chat_item = ChatBubbleItem1(name, time, msg, msg_type)
+    def showRecvMsg(self, name, time, msg, msg_type, usrid):
+        chat_item = ChatBubbleItem1(name, time, msg, msg_type, usrid)
 
         # 如果是文件信息，点击消息进行接收
         # 点击头像显示用户信息
@@ -313,7 +313,8 @@ class ChatUI(QWidget):
                     item["username"],
                     item["sendtime"],
                     item["content"],
-                    item["msgtype"]
+                    item["msgtype"],
+                    item["userid"]
                 )  # 聊天记录框显示文字 # 可以加时间
 
         self.getMember(share.CurrentRoom.roomID)  # 预加载
