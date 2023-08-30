@@ -66,17 +66,28 @@ class ChatUI(QWidget):
         self.ui.manageRoom.mousePressEvent = self.showManageRoom
 
     def handleReloadChatUI(self):
+        '''
+        重新加载ChatUI界面
+        '''
+        share.chat_list = []
+        share.RoomDict = {}
+        share.RoomOrderList = []
         # Move the window
         global_pos = self.ui.mapToGlobal(QPoint(0, 0))
         share.chat_page.ui.close()
-        # 重新加载 chatUI 内容
-        share.chat_page = ChatUI()  # 创建新的 chatUI 内容的方法，根据你的代码结构
+        # 给服务端发送登录的消息
+        self.go_to_chat_dict = {"type":"loadroom"}
+        self.go_to_chat_dict["userid"] = share.User.userID
+        share.sendMsg(self.go_to_chat_dict)
+        # 打开ChatUI界面
+        share.chat_page = ChatUI()
         # 保证新窗口打开位置在原窗口中心
-        x = global_pos.x()
-        y = global_pos.y()
-        share.chat_page.ui.move(x, y)
-        
+        global_pos = self.ui.mapToGlobal(QPoint(0, 0))  # Parent widget's global position
+        x = global_pos.x()  # x coordinate
+        y = global_pos.y()  # y coordinate
+        share.chat_page.ui.move(x, y)  # Move the window
         share.chat_page.ui.show()
+        self.ui.close()
         
 
 
