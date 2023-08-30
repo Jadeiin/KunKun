@@ -173,7 +173,7 @@ class ListenThread(QThread):
             recent_msg = share.RoomDict[room_id].msg[-1]["content"] \
                 if len(share.RoomDict[room_id].msg) !=0 else ""
             share.chat_page.deletItemInChatList(room_id)
-            share.chat_page.additemInChatList(avater, room_id, recent_msg, room_index)
+            share.chat_page.additemInChatList(avatar, room_id, recent_msg, room_index)
             # 聊天框名字改变
             if room_id == share.CurrentRoom.roomID:
                 share.CurrentRoom.room_name = new_name
@@ -194,6 +194,7 @@ class ListenThread(QThread):
                 share.UserInfoList = memberlist
                 for member in memberlist:
                     share.RoomDict[room_id].memberID.append(member["userid"])
+                    share.recvFile(member["userid"], 1)
                 for admin in adminlist:
                     share.RoomDict[room_id].adminID.append(admin["userid"]) 
             else:
