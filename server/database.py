@@ -326,6 +326,7 @@ if __name__ == "__main__":
         user_id = db.insert_user(user_name, user_pwd_sha1)
         if user_id is None:
             user_id = db.query_user_login(user_name, user_pwd_sha1)
+            user_name = db.query_user_name(user_id)
             user_ids.add(user_id)
             logging.info(
                 f"Queried user login: {user_id}, {user_name}, {user_pwd_sha1}")
@@ -357,6 +358,9 @@ if __name__ == "__main__":
 
     if room_members := db.query_room_members(room_id):
         logging.info(f"Queried room members: {room_id}, {room_members}")
+
+    if room_admins := db.query_room_admins(room_id):
+        logging.info(f"Queried room admins: {room_id}, {room_admins}")
 
     if user_rooms := db.query_user_rooms(user_id):
         logging.info(f"Queried user rooms: {user_id}, {user_rooms}")

@@ -1,5 +1,6 @@
 import logging
 import json
+import struct
 from threading import Lock
 from datetime import datetime
 from database import Database
@@ -345,9 +346,11 @@ def handler(conn, addr):
     global db, clients, users, links
     clients[addr] = conn
     while True:
-        msg = conn.recv(1024).decode().rstrip("\r\n")
+        msg_head_bytes = conn.recv(4)
+        msg_len = struct.unpack("I", msg_head_bytes)[0]
+        msg = conn.recv(msg_len).decode().rstrip("\r\n")
 
-        if not msg:
+        if not msg_head_bytes or not msg:
             logging.info(f"Client has been offline, IP: {addr}")
             break
 
@@ -381,8 +384,11 @@ def handler(conn, addr):
                 raise ValueError("Received message in unknown type")
 
             logging.info(f"resp: {resp}")
+            resp_bytes = bytes(json.dumps(resp).encode())
+            head_bytes = struct.pack("I", len(resp_bytes))
+            resp_body = head_bytes + resp_bytes
             for item in st:  # st: 反馈消息发送给的ip集合
-                clients[item].sendall(json.dumps(resp).encode())
+                clients[item].sendall(resp_body)
 
         except json.JSONDecodeError:
             logging.error(f"Received malformed message: {msg}")
