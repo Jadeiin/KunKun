@@ -157,7 +157,7 @@ class ListenThread(QThread):
                     share.RoomDict[room_id].msg.insert(0, item)
             else:
                 error_message = (1, "提示", "没有更多聊天信息")
-                self.notifySignal.emit(error_message)
+                # self.notifySignal.emit(error_message)
         else:
             error_message = (0, "错误", "获取聊天消息失败")
             self.notifySignal.emit(error_message)
