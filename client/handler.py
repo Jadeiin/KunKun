@@ -2,14 +2,14 @@ import os
 import json
 import logging
 import struct
-from PyQt5.QtCore import QThread, QSocketNotifier, pyqtSignal, QObject
+from PyQt5.QtCore import QThread, QSocketNotifier, pyqtSignal, QObject, QPoint
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QPlainTextEdit, QMessageBox
 
 from public import share
 import room
 import user
 from datetime import datetime
-
+from manageRoomUI import manageRoomUI
 
 class ListenThread(QThread):
     notifySignal = pyqtSignal(tuple)  # 修改错误信号为元组类型
@@ -240,6 +240,17 @@ class ListenThread(QThread):
                     if msg["userid"] == share.User.userID:
                         notice_message = (1,"提示", "踢出成员成功")
                         self.notifySignal.emit(notice_message)
+                        share.manage_room_page.ui.close()
+                        share.manage_room_page = manageRoomUI()
+                        # 保证新窗口打开位置在原窗口中心
+                        # Parent widget's global position
+                        global_pos = self.ui.mapToGlobal(QPoint(0, 0))
+                        x = global_pos.x() + (self.ui.width() -
+                                              share.manage_room_page.ui.width()) // 2  # x coordinate
+                        y = global_pos.y() + (self.ui.height() -
+                                              share.manage_room_page.ui.height()) // 2  # y coordinate
+                        share.manage_room_page.ui.move(x, y)  # Move the window
+                        share.manage_room_page.ui.show()
                     else:
                         pass
             elif msg["mode"] == 1:
