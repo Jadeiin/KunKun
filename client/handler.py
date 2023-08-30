@@ -257,10 +257,9 @@ class ListenThread(QThread):
                     # 保证新窗口打开位置在原窗口中心
                     # Parent widget's global position
                     x = global_pos.x()
-                    y = global_pos.y()
+                    y = global_pos.y()-10
                     share.manage_room_page.ui.move(x, y)  # Move the window
                     share.manage_room_page.ui.show()
-
             elif msg["mode"] == 1:
                 for item in msg["member"]:
                     if share.User.userID == item["userid"]:

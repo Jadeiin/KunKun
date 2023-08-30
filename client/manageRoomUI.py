@@ -86,12 +86,13 @@ class manageRoomUI(QWidget):
         根据服务端的到的聊天室成员信息创建
         '''
         member_list = share.CurrentRoom.memberID
+        print(share.UserInfoList)
         for item in share.UserInfoList:
             self.addItemInMemberList(item["userid"], item["username"])
 
     def addItemInMemberList(self, member_id, member_name):
         # 新建成员item
-        avatar_path = "files/avatar/" + str(member_id)
+        avatar_path = "files/avatar/" + str(member_id) +".png" if os.path.exists("files/avatar/" + str(member_id) +".png") else "./graphSource/profPhoto1.jpg"
         member_widget = MemberListItemWidget(
             avatar_path=avatar_path, name=member_name, usrID=member_id)
         list_item = QListWidgetItem()
