@@ -9,7 +9,6 @@ import json
 import random
 import struct
 from pathlib import Path
-from ftplib import FTP
 from hashlib import sha1
 import os
 import subprocess
@@ -123,7 +122,7 @@ class ChatUI(QWidget):
                         break
                     file_sha1.update(data)
             # FTP 上传文件
-            self.sendFile(file_path, file_sha1.hexdigest())
+            share.sendFile(file_path, 0, file_sha1.hexdigest())
             file_msg_dict = {"type": "sendmsg", "msgtype": 2}
             file_msg_dict["content"] = Path(
                 file_path).name + file_sha1.hexdigest()  # sha1 40c
@@ -164,15 +163,6 @@ class ChatUI(QWidget):
 
         # send
         share.sendMsg(text_msg_dict)
-
-    def sendFile(self, file_path, file_sha1):
-        ftp = FTP()
-        ftp.connect(share.addr, share.port+1)
-        ftp.login(share.User.name, share.User.pwd_hash)
-
-        with open(file_path, "rb") as fp:
-            ftp.storbinary("STOR " + file_sha1, fp)
-        ftp.quit()
 
     # def recvFile(self, file_name, file_sha1):
     #     print(file_name, file_sha1)

@@ -138,16 +138,17 @@ class ChatBubbleItem1(QWidget):
         print(file_name, file_sha1)
         if Path("files/" + file_name).is_file():
             try:
-                subprocess.run(["xdg-open", "files/" + file_name], check=True)
+                filepath = "files/" + file_name
+                if platform.system() == 'Darwin':       # macOS
+                    subprocess.call(('open', filepath))
+                elif platform.system() == 'Windows':    # Windows
+                    os.startfile(filepath)
+                else:                                   # linux variants
+                    subprocess.call(('xdg-open', filepath))
             except subprocess.CalledProcessError:
                 print("Error opening the file.")
         else:
-            ftp = FTP()
-            ftp.connect(share.addr, share.port+1)
-            ftp.login(share.User.name, share.User.pwd_hash)
-            with open("files/" + file_name, "wb") as fp:
-                ftp.retrbinary("RETR " + file_sha1, fp.write)
-            ftp.quit()
+            share.recvFile(file_name, 0, file_sha1)
 
 
 class ChatBubbleItem2(QWidget):
@@ -306,10 +307,4 @@ class ChatBubbleItem2(QWidget):
             except subprocess.CalledProcessError:
                 print("Error opening the file.")
         else:
-            ftp = FTP()
-            ftp.connect(share.addr, share.port+1)
-            ftp.login(share.User.name, share.User.pwd_hash)
-            with open("files/" + file_name, "wb") as fp:
-                ftp.retrbinary("RETR " + file_sha1, fp.write)
-            ftp.quit()
-
+            share.recvFile(file_name, 0, file_sha1)
