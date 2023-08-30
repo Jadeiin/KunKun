@@ -110,6 +110,10 @@ def send_msg(addr, data):
         "result": False
     }
 
+    if user_id not in db.query_room_members(room_id):
+        logging.info("Client message send failed: Not in room")
+        return resp, {addr}
+
     if (msg_id := db.insert_message(user_id, room_id, content, msgtype, sendtime)) is None:
         logging.info("Client message send failed")
         return resp, {addr}
@@ -321,11 +325,15 @@ def get_member(addr, data):
     }
 
     if (member_ids := db.query_room_members(room_id)) is None:
-        logging.info("Client get room members failed")
+        logging.info("Client get room members failed: Could not query room members")
         return resp, {addr}
 
     if user_id not in member_ids:
         logging.info("Client get room members failed: Not in room")
+        return resp, {addr}
+
+    if (admin_ids := db.query_room_admins(room_id)) is None:
+        logging.info("Client get room members failed: Could not query room admins")
         return resp, {addr}
 
     member = []
@@ -335,9 +343,17 @@ def get_member(addr, data):
             "username": db.query_user_name(member_id)
         })
 
+    admin = []
+    for admin_id in admin_ids:
+        admin.append({
+            "userid": admin_id,  # 必然合法 不做判断
+            "username": db.query_user_name(admin_id)
+        })
+
     logging.info("Client get room members successed")
     resp["result"] = True
     resp["member"] = member
+    resp["admin"] = admin
     return resp, {addr}
 
 
