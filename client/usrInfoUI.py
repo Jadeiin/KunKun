@@ -17,6 +17,7 @@ class usrInfoUI(QWidget):
     def __init__(self, prof_path, usr_name, usr_id, parent=None):
         super().__init__(parent)
         self.ui = uic.loadUi("./UIfiles/usrInfo.ui")
+        self.ui.setWindowTitle("User Information") # 设置窗口名字
 
         # 设置头像
         self.ui.usrProf.setPixmap(QtGui.QPixmap(prof_path))

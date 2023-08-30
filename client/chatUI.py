@@ -25,6 +25,7 @@ class ChatUI(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.ui = uic.loadUi("./UIfiles/chat.ui")
+        self.ui.setWindowTitle("Chat") # 设置窗口名字
 
         # init
         # 用户头像加载
@@ -45,7 +46,7 @@ class ChatUI(QWidget):
         self.ui.sendMsgBtn.clicked.connect(self.sendTextToServer)
 
         # 加好友/创建群聊的按钮
-        self.ui.addFriendBtn.clicked.connect(self.addFriend)
+        # self.ui.addFriendBtn.clicked.connect(self.addFriend)
         self.ui.createGroupBtn.clicked.connect(self.createGroup)
 
         # 点击好友选择聊天，重新加载聊天记录

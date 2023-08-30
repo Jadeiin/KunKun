@@ -16,6 +16,7 @@ class manageRoomUI(QWidget):
     def __init__(self):
         super().__init__()
 
+        self.ui.setWindowTitle("Manage Room") # 设置窗口名字
 
         if share.User.userID in share.CurrentRoom.adminID:
             self.ui = uic.loadUi("./UIfiles/manageRoom.ui") #加载管理员界面
