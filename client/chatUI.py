@@ -57,6 +57,8 @@ class ChatUI(QWidget):
         
         self.ui.usrProfPhoto.mousePressEvent = lambda event: self.showUsrInfo(
             "",share.User.avatar, share.User.name, str(share.User.userID))
+        
+
 
         # 发送文件功能
         # 获取 QLabel 对象，连接 QLabel 的点击事件到另一个函数
@@ -217,7 +219,7 @@ class ChatUI(QWidget):
     def handleRecvFileMsgClicked(self, message):
         file_name = message[:-40]
         file_sha1 = message[-40:]
-        self.recvFile(file_name, file_sha1)
+        share.recvFile(file_name, 0, file_sha1)
 
     # def handleSentFileMsgClicked(self, message):
     #     file_name = message[:-40]

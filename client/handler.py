@@ -221,10 +221,15 @@ class ListenThread(QThread):
     # 群内其他成员变动
     def acceptChangeMember(self, msg):
         if msg["result"] == True:
+            self_move = False
+            for item in msg["member"]:
+                if share.User.userID == item["userid"]:
+                    self_move = True
+                    
             if msg["mode"] == 0:
                 # 已知房间：
                 # 自己被踢:
-                if share.User.userID in msg["memberid"]:
+                if self_move == True:
                     delet_roomid = msg["roomid"]
                     share.chat_page.deletItemInChatList(delet_roomid)
                     share.RoomOrderList.remove(delet_roomid)
@@ -234,10 +239,10 @@ class ListenThread(QThread):
                     share.UserInfoList = []
                 # 别人被踢:
                 else:
-                    for member in msg["memberid"]:
-                        share.RoomDict[msg["roomid"]].memberID.remove(member)
+                    for member in msg["member"]:
+                        share.RoomDict[msg["roomid"]].memberID.remove(member["userid"])
                         for item in share.UserInfoList:
-                            if member == item["userid"]:
+                            if member["userid"] == item["userid"]:
                                 share.UserInfoList.remove(item)
 
                     # 自己是管理员：
@@ -245,51 +250,47 @@ class ListenThread(QThread):
                         notice_message = (1,"提示", "踢出成员成功")
                         self.notifySignal.emit(notice_message)
                         
-                        # 重新加载manageRoomUI
-                        global_pos = share.manage_room_page.ui.mapToGlobal(QPoint(0, 0))
-                        share.manage_room_page.ui.close()
-                        share.manage_room_page = manageRoomUI()
-                        # 保证新窗口打开位置在原窗口中心
-                        # Parent widget's global position
-                        x = global_pos.x()
-                        y = global_pos.y()
-                        share.manage_room_page.ui.move(x, y)  # Move the window
-                        share.manage_room_page.ui.show()
-                    else:
-                        pass
+                    # 重新加载manageRoomUI
+                    global_pos = share.manage_room_page.ui.mapToGlobal(QPoint(0, 0))
+                    share.manage_room_page.ui.close()
+                    share.manage_room_page = manageRoomUI()
+                    # 保证新窗口打开位置在原窗口中心
+                    # Parent widget's global position
+                    x = global_pos.x()
+                    y = global_pos.y()
+                    share.manage_room_page.ui.move(x, y)  # Move the window
+                    share.manage_room_page.ui.show()
+
             elif msg["mode"] == 1:
                 # 未知房间：
                 # 自己被加 额外加载房间消息
-                if share.User.userID in msg["memberid"]:
-                        self.go_to_chat_dict = {"type":"loadroom"}
-                        self.go_to_chat_dict["userid"] = share.User.userID
-                        share.sendMsg(self.go_to_chat_dict)
-                        share.UserInfoList = []
+                if self_move == True:
+                    self.go_to_chat_dict = {"type":"loadroom"}
+                    self.go_to_chat_dict["userid"] = share.User.userID
+                    share.sendMsg(self.go_to_chat_dict)
                 # 已知房间：
                 # 别人被加
                 else:
                     for member in msg["memberid"]:
-                        share.RoomDict[msg["roomid"]].memberID.append(member)
-                        
+                        share.RoomDict[msg["roomid"]].memberID.append(member["userid"])
+                        share.UserInfoList.append(member)
 
-                    share.RoomDict[msg["roomid"]].memberID.append(msg["memberid"])
+                    # 自己是管理员：
                     if msg["userid"] == share.User.userID:
                         notice_message = (1,"提示", "拉入成员成功")
                         self.notifySignal.emit(notice_message)
                         
 
-                        # 重新加载manageRoomUI
-                        global_pos = share.manage_room_page.ui.mapToGlobal(QPoint(0, 0))
-                        share.manage_room_page.ui.close()
-                        share.manage_room_page = manageRoomUI()
-                        # 保证新窗口打开位置在原窗口中心
-                        # Parent widget's global position
-                        x = global_pos.x()
-                        y = global_pos.y()
-                        share.manage_room_page.ui.move(x, y)  # Move the window
-                        share.manage_room_page.ui.show()
-                    else:
-                        pass
+                    # 重新加载manageRoomUI
+                    global_pos = share.manage_room_page.ui.mapToGlobal(QPoint(0, 0))
+                    share.manage_room_page.ui.close()
+                    share.manage_room_page = manageRoomUI()
+                    # 保证新窗口打开位置在原窗口中心
+                    # Parent widget's global position
+                    x = global_pos.x()
+                    y = global_pos.y()
+                    share.manage_room_page.ui.move(x, y)  # Move the window
+                    share.manage_room_page.ui.show()
 
 
 
