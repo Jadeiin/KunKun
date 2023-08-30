@@ -19,9 +19,9 @@ class MemberListItemWidget(QWidget):
         self.usrID = usrID
 
         self.setObjectName("MemberListItemWidget")
-        self.resize(191, 72)
-        self.setMinimumSize(QtCore.QSize(191, 0))
-        self.setMaximumSize(QtCore.QSize(191, 16777215))
+        self.resize(189, 72)
+        self.setMinimumSize(QtCore.QSize(189, 0))
+        self.setMaximumSize(QtCore.QSize(189, 16777215))
         self.setStyleSheet("QWidget{\n"
                            "background-color: rgb(244, 244, 244)\n"
                            "}")
@@ -30,16 +30,19 @@ class MemberListItemWidget(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)  # 设置布局的边距为 0
 
         self.frame = QtWidgets.QFrame(self)
-        self.frame.setMinimumSize(QtCore.QSize(193, 74))
-        self.frame.setMaximumSize(QtCore.QSize(193, 74))
+        self.frame.setMinimumSize(QtCore.QSize(189, 74))
+        self.frame.setMaximumSize(QtCore.QSize(189, 74))
         self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame.setObjectName("frame")
         
         self.memberProfPhoto = QtWidgets.QLabel(self.frame)
         self.memberProfPhoto.setGeometry(QtCore.QRect(10, 10, 51, 51))
-        pixmap = QtGui.QPixmap(avatar_path)
-        self.memberProfPhoto.setPixmap(pixmap.scaled(51, 51))
+        self.memberProfPhoto.setText("")
+        
+        self.memberProfPhoto.setPixmap(QtGui.QPixmap(avatar_path))
         self.memberProfPhoto.setScaledContents(True)
+        self.memberProfPhoto.setObjectName("memberProfPhoto")
         
         self.memberName = QtWidgets.QLabel(self.frame)
         self.memberName.setGeometry(QtCore.QRect(70, 16, 111, 16))

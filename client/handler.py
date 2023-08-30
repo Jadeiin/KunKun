@@ -305,6 +305,7 @@ class ListenThread(QThread):
             notice_message = (1,"提示", "聊天 "+share.RoomDict[delet_roomid].room_name+" 已解散")
             self.notifySignal.emit(notice_message)
             del share.RoomDict[delet_roomid]
+            share.manage_room_page.ui.close()
         else:
             pass
 
