@@ -7,7 +7,6 @@ from PyQt5 import uic
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sys
 import shutil
-import os
 
 from public import share
 # from chatUI import ChatUI
@@ -46,14 +45,9 @@ class usrInfoUI(QWidget):
 
         if file_path:  # 如果选择了文件
             # 把头像存入./files/avatar
-            path = './files/avatar'
-            if not os.path.exists(path):
-                os.makedirs(path)
-                print(f'路径 {path} 不存在，已创建成功。')
-            else:
-                print(f'路径 {path} 已经存在。')
             avatar_path = "./files/avatar/"+ str(share.User.userID) +".png"  # 保存的头像为 png 格式?
             shutil.copy(file_path, avatar_path)
+            share.sendFile(file_path, 1, str(share.User.userID))
 
             # 把用户头像路径改为avatar
             share.User.avatar = avatar_path
