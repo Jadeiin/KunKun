@@ -29,13 +29,13 @@ class share:
     member_list = [] # 聊天室管理界面用于存放用户的列表
 
 
-    def sendMsg(self, orimsg):
+    def sendMsg(orimsg):
         resp_bytes = bytes(json.dumps(orimsg).encode())
         head_bytes = struct.pack("I", len(resp_bytes))
         resp_body = head_bytes + resp_bytes
         share.server.sendall(resp_body)
 
-    def sendFile(self, file_path, mode, file_para):
+    def sendFile(file_path, mode, file_para):
         ftp = FTP()
         ftp.connect(share.addr, share.port+1)
         ftp.login(share.User.name, share.User.pwd_hash)
@@ -51,7 +51,7 @@ class share:
             ftp.storbinary("STOR " + remote_path, fp)
         ftp.quit()
 
-    def recvFile(self, file_para, mode, file_sha1=""):
+    def recvFile(file_para, mode, file_sha1=""):
         ftp = FTP()
         ftp.connect(share.addr, share.port+1)
         ftp.login(share.User.name, share.User.pwd_hash)
