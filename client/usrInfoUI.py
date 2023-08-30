@@ -74,4 +74,16 @@ class usrInfoUI(QWidget):
         self.ui.close()
         
     def creatChat(self):
-        pass
+        """add friends and create group"""
+        # dictionary
+        create_group_dict = {"type": "createroom"}
+        create_group_dict["adminid"] = [share.User.userID]
+        # 以后还得修改，判断群聊中的人数
+        create_group_dict["memberid"] = []
+        if share.User.userID not in create_group_dict["memberid"]:
+            create_group_dict["memberid"].append(share.User.userID)
+
+        create_group_dict["roomname"] = "群聊"
+        # create_group_dict["roomname"] = groupNameLineEdit.toPlainText().encode("utf-8")
+        # send
+        share.sendMsg(create_group_dict)

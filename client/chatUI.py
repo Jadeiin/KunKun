@@ -56,6 +56,8 @@ class ChatUI(QWidget):
         
         self.ui.usrProfPhoto.mousePressEvent = lambda event: self.showUsrInfo(
             "",share.User.avatar, share.User.name, str(share.User.userID))
+        
+
 
         # 发送文件功能
         # 获取 QLabel 对象，连接 QLabel 的点击事件到另一个函数
