@@ -194,7 +194,7 @@ class ListenThread(QThread):
                 share.UserInfoList = memberlist
                 for member in memberlist:
                     share.RoomDict[room_id].memberID.append(member["userid"])
-                    share.recvFile(member["userid"], 1)
+                    share.recvFile(str(member["userid"]), 1)
                 for admin in adminlist:
                     share.RoomDict[room_id].adminID.append(admin["userid"]) 
             else:
