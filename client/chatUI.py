@@ -1,8 +1,9 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox, QSpacerItem, QFileDialog
 from PyQt5.QtWidgets import QListWidget, QListWidgetItem, QHBoxLayout, QVBoxLayout, QLabel, QSizePolicy
+from PyQt5.QtMultimedia import QAudioRecorder, QAudioEncoderSettings
 from PyQt5.QtGui import QPixmap
-from PyQt5.QtCore import pyqtSignal, QPoint, QTimer
+from PyQt5.QtCore import pyqtSignal, QPoint, QTimer, QDir, QUrl
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5 import uic
 import json
@@ -11,7 +12,9 @@ import struct
 from pathlib import Path
 from hashlib import sha1
 import os
+import threading
 import subprocess
+
 
 from public import share
 from chatListItem import ChatListItemWidget
@@ -66,10 +69,29 @@ class ChatUI(QWidget):
 
         # 语音输入功能
         self.ui.speechInput.mousePressEvent = self.speechInput
+        self.is_recording = False
+        self.audio_recorder = QAudioRecorder()
 
-    def speechInput(self, event): # event在函数里没用但不能删
+    def speechInput(self, event):
         print("Speech input label clicked.")
-        pass
+        
+        if self.is_recording == False:
+            # 按钮第一次点击，开始录制
+            self.is_recording = True
+            print("开始录制...")
+            audio_settings = QAudioEncoderSettings()
+            audio_settings.setCodec("audio/pcm")
+            
+            self.audio_recorder.setAudioSettings(audio_settings)
+            self.audio_recorder.setOutputLocation(QUrl.fromLocalFile("output.wav"))
+            self.audio_recorder.record()
+        else:
+            # 按钮再次点击，结束录制
+            self.is_recording = False
+            self.audio_recorder.stop()
+            self.audio_recorder.deleteLater()
+            print("结束录制...")
+        
 
     def handleReloadChatUI(self):
         '''
