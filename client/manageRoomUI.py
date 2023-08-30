@@ -3,6 +3,7 @@ from PyQt5.QtGui import QMovie
 from PyQt5 import uic
 from PyQt5.QtCore import QPoint
 import sys
+import os
 from hashlib import sha1
 import json
 
@@ -80,7 +81,6 @@ class manageRoomUI(QWidget):
     def addItemInMemberList(self, member_id, member_name):
         # 新建成员item
         avatar_path = "files/avatar/" + str(member_id)
-
         member_widget = MemberListItemWidget(
             avatar_path=avatar_path, name=member_name, usrID=member_id)
         list_item = QListWidgetItem()
@@ -107,8 +107,12 @@ class manageRoomUI(QWidget):
         显示被点击成员的信息
         '''
         print("Item clicked. Index:", usrid)
-        usrprof = share.UserInfoList[usrid].avatar
-        usrname = share.UserInfoList[usrid].name
+        usrprof = "files/avatar/" + str(usrid) + ".png"
+        if not os.path.exists(usrprof):
+            usrprof = "./graphSource/profPhoto1.jpg"
+        for item in share.UserInfoList:
+            if usrid == item["userid"]:
+                usrname = item["username"]
         usrID = str(usrid)
         share.usr_info_page = usrInfoUI(prof_path=usrprof, usr_name=usrname, usr_id=usrID)
         # 保证新窗口打开位置在原窗口中心
