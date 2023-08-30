@@ -12,5 +12,11 @@
 			"userid": 2,
 			"username": "demo"
 		}
+	],
+	"admin": [
+		{
+			"userid": 1,
+			"username": "test"
+		}
 	]
 }
