@@ -93,7 +93,7 @@ def create_room(addr, data):
         resp["adminid"] = admin_ids
         resp["memberid"] = member_ids
         resp["roomname"] = room_name
-        oesp["createtime"] = createtime
+        resp["createtime"] = createtime
         return resp, {users.get(item) for item in member_ids if item in users}
 
 
@@ -109,10 +109,6 @@ def send_msg(addr, data):
         "type": "acceptmsg",
         "result": False
     }
-
-    if user_id not in db.query_room_members(room_id):
-        logging.info("Client message send failed: Not in room")
-        return resp, {addr}
 
     if (msg_id := db.insert_message(user_id, room_id, content, msgtype, sendtime)) is None:
         logging.info("Client message send failed")
@@ -214,10 +210,6 @@ def exit_room(addr, data):
         "userid": user_id,
         "roomid": room_id
     }
-
-    if user_id not in db.query_room_members(room_id):
-        logging.info("Client exit room failed: Not in room")
-        return resp, {addr}
 
     global users
     with lock:
@@ -363,12 +355,11 @@ def handler(conn, addr):
     clients[addr] = conn
     while True:
         msg_head_bytes = conn.recv(4)
-        msg_len = struct.unpack("I", msg_head_bytes)[0]
-        msg = conn.recv(msg_len).decode()
-
-        if not msg_head_bytes or not msg:
+        if len(msg_head_bytes) != 4:
             logging.info(f"Client has been offline, IP: {addr}")
             break
+        msg_len = struct.unpack("I", msg_head_bytes)[0]
+        msg = conn.recv(msg_len).decode()
 
         logging.info(f"Received \"{msg}\" from {addr}")
 
