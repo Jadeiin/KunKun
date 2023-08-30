@@ -36,7 +36,7 @@ if __name__ == "__main__":
     # authorizer.adduser("PP", "PP", "files/", perm="radfwMT")
     FTPhandler = FTPHandler
     FTPhandler.authorizer = SQLiteAuthorizer()
-    fileserver = FTPServer(("", port + 1), FTPhandler)
+    fileserver = FTPServer(("127.0.0.1", port + 1), FTPhandler)
     ftp_thread = Thread(target=fileserver.serve_forever, daemon=True)
     ftp_thread.start()
 
