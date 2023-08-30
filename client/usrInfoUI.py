@@ -6,7 +6,7 @@ from PyQt5 import QtCore
 from PyQt5 import uic
 from PyQt5 import QtCore, QtGui, QtWidgets
 import sys
-from PIL import Image
+import shutil
 
 from public import share
 # from chatUI import ChatUI
@@ -32,7 +32,7 @@ class usrInfoUI(QWidget):
         self.ui.closeWdBtn.clicked.connect(self.closeWindow)
 
         # 点击发消息按钮后创建新的聊天室
-        self.ui.chatBtn.clicked.connect(self.creatChat)
+        self.ui.chatBtn.clicked.connect(lambda: self.creatChat(user_id = usr_id))
 
         # 判断是否是用户，是用户则点击头像可以上传更换新头像
         if usr_id == str(share.User.userID): 
@@ -45,9 +45,8 @@ class usrInfoUI(QWidget):
 
         if file_path:  # 如果选择了文件
             # 把头像存入./files/avatar
-            avatar = Image.open(file_path)
-            avatar_path = "files/avatar/" + str(share.User.userID) +".png"
-            avatar.save(avatar_path, "png")
+            avatar_path = "./files/avatar/"+ str(share.User.userID) +".png"  # 保存的头像为 png 格式?
+            shutil.copy(file_path, avatar_path)
             share.sendFile(file_path, 1, str(share.User.userID))
 
             # 把用户头像路径改为avatar
@@ -74,16 +73,14 @@ class usrInfoUI(QWidget):
     def closeWindow(self):
         self.ui.close()
         
-    def creatChat(self):
+    def creatChat(self,user_id):
         """add friends and create group"""
         # dictionary
         create_group_dict = {"type": "createroom"}
         create_group_dict["adminid"] = [share.User.userID]
-        # 以后还得修改，判断群聊中的人数
-        create_group_dict["memberid"] = []
+        create_group_dict["memberid"] = [user_id]
         if share.User.userID not in create_group_dict["memberid"]:
             create_group_dict["memberid"].append(share.User.userID)
-
         create_group_dict["roomname"] = "群聊"
         # create_group_dict["roomname"] = groupNameLineEdit.toPlainText().encode("utf-8")
         # send
