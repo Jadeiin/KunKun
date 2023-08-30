@@ -1,5 +1,6 @@
 import json
 import logging
+import struct
 from PyQt5.QtCore import QThread, QSocketNotifier, pyqtSignal, QObject
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QPlainTextEdit, QMessageBox
 
@@ -37,7 +38,9 @@ class ListenThread(QThread):
     def handleSocketActivation(self, socket):
         # if socket == self.server: 这个去了注释好像接收不到消息
         # listen and receive message
-        msg = self.server.recv(1024).decode().rstrip("\r\n")
+        msg_head_bytes = self.server.recv(4)
+        msg_len = struct.unpack("I", msg_head_bytes)[0]
+        msg = self.server.recv(msg_len).decode()
         msg = json.loads(msg)
         # message type
         if msg["type"] == "acceptlogin":
@@ -148,7 +151,8 @@ class ListenThread(QThread):
                 # else:
                 #     room_dict["lasttime"] = share.RoomDict[room_id].msg[0][2]  # 最老的一条消息的时间
                 # 发送消息给服务端
-                share.server.sendall(json.dumps(room_dict).encode())
+                share.sendMsg(room_dict)  # 预加载
+
         else:
             error_message = (0, "错误", "打开聊天界面失败")
             self.notifySignal.emit(error_message)
@@ -195,10 +199,21 @@ class ListenThread(QThread):
             memberlist = msg["member"]
             share.RoomDict[room_id].memberID = []
             if len(memberlist)!=0:
+                share.UserInfoList = memberlist
+
                 for member in memberlist:
-                    share.member_list.append(member)
-                    new_user = user.User(user_id, room_id)
+                    
+                    
+                    # newuser_id = member["userid"]
+                    # newuser_name = member["username"]
+                    # newuser_avatar = member["avatar_path"]
+                    # new_user = user.User(newuser_id, newuser_name, newuser_avatar)
+                    # share.UserInfoList.append(new_user)
                     share.RoomDict[room_id].memberID.append(member["userid"])
+            else:
+                pass
+        else:
+            pass
 
 
 
@@ -232,6 +247,7 @@ class ListenThread(QThread):
                 # 别人被踢:
                 else:
                     share.RoomDict[msg["roomid"]].memberID.remove(msg["memberid"])
+
                 # 自己是管理员：
                     if msg["userid"] == share.User.userID:
                         notice_message = (1,"提示", "踢出成员成功")
@@ -244,7 +260,7 @@ class ListenThread(QThread):
                 if share.User.userID in msg["memberid"]:
                         self.go_to_chat_dict = {"type":"loadroom"}
                         self.go_to_chat_dict["userid"] = share.User.userID
-                        share.server.sendall(json.dumps(self.go_to_chat_dict).encode())
+                        share.sendMsg(self.go_to_chat_dict)
                 # 已知房间：
                 # 别人被加
                 else:

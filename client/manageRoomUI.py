@@ -17,6 +17,7 @@ class manageRoomUI(QWidget):
 
 
         if share.User.userID == share.CurrentRoom.adminID:
+            # 无法知道自己是否是管理员
             self.ui = uic.loadUi("./UIfiles/manageRoom.ui") #加载管理员界面
             self.loadMemberlist()
             self.ui.editChatNameBtn.clicked.connect(self.changeRoomName)  # 点击更改按钮
@@ -27,7 +28,7 @@ class manageRoomUI(QWidget):
         else:
             self.ui = uic.loadUi("./UIfiles/RoomInfoForNonAdmin.ui") #加载普通群成员界面
             self.loadMemberlist()
-            self.ui.leaveRoomBtn.clicked.connect(self.exitRoom) #推出聊天
+            self.ui.leaveRoomBtn.clicked.connect(self.exitRoom) #退出聊天
 
 
 
@@ -39,21 +40,19 @@ class manageRoomUI(QWidget):
         change_name_dict["roomid"]  = share.CurrentRoom.roomID
         change_name_dict["roomname"] = self.ui.editChatNameEditLine.toPlainText()
         self.ui.editChatNameEditLine.clear()
-        share.server.sendall(json.dumps(change_name_dict).encode())
+        share.sendMsg(change_name_dict)
 
     def exitRoom(self): # 主动退出群聊
         ExitGroup = {"type":"exitroom"}
         ExitGroup["userid"] = share.User.userID
         ExitGroup["roomid"] = share.CurrentRoom.roomID
-        exit_group = json.dumps(ExitGroup)
-        share.server.sendall(exit_group.encode())
+        share.sendMsg(ExitGroup)
 
     def delRoom(self): #管理员退出群聊
         AdminQuit = {"type": "delroom"}
         AdminQuit["userid"] = share.User.userID
         AdminQuit["roomid"] = share.CurrentRoom.roomID
-        admin_quit = json.dumps(AdminQuit)
-        share.server.sendall(admin_quit.encode())
+        share.sendMsg(AdminQuit)
 
     def memberChange(self, mode, memberid): #管理员增删群成员
         MemberChange = {"type": "changemember"}
@@ -64,22 +63,22 @@ class manageRoomUI(QWidget):
             MemberChange["memberid"] = list(set(memberid).intersection(set(share.CurrentRoom.memberID)))
         elif mode == 1:
             MemberChange["memberid"] = list(set(memberid).difference(set(share.CurrentRoom.memberID)))
-        member_change = json.dumps(MemberChange)
-        share.server.sendall(member_change.encode())
+        share.sendMsg(MemberChange)
+
 
     def loadMemberlist(self):
         '''
         调用addItemInMemberList函数，
         根据服务端的到的聊天室成员信息创建
         '''
-        print(share.member_list)
-        for item in share.member_list:
-            self.addItemInMemberList(item["userid"], item["username"])
+        member_list = share.CurrentRoom.memberID
+        for member_id in member_list:
+            self.addItemInMemberList(member_id)
 
-    def addItemInMemberList(self, member_id, username):
+    def addItemInMemberList(self, member_id):
         # 新建成员item
-        avatar_path = "files/avatar" + str(member_id)
-        name        = username
+        avatar_path = "files/avatar/" + str(member_id)
+        name        = share.UserInfoList[member_id].name
 
         member_widget = MemberListItemWidget(
             avatar_path=avatar_path, name=name, usrID=member_id)
@@ -93,6 +92,8 @@ class manageRoomUI(QWidget):
 
         share.member_list.append(member_widget)
 
+
+
     def connectItemClicked(self, member_widget):
         '''新建聊天项时，将新的聊天项加入监听列表，且和鼠标点击判断建立连接'''
         print("Monitoring mouse press for member list...")
@@ -105,8 +106,8 @@ class manageRoomUI(QWidget):
         显示被点击成员的信息
         '''
         print("Item clicked. Index:", usrid)
-        usrprof = share.AllUsersDict[usrid].avatar
-        usrname = share.AllUsersDict[usrid].name
+        usrprof = share.UserInfoList[usrid].avatar
+        usrname = share.UserInfoList[usrid].name
         usrID = str(usrid)
         share.usr_info_page = usrInfoUI(prof_path=usrprof, usr_name=usrname, usr_id=usrID)
         # 保证新窗口打开位置在原窗口中心

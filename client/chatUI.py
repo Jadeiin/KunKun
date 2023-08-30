@@ -7,6 +7,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5 import uic
 import json
 import random
+import struct
 from pathlib import Path
 from ftplib import FTP
 from hashlib import sha1
@@ -112,8 +113,7 @@ class ChatUI(QWidget):
             file_msg_dict["userid"] = share.User.userID  # 再调整
             file_msg_dict["roomid"] = share.CurrentRoom.roomID  # 再调整
 
-            file_msg = json.dumps(file_msg_dict)
-            share.server.sendall(file_msg.encode())
+            share.sendMsg(file_msg_dict)
 
     def handleItemClicked(self, index):
         '''
@@ -131,7 +131,7 @@ class ChatUI(QWidget):
             # loadroom 给出的时间
             room_dict["lasttime"] = share.RoomDict[index].lastest_time
             # 发送消息给服务端
-            share.server.sendall(json.dumps(room_dict).encode())
+            share.sendMsg(room_dict)
 
         self.viewChatRecord(index)
 
@@ -146,8 +146,7 @@ class ChatUI(QWidget):
         self.ui.msgTextEdit.clear()  # 清空输入框的内容
 
         # send
-        text_msg = json.dumps(text_msg_dict)
-        share.server.sendall(text_msg.encode())
+        share.sendMsg(text_msg_dict)
 
     def sendFile(self, file_path, file_sha1):
         ftp = FTP()
@@ -180,8 +179,7 @@ class ChatUI(QWidget):
         GetMember = {"type": "getmember"}
         GetMember["userid"] = share.User.userID
         GetMember["roomid"] = roomid
-        get_member = json.dumps(GetMember)
-        share.server.sendall(get_member.encode())
+        share.sendMsg(GetMember)
 
 
     def sendEmoji(self):
@@ -242,8 +240,7 @@ class ChatUI(QWidget):
         create_group_dict["roomname"] = "群聊"
         # create_group_dict["roomname"] = groupNameLineEdit.toPlainText().encode("utf-8")
         # send
-        create_group = json.dumps(create_group_dict)
-        share.server.sendall(create_group.encode())
+        share.sendMsg(create_group_dict)
 
     def addFriend(self):
         # dictinary
@@ -257,11 +254,10 @@ class ChatUI(QWidget):
 
         print(add_friend_dict)
         # send
-        add_friend = json.dumps(add_friend_dict)
-        share.server.sendall(add_friend.encode())
+        share.sendMsg(add_friend_dict)
         # 弹出新的聊天界面
 
-    def viewChatRecord(self, room_id):
+    def viewChatRecord(self, room_id):  # 打开聊天窗口
         # if 有小红点：
         #     把小红点消掉
         # 不上升
@@ -290,7 +286,7 @@ class ChatUI(QWidget):
                     item["msgtype"]
                 )  # 聊天记录框显示文字 # 可以加时间
 
-        self.getMember(share.CurrentRoom.roomID)
+        self.getMember(share.CurrentRoom.roomID)  # 预加载
 
     def sendChatMsg(self, msg):
         """
@@ -411,39 +407,6 @@ class ChatUI(QWidget):
             # self.scrolledToTop.emit()  # 发射信号
             print("Scrolled to the top!")
             # load more chat records
-
-    def changeRoomName(self, room_id, new_name):
-        change_name_dict = {"type":"roomname"}
-        change_name_dict["roomid"]  = room_id
-        change_name_dict["roomname"] = new_name
-        share.server.sendall(json.dumps(change_name_dict).encode())
-
-    def exitRoom(self): # 主动退出群聊
-        ExitGroup = {"type":"exitroom"}
-        ExitGroup["userid"] = share.User.userID
-        ExitGroup["roomid"] = share.CurrentRoom.roomID
-        exit_group = json.dumps(ExitGroup)
-        share.server.sendall(exit_group.encode())
-
-    def delRoom(self): #管理员退出群聊
-        AdminQuit = {"type": "delroom"}
-        AdminQuit["userid"] = share.User.userID
-        AdminQuit["roomid"] = share.CurrentRoom.roomID
-        admin_quit = json.dumps(AdminQuit)
-        share.server.sendall(admin_quit.encode())
-
-    def memberChange(self, mode, memberid): #管理员增删群成员
-        MemberChange = {"type": "changemember"}
-        MemberChange["mode"] = mode
-        MemberChange["userid"] = share.User.userID
-        MemberChange["roomid"] = share.CurrentRoom.roomID
-        if mode == 0:
-            MemberChange["memberid"] = list(set(memberid).intersection(set(share.CurrentRoom.memberID)))
-        elif mode == 1:
-            MemberChange["memberid"] = list(set(memberid).difference(set(share.CurrentRoom.memberID)))
-        member_change = json.dumps(MemberChange)
-        share.server.sendall(member_change.encode())
-
 
 
 

@@ -1,5 +1,7 @@
 import user
 import room
+import json
+import struct
 
 
 class share:
@@ -15,6 +17,7 @@ class share:
 
     # 创建用户
     User         = user.User()  # 自己
+    UserInfoList = []
 
     # 创建房间列表
     CurrentRoom   = room.Room()
@@ -23,3 +26,10 @@ class share:
     chat_list     = []  # 用于存储 ChatListItemWidget 实例的列表
 
     member_list = [] # 聊天室管理界面用于存放用户的列表
+
+
+    def sendMsg(orimsg):
+        resp_bytes = bytes(json.dumps(orimsg).encode())
+        head_bytes = struct.pack("I", len(resp_bytes))
+        resp_body = head_bytes + resp_bytes
+        share.server.sendall(resp_body)

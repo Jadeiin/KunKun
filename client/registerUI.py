@@ -33,8 +33,7 @@ class Register(QWidget):
 
             print(register_dict)
             # send
-            self.register_msg = json.dumps(register_dict)
-            share.server.sendall(self.register_msg.encode())
+            share.sendMsg(register_dict)
 
         else:
             QMessageBox.warning(None, "错误", "密码不一致")

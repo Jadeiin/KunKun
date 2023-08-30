@@ -43,8 +43,9 @@ class LoginUI(QWidget):
         name = login_dict["username"]
         print(login_dict)
         # send
-        login_msg = json.dumps(login_dict)
-        share.server.sendall(login_msg.encode())
+        share.sendMsg(login_dict)
+
+
 
     def goToRegister(self):
         share.reg_page = Register()
@@ -64,7 +65,7 @@ class LoginUI(QWidget):
         # 给服务端发送登录的消息
         self.go_to_chat_dict = {"type":"loadroom"}
         self.go_to_chat_dict["userid"] = share.User.userID
-        share.server.sendall(json.dumps(self.go_to_chat_dict).encode())
+        share.sendMsg(self.go_to_chat_dict)
         # 打开ChatUI界面
         share.chat_page = ChatUI()
         # 保证新窗口打开位置在原窗口中心
