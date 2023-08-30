@@ -188,6 +188,7 @@ class ListenThread(QThread):
             user_id = msg["userid"]
             memberlist = msg["member"]
             adminlist = msg["admin"]
+            
             share.RoomDict[room_id].memberID = []
             if len(memberlist)!=0:
                 share.UserInfoList = memberlist
