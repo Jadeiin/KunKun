@@ -16,7 +16,7 @@
   <widget class="QLineEdit" name="usrLoginLineEdit">
    <property name="geometry">
     <rect>
-     <x>110</x>
+     <x>120</x>
      <y>160</y>
      <width>181</width>
      <height>21</height>
@@ -35,7 +35,7 @@
   <widget class="QLineEdit" name="pwdLoginLineEdit">
    <property name="geometry">
     <rect>
-     <x>110</x>
+     <x>120</x>
      <y>190</y>
      <width>181</width>
      <height>21</height>
@@ -54,7 +54,7 @@
   <widget class="QPushButton" name="loginBtn">
    <property name="geometry">
     <rect>
-     <x>150</x>
+     <x>160</x>
      <y>220</y>
      <width>100</width>
      <height>32</height>
@@ -77,7 +77,7 @@
     <string/>
    </property>
    <property name="pixmap">
-    <pixmap>../graphSource/profPhoto1.jpg</pixmap>
+    <pixmap>../graphSource/logo2.png</pixmap>
    </property>
    <property name="scaledContents">
     <bool>true</bool>

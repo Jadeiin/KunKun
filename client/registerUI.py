@@ -3,6 +3,7 @@ import sys
 from PyQt5 import uic
 from PyQt5.QtWidgets import QApplication, QWidget, QMessageBox
 from PyQt5.QtCore import QPoint
+from PyQt5.QtGui import QMovie
 from hashlib import sha1
 import json
 
@@ -13,6 +14,12 @@ class Register(QWidget):
     def __init__(self):
         super().__init__()
         self.ui = uic.loadUi("./UIfiles/register.ui")
+        self.backGround = self.ui.backGround
+        # 创建 QMovie 对象并设置动态图像文件路径
+        movie = QMovie("./graphSource/registerBackground.gif")
+        self.backGround.setMovie(movie)
+        # 启动动画
+        movie.start()
 
         self.ui.returnBtn.clicked.connect(self.goToLogin)  # 点击返回按钮
         self.ui.regBtn.clicked.connect(self.register)  # 点击注册按钮
