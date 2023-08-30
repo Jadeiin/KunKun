@@ -56,7 +56,6 @@ class manageRoomUI(QWidget):
         share.sendMsg(AdminQuit)
 
     def memberChange(self, mode): #管理员增删群成员
-        
         MemberChange = {"type": "changemember"}
         MemberChange["mode"] = mode
         MemberChange["userid"] = share.User.userID
@@ -67,7 +66,11 @@ class manageRoomUI(QWidget):
         elif mode == 1:
             add_memberid = [int(x) for x in self.ui.addEditLine.text().split()]
             MemberChange["memberid"] = list(set(add_memberid).difference(set(share.CurrentRoom.memberID)))
-        share.sendMsg(MemberChange)
+        if del_memberid != [] or add_memberid:
+            share.sendMsg(MemberChange)
+        else:
+            error_message = (1, "操作失败", "请输入正确的信息")
+            self.notifySignal.emit(error_message)
 
 
     def loadMemberlist(self):
