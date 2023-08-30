@@ -24,7 +24,7 @@ def signal_handler(signal, frame):
 
 if __name__ == "__main__":
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.bind(("0.0.0.0", port))  # Bind to all address
+    server.bind(("127.0.0.1", port))  # Bind to all address
     server.listen()
 
     host = socket.gethostbyname(socket.gethostname())

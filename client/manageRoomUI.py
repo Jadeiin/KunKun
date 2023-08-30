@@ -65,12 +65,12 @@ class manageRoomUI(QWidget):
         have_ids = False
         if mode == 0:
             del_memberid = [int(x) for x in self.ui.delEditLine.text().split()]
-            if del_memberid != []:
+            if (del_memberid != []) and share.User.userID not in del_memberid:
                 have_ids = True
             MemberChange["memberid"] = list(set(del_memberid).intersection(set(share.CurrentRoom.memberID)))
         elif mode == 1:
             add_memberid = [int(x) for x in self.ui.addEditLine.text().split()]
-            if add_memberid != []:
+            if (add_memberid != []) and share.User.userID not in add_memberid:
                 have_ids = True
             MemberChange["memberid"] = list(set(add_memberid).difference(set(share.CurrentRoom.memberID)))
         if have_ids:
