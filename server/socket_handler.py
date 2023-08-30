@@ -348,7 +348,7 @@ def handler(conn, addr):
     while True:
         msg_head_bytes = conn.recv(4)
         msg_len = struct.unpack("I", msg_head_bytes)[0]
-        msg = conn.recv(msg_len).decode().rstrip("\r\n")
+        msg = conn.recv(msg_len).decode()
 
         if not msg_head_bytes or not msg:
             logging.info(f"Client has been offline, IP: {addr}")
