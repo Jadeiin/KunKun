@@ -36,7 +36,7 @@ class ChatBubbleItem1(QWidget):
         self.profPhoto.setMinimumSize(QtCore.QSize(51, 51))
         self.profPhoto.setMaximumSize(QtCore.QSize(51, 51))
         self.profPhoto.setText("")
-        self.profPhoto.setPixmap(QtGui.QPixmap("../graphSource/profPhoto.jpg"))
+        self.profPhoto.setPixmap(QtGui.QPixmap("../graphSource/profPhoto.jpg")) # 改头像
         self.profPhoto.setScaledContents(True)
         self.profPhoto.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.profPhoto.setObjectName("profPhoto")
@@ -158,7 +158,7 @@ class ChatBubbleItem2(QWidget):
     # messageClicked = QtCore.pyqtSignal(str) 
     photoClicked = QtCore.pyqtSignal()
     
-    def __init__(self, name, time, message, msg_type, parent=None):
+    def __init__(self, name, time, message, msg_type, usrid, parent=None):
         super().__init__(parent)
 
         self.message = message
@@ -237,7 +237,9 @@ class ChatBubbleItem2(QWidget):
         self.profPhoto.setMinimumSize(QtCore.QSize(51, 51))
         self.profPhoto.setMaximumSize(QtCore.QSize(51, 51))
         self.profPhoto.setText("")
-        self.profPhoto.setPixmap(QtGui.QPixmap("../graphSource/profPhoto.jpg"))
+
+        avatar = "./files/avatar/"+ str(usrid) +".png" if os.path.exists("./files/avatar/"+ str(usrid) +".png") else "./graphSource/profPhoto1.jpg"
+        self.profPhoto.setPixmap(QtGui.QPixmap(avatar))
         self.profPhoto.setScaledContents(True)
         self.profPhoto.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.profPhoto.setObjectName("profPhoto")
