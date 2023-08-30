@@ -131,5 +131,5 @@ if __name__ == "__main__":
     signal.signal(signal.SIGINT, signal_handler)
 
     socket_thread = Thread(target=handler, daemon=True,  # 不要在循环里加新建线程 不然每次连接都会新建线程
-                           args=(server))
+                           args=(server,))
     socket_thread.start()
