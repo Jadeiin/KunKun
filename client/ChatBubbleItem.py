@@ -36,7 +36,7 @@ class ChatBubbleItem1(QWidget):
         self.profPhoto.setMinimumSize(QtCore.QSize(51, 51))
         self.profPhoto.setMaximumSize(QtCore.QSize(51, 51))
         self.profPhoto.setText("")
-        self.profPhoto.setPixmap(QtGui.QPixmap("../graphSource/profPhoto.jpg")) # 改头像
+        self.profPhoto.setPixmap(QtGui.QPixmap("./graphSource/profPhoto1.jpg")) # 改头像
         self.profPhoto.setScaledContents(True)
         self.profPhoto.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.profPhoto.setObjectName("profPhoto")

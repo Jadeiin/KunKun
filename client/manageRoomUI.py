@@ -17,7 +17,6 @@ class manageRoomUI(QWidget):
 
 
         if share.User.userID in share.CurrentRoom.adminID:
-            # 无法知道自己是否是管理员
             self.ui = uic.loadUi("./UIfiles/manageRoom.ui") #加载管理员界面
             self.loadMemberlist()
             self.ui.editChatNameBtn.clicked.connect(self.changeRoomName)  # 点击更改按钮
