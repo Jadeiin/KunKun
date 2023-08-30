@@ -312,7 +312,7 @@ background-color: rgb(255, 255, 255)
      <height>22</height>
     </rect>
    </property>
-   <layout class="QHBoxLayout" name="horizontalLayout_3">
+   <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,1,1,10">
     <item>
      <widget class="QLabel" name="file">
       <property name="styleSheet">
@@ -342,14 +342,14 @@ background-color: rgb(255, 255, 255)
      </spacer>
     </item>
     <item>
-     <widget class="QLabel" name="sticker">
+     <widget class="QLabel" name="speechInput">
       <property name="styleSheet">
        <string notr="true">QLabel#sticker {
     font-size: 80%; /* 根据需要进行调整 */
 }</string>
       </property>
       <property name="text">
-       <string>表情</string>
+       <string>语音输入</string>
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>

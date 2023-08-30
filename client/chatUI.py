@@ -64,6 +64,13 @@ class ChatUI(QWidget):
         # 显示聊天室管理界面
         self.ui.manageRoom.mousePressEvent = self.showManageRoom
 
+        # 语音输入功能
+        self.ui.speechInput.mousePressEvent = self.speechInput
+
+    def speechInput(self, event): # event在函数里没用但不能删
+        print("Speech input label clicked.")
+        pass
+
     def handleReloadChatUI(self):
         '''
         重新加载ChatUI界面

@@ -173,7 +173,7 @@ class ListenThread(QThread):
             recent_msg = share.RoomDict[room_id].msg[-1]["content"] \
                 if len(share.RoomDict[room_id].msg) !=0 else ""
             share.chat_page.deletItemInChatList(room_id)
-            share.chat_page.additemInChatList(avater, room_id, recent_msg, room_index)
+            share.chat_page.additemInChatList(avatar, room_id, recent_msg, room_index)
             # 聊天框名字改变
             if room_id == share.CurrentRoom.roomID:
                 share.CurrentRoom.room_name = new_name
@@ -230,24 +230,28 @@ class ListenThread(QThread):
                     notice_message = (1,"提示", "已退出聊天 "+share.RoomDict[delet_roomid].room_name)
                     self.notifySignal.emit(notice_message)
                     del share.RoomDict[delet_roomid]
+                    share.UserInfoList = []
                 # 别人被踢:
                 else:
                     for member in msg["memberid"]:
                         share.RoomDict[msg["roomid"]].memberID.remove(member)
+                        for item in share.UserInfoList:
+                            if member == item["userid"]:
+                                share.UserInfoList.remove(item)
 
-                # 自己是管理员：
+                    # 自己是管理员：
                     if msg["userid"] == share.User.userID:
                         notice_message = (1,"提示", "踢出成员成功")
                         self.notifySignal.emit(notice_message)
+                        
+                        # 重新加载manageRoomUI
+                        global_pos = share.manage_room_page.ui.mapToGlobal(QPoint(0, 0))
                         share.manage_room_page.ui.close()
                         share.manage_room_page = manageRoomUI()
                         # 保证新窗口打开位置在原窗口中心
                         # Parent widget's global position
-                        global_pos = self.ui.mapToGlobal(QPoint(0, 0))
-                        x = global_pos.x() + (self.ui.width() -
-                                              share.manage_room_page.ui.width()) // 2  # x coordinate
-                        y = global_pos.y() + (self.ui.height() -
-                                              share.manage_room_page.ui.height()) // 2  # y coordinate
+                        x = global_pos.x()
+                        y = global_pos.y()
                         share.manage_room_page.ui.move(x, y)  # Move the window
                         share.manage_room_page.ui.show()
                     else:
@@ -259,13 +263,30 @@ class ListenThread(QThread):
                         self.go_to_chat_dict = {"type":"loadroom"}
                         self.go_to_chat_dict["userid"] = share.User.userID
                         share.sendMsg(self.go_to_chat_dict)
+                        share.UserInfoList = []
                 # 已知房间：
                 # 别人被加
                 else:
+                    for member in msg["memberid"]:
+                        share.RoomDict[msg["roomid"]].memberID.append(member)
+                        
+
                     share.RoomDict[msg["roomid"]].memberID.append(msg["memberid"])
                     if msg["userid"] == share.User.userID:
                         notice_message = (1,"提示", "拉入成员成功")
                         self.notifySignal.emit(notice_message)
+                        
+
+                        # 重新加载manageRoomUI
+                        global_pos = share.manage_room_page.ui.mapToGlobal(QPoint(0, 0))
+                        share.manage_room_page.ui.close()
+                        share.manage_room_page = manageRoomUI()
+                        # 保证新窗口打开位置在原窗口中心
+                        # Parent widget's global position
+                        x = global_pos.x()
+                        y = global_pos.y()
+                        share.manage_room_page.ui.move(x, y)  # Move the window
+                        share.manage_room_page.ui.show()
                     else:
                         pass
 
