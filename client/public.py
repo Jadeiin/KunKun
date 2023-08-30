@@ -25,7 +25,7 @@ class share:
     RoomOrderList = []  # 存放roomid
     chat_list     = []  # 用于存储 ChatListItemWidget 实例的列表
 
-    member_list = [] # 聊天室管理界面用于存放用户的列表
+    member_list   = [] # 聊天室管理界面用于存放用户的列表
 
 
     def sendMsg(orimsg):
