@@ -10,6 +10,9 @@ class Database:
     def _connect(self):
         if self._conn is None:
             self._conn = sqlite3.connect(self.db_name, check_same_thread=False)
+            with open("data.sql", "r") as fp:
+                new_db = fp.read()
+                self._conn.executescript(new_db)  # 新建表
             self._conn.execute("PRAGMA foreign_keys = ON")  # 级联更新/删除
         return self._conn
 
@@ -311,7 +314,7 @@ if __name__ == "__main__":
     # test module
     logging.basicConfig(level=logging.DEBUG,
                         format="%(asctime)s - %(levelname)s - %(message)s")
-    db = Database("testdb.db")
+    db = Database(":memory:")
 
     logging.info("Database test started")
     logging.info("### User Part ###")
