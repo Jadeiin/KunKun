@@ -303,7 +303,7 @@ background-color: rgb(255, 255, 255)
     </item>
    </layout>
   </widget>
-  <widget class="QWidget" name="">
+  <widget class="QWidget" name="layoutWidget">
    <property name="geometry">
     <rect>
      <x>360</x>
@@ -335,7 +335,7 @@ background-color: rgb(255, 255, 255)
       </property>
       <property name="sizeHint" stdset="0">
        <size>
-        <width>40</width>
+        <width>10</width>
         <height>20</height>
        </size>
       </property>

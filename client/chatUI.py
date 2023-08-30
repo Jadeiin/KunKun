@@ -87,7 +87,7 @@ class ChatUI(QWidget):
         # Parent widget's global position
         global_pos = self.ui.mapToGlobal(QPoint(0, 0))
         x = global_pos.x() + 25  # x coordinate
-        y = global_pos.y() + 60  # y coordinate
+        y = global_pos.y() + 30  # y coordinate
         share.usr_info_page.ui.move(x, y)  # Move the window
         share.usr_info_page.ui.show()
 

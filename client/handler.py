@@ -1,3 +1,4 @@
+import os
 import json
 import logging
 import struct
@@ -71,6 +72,7 @@ class ListenThread(QThread):
     def acceptLogin(self, msg):
         if msg["result"] == True:
             share.User.userID = msg["userid"]
+            share.User.avatar = "./files/avatar/"+ str(msg["userid"]) +".png" if os.path.exists("./files/avatar/"+ str(msg["userid"]) +".png") else "./graphSource/profPhoto1.jpg"
             self.signals.goToChat.emit()  # 从登录界面进入聊天界面
         else:
             share.User.name = ""
