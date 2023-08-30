@@ -23,6 +23,9 @@ from manageRoomUI import manageRoomUI
 from usrInfoUI import usrInfoUI
 from ChatBubbleItem import ChatBubbleItem1, ChatBubbleItem2
 
+from huggingsound import SpeechRecognitionModel
+
+model = SpeechRecognitionModel("jonatasgrosman/wav2vec2-large-xlsr-53-chinese-zh-cn")
 
 class ChatUI(QWidget):
     def __init__(self, parent=None):
@@ -86,14 +89,19 @@ class ChatUI(QWidget):
             audio_settings.setCodec("audio/pcm")
             
             self.audio_recorder.setAudioSettings(audio_settings)
-            self.audio_recorder.setOutputLocation(QUrl.fromLocalFile("output.wav"))
+            file_pos = "D:/Desktop/PP/client/output.wav" # change your absolute address
+            self.audio_recorder.setOutputLocation(QUrl.fromLocalFile(file_pos)) 
             self.audio_recorder.record()
         else:
             # 按钮再次点击，结束录制
             self.is_recording = False
             self.audio_recorder.stop()
-            self.audio_recorder.deleteLater()
+            # self.audio_recorder.deleteLater()
             print("结束录制...")
+            global model
+            audio_paths = ["file_pos"]
+            transcriptions = model.transcribe(audio_paths)
+            self.ui.msgTextEdit.setPlainText(transcriptions[0]["transcription"])
         
 
     def handleReloadChatUI(self):
