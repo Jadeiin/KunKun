@@ -2,6 +2,7 @@ import user
 import room
 import json
 import struct
+from ftplib import FTP
 
 
 class share:
@@ -33,3 +34,38 @@ class share:
         head_bytes = struct.pack("I", len(resp_bytes))
         resp_body = head_bytes + resp_bytes
         share.server.sendall(resp_body)
+
+    def sendFile(file_path, mode, file_para):
+        ftp = FTP()
+        ftp.connect(share.addr, share.port+1)
+        ftp.login(share.User.name, share.User.pwd_hash)
+
+        if mode == 0:
+            remote_path = "files/" + file_para  # file sha1
+        elif mode == 1:
+            remote_path = "files/avatar/" + file_para  # userid + .png ?
+        elif mode == 2:
+            remote_path = "files/avatar/room/" + file_para  # chatid + .png ?
+
+        with open(file_path, "rb") as fp:
+            ftp.storbinary("STOR " + remote_path, fp)
+        ftp.quit()
+
+    def recvFile(file_para, mode, file_sha1=""):
+        ftp = FTP()
+        ftp.connect(share.addr, share.port+1)
+        ftp.login(share.User.name, share.User.pwd_hash)
+
+        if mode == 0:
+            file_path = "files/" + file_para  # filename
+            remote_path = "files/" + file_sha1
+        elif mode == 1:
+            file_path = "files/avatar/" + file_para  # userid + .png ?
+            remote_path = file_path
+        elif mode == 2:
+            file_path = "files/avatar/room/" + file_para  # chatid + .png ?
+            remote_path = file_path
+
+        with open(file_path, "wb") as fp:
+            ftp.retrbinary("RETR " + file_sha1, fp.write)
+        ftp.quit()
