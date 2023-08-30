@@ -243,7 +243,8 @@ class ListenThread(QThread):
                     del share.RoomDict[delet_roomid]
                 # 别人被踢:
                 else:
-                    share.RoomDict[msg["roomid"]].memberID.remove(msg["memberid"])
+                    for member in msg["memberid"]:
+                        share.RoomDict[msg["roomid"]].memberID.remove(member)
 
                 # 自己是管理员：
                     if msg["userid"] == share.User.userID:

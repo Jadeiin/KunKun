@@ -21,10 +21,9 @@ class manageRoomUI(QWidget):
             self.ui = uic.loadUi("./UIfiles/manageRoom.ui") #加载管理员界面
             self.loadMemberlist()
             self.ui.editChatNameBtn.clicked.connect(self.changeRoomName)  # 点击更改按钮
-            add_memberid = [int(x) for x in self.ui.addEditLine.text().split()]
-            self.ui.addBtn.clicked.connect (lambda :self.memberChange(1,add_memberid))# 点击添加成员按钮
-            del_memberid = [int(x) for x in self.ui.delEditLine.text().split()]
-            self.ui.delBtn.clicked.connect (lambda :self.memberChange(1,del_memberid))  # 点击删除成员按钮
+            self.ui.addBtn.clicked.connect (lambda :self.memberChange(1)) # 点击添加成员按钮
+            self.ui.delBtn.clicked.connect (lambda :self.memberChange(0)) # 点击删除成员按钮
+            self.ui.leaveRoomBtn.clicked.connect(self.delRoom) #解散聊天
         else:
             self.ui = uic.loadUi("./UIfiles/RoomInfoForNonAdmin.ui") #加载普通群成员界面
             self.loadMemberlist()
@@ -55,15 +54,18 @@ class manageRoomUI(QWidget):
         AdminQuit["roomid"] = share.CurrentRoom.roomID
         share.sendMsg(AdminQuit)
 
-    def memberChange(self, mode, memberid): #管理员增删群成员
+    def memberChange(self, mode): #管理员增删群成员
+        
         MemberChange = {"type": "changemember"}
         MemberChange["mode"] = mode
         MemberChange["userid"] = share.User.userID
         MemberChange["roomid"] = share.CurrentRoom.roomID
         if mode == 0:
-            MemberChange["memberid"] = list(set(memberid).intersection(set(share.CurrentRoom.memberID)))
+            del_memberid = [int(x) for x in self.ui.delEditLine.text().split()]
+            MemberChange["memberid"] = list(set(del_memberid).intersection(set(share.CurrentRoom.memberID)))
         elif mode == 1:
-            MemberChange["memberid"] = list(set(memberid).difference(set(share.CurrentRoom.memberID)))
+            add_memberid = [int(x) for x in self.ui.addEditLine.text().split()]
+            MemberChange["memberid"] = list(set(add_memberid).difference(set(share.CurrentRoom.memberID)))
         share.sendMsg(MemberChange)
 
 
