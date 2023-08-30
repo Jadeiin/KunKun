@@ -298,6 +298,9 @@ def change_member(addr, data):
         # 邀请房间成员
         if db.insert_room_members(room_id, set(member_ids)):
             logging.info("Client add room members successed")
+            del resp["memberid"]
+            resp["member"] = [{"userid": member_id, "username": db.query_user_name(
+                member_id)} for member_id in member_ids]
             resp["result"] = True
             return resp, {users.get(item) for item in db.query_room_members(room_id) if item in users}
 
@@ -317,7 +320,8 @@ def get_member(addr, data):
     }
 
     if (member_ids := db.query_room_members(room_id)) is None:
-        logging.info("Client get room members failed: Could not query room members")
+        logging.info(
+            "Client get room members failed: Could not query room members")
         return resp, {addr}
 
     if user_id not in member_ids:
@@ -325,27 +329,16 @@ def get_member(addr, data):
         return resp, {addr}
 
     if (admin_ids := db.query_room_admins(room_id)) is None:
-        logging.info("Client get room members failed: Could not query room admins")
+        logging.info(
+            "Client get room members failed: Could not query room admins")
         return resp, {addr}
-
-    member = []
-    for member_id in member_ids:
-        member.append({
-            "userid": member_id,  # 必然合法 不做判断
-            "username": db.query_user_name(member_id)
-        })
-
-    admin = []
-    for admin_id in admin_ids:
-        admin.append({
-            "userid": admin_id,  # 必然合法 不做判断
-            "username": db.query_user_name(admin_id)
-        })
 
     logging.info("Client get room members successed")
     resp["result"] = True
-    resp["member"] = member
-    resp["admin"] = admin
+    resp["member"] = [{"userid": member_id, "username": db.query_user_name(
+        member_id)} for member_id in member_ids]
+    resp["admin"] = [{"userid": admin_id, "username": db.query_user_name(
+        admin_id)} for admin_id in admin_ids]
     return resp, {addr}
 
 

@@ -4,9 +4,15 @@
     "mode": 0, // 0- 1+
 	"userid": 1,
 	"roomid": 1,
-	"memberid": [
-		2,
-		3
+	"member": [
+		{
+			"userid": 2,
+			"username": "test"
+		},
+		{
+			"userid": 3,
+			"username": "demo"
+		}
 	]
 }
 
