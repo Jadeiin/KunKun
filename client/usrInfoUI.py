@@ -47,7 +47,7 @@ class usrInfoUI(QWidget):
             # 把头像存入./files/avatar
             avatar = Image.open(file_path)
             avatar_path = "files/avatar/" + str(share.User.userID) +".png"
-            avatar.save(avatar_path, "png")
+            avatar.save(avatar_path, "PNG")
             share.sendFile(file_path, 1, str(share.User.userID))
 
             # 把用户头像路径改为avatar

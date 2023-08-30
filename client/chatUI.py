@@ -216,7 +216,7 @@ class ChatUI(QWidget):
     def handleRecvFileMsgClicked(self, message):
         file_name = message[:-40]
         file_sha1 = message[-40:]
-        self.recvFile(file_name, file_sha1)
+        share.recvFile(file_name, 0, file_sha1)
 
     # def handleSentFileMsgClicked(self, message):
     #     file_name = message[:-40]

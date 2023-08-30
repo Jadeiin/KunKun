@@ -3,6 +3,7 @@ import room
 import json
 import struct
 from ftplib import FTP
+import os
 
 
 class share:
@@ -68,11 +69,12 @@ class share:
             file_path = "files/avatar/room/" + file_para + ".png" # chatid
             remote_path = "avatar/room/" + file_para + ".png"
 
-        with open(file_path, "wb") as fp:
-            try:
-                if ftp.size(remote_path):
-                    print("FTP: recv" , remote_path, "at" , file_path)
-                    ftp.retrbinary("RETR " + remote_path, fp.write)
-            except:
-                pass
+        try:
+            with open(file_path, "wb") as fp:
+                print("FTP: recv" , remote_path, "at" , file_path)
+                ftp.retrbinary("RETR " + remote_path, fp.write)
+        except:
+            if os.path.exists(file_path):
+                os.remove(file_path)
+
         ftp.quit()
