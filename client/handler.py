@@ -181,11 +181,11 @@ class ListenThread(QThread):
             share.RoomDict[room_id].room_name
             # 聊天项名字改变
             room_index = share.RoomOrderList.index(room_id)
-            avater = share.RoomDict[room_id].avater
+            avatar = share.RoomDict[room_id].avatar
             recent_msg = share.RoomDict[room_id].msg[-1]["content"] \
                 if len(share.RoomDict[room_id].msg) !=0 else ""
             self.signals.deletItemInChatList.emit(room_id)
-            self.signals.additemInChatList.emit(avater, room_id, recent_msg) # 少了 room_index
+            self.signals.additemInChatList.emit(avatar, room_id, recent_msg) # 少了 room_index
             # 聊天框名字改变
             if room_id == share.CurrentRoom.roomID:
                 share.CurrentRoom.room_name = new_name
@@ -199,19 +199,14 @@ class ListenThread(QThread):
             room_id = msg["roomid"]
             user_id = msg["userid"]
             memberlist = msg["member"]
+            adminlist = msg["admin"]
             share.RoomDict[room_id].memberID = []
             if len(memberlist)!=0:
                 share.UserInfoList = memberlist
-
                 for member in memberlist:
-                    
-                    
-                    # newuser_id = member["userid"]
-                    # newuser_name = member["username"]
-                    # newuser_avatar = member["avatar_path"]
-                    # new_user = user.User(newuser_id, newuser_name, newuser_avatar)
-                    # share.UserInfoList.append(new_user)
                     share.RoomDict[room_id].memberID.append(member["userid"])
+                for admin in adminlist:
+                    share.RoomDict[room_id].adminID.append(admin["userid"]) 
             else:
                 pass
         else:
