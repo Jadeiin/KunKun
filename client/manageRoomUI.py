@@ -10,9 +10,11 @@ import json
 from memberListItem import MemberListItemWidget
 from usrInfoUI import usrInfoUI
 from public import share
-
+from PyQt5.QtCore import QThread, QSocketNotifier, pyqtSignal
 
 class manageRoomUI(QWidget):
+
+    notifySignal = pyqtSignal(tuple)  # 修改错误信号为元组类型
     def __init__(self):
         super().__init__()
 
@@ -60,13 +62,18 @@ class manageRoomUI(QWidget):
         MemberChange["mode"] = mode
         MemberChange["userid"] = share.User.userID
         MemberChange["roomid"] = share.CurrentRoom.roomID
+        have_ids = False
         if mode == 0:
             del_memberid = [int(x) for x in self.ui.delEditLine.text().split()]
+            if (del_memberid != []) and share.User.userID not in del_memberid:
+                have_ids = True
             MemberChange["memberid"] = list(set(del_memberid).intersection(set(share.CurrentRoom.memberID)))
         elif mode == 1:
             add_memberid = [int(x) for x in self.ui.addEditLine.text().split()]
+            if (add_memberid != []) and share.User.userID not in add_memberid:
+                have_ids = True
             MemberChange["memberid"] = list(set(add_memberid).difference(set(share.CurrentRoom.memberID)))
-        if del_memberid != [] or add_memberid:
+        if have_ids:
             share.sendMsg(MemberChange)
         else:
             error_message = (1, "操作失败", "请输入正确的信息")
@@ -79,12 +86,13 @@ class manageRoomUI(QWidget):
         根据服务端的到的聊天室成员信息创建
         '''
         member_list = share.CurrentRoom.memberID
+        print(share.UserInfoList)
         for item in share.UserInfoList:
             self.addItemInMemberList(item["userid"], item["username"])
 
     def addItemInMemberList(self, member_id, member_name):
         # 新建成员item
-        avatar_path = "files/avatar/" + str(member_id)
+        avatar_path = "files/avatar/" + str(member_id) +".png" if os.path.exists("files/avatar/" + str(member_id) +".png") else "./graphSource/profPhoto1.jpg"
         member_widget = MemberListItemWidget(
             avatar_path=avatar_path, name=member_name, usrID=member_id)
         list_item = QListWidgetItem()

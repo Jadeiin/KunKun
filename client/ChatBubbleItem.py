@@ -96,6 +96,8 @@ class ChatBubbleItem1(QWidget):
         
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("ChatBubbles", "Form"))
+        
+        time = time.replace("T", "  ").split('.')[0]
         self.nameAndTime.setText(_translate("ChatBubbles", name + "  " + time))
         # self.msgText.setText(_translate("ChatBubbles", message))
         
@@ -255,6 +257,8 @@ class ChatBubbleItem2(QWidget):
 
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("ChatBubbles", "Form"))
+
+        time = time.replace("T", "  ").split('.')[0]
         self.nameAndTime.setText(_translate("ChatBubbles", time + "  " + name))
 
         self.setupMessage(message, msg_type)

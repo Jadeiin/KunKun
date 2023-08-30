@@ -157,7 +157,7 @@ class ListenThread(QThread):
                     share.RoomDict[room_id].msg.insert(0, item)
             else:
                 error_message = (1, "提示", "没有更多聊天信息")
-                self.notifySignal.emit(error_message)
+                # self.notifySignal.emit(error_message)
         else:
             error_message = (0, "错误", "获取聊天消息失败")
             self.notifySignal.emit(error_message)
@@ -166,7 +166,7 @@ class ListenThread(QThread):
         if msg["result"] == True:
             room_id  = msg["roomid"]
             new_name = msg["roomname"]
-            share.RoomDict[room_id].room_name
+            share.RoomDict[room_id].room_name = new_name
             # 聊天项名字改变
             room_index = share.RoomOrderList.index(room_id)
             avatar = share.RoomDict[room_id].avatar
@@ -222,11 +222,11 @@ class ListenThread(QThread):
     def acceptChangeMember(self, msg):
         if msg["result"] == True:
             self_move = False
-            for item in msg["member"]:
-                if share.User.userID == item["userid"]:
-                    self_move = True
-                    
+
             if msg["mode"] == 0:
+                for item in msg["memberid"]:
+                    if share.User.userID == item:
+                        self_move = True
                 # 已知房间：
                 # 自己被踢:
                 if self_move == True:
@@ -239,10 +239,10 @@ class ListenThread(QThread):
                     share.UserInfoList = []
                 # 别人被踢:
                 else:
-                    for member in msg["member"]:
-                        share.RoomDict[msg["roomid"]].memberID.remove(member["userid"])
+                    for member in msg["memberid"]:
+                        share.RoomDict[msg["roomid"]].memberID.remove(member)
                         for item in share.UserInfoList:
-                            if member["userid"] == item["userid"]:
+                            if member == item["userid"]:
                                 share.UserInfoList.remove(item)
 
                     # 自己是管理员：
@@ -257,11 +257,13 @@ class ListenThread(QThread):
                     # 保证新窗口打开位置在原窗口中心
                     # Parent widget's global position
                     x = global_pos.x()
-                    y = global_pos.y()
+                    y = global_pos.y()-10
                     share.manage_room_page.ui.move(x, y)  # Move the window
                     share.manage_room_page.ui.show()
-
             elif msg["mode"] == 1:
+                for item in msg["member"]:
+                    if share.User.userID == item["userid"]:
+                        self_move = True
                 # 未知房间：
                 # 自己被加 额外加载房间消息
                 if self_move == True:
@@ -271,7 +273,7 @@ class ListenThread(QThread):
                 # 已知房间：
                 # 别人被加
                 else:
-                    for member in msg["memberid"]:
+                    for member in msg["member"]:
                         share.RoomDict[msg["roomid"]].memberID.append(member["userid"])
                         share.UserInfoList.append(member)
 
@@ -303,6 +305,7 @@ class ListenThread(QThread):
             notice_message = (1,"提示", "聊天 "+share.RoomDict[delet_roomid].room_name+" 已解散")
             self.notifySignal.emit(notice_message)
             del share.RoomDict[delet_roomid]
+            share.manage_room_page.ui.close()
         else:
             pass
 
