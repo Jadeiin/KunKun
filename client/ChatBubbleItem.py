@@ -14,7 +14,7 @@ class ChatBubbleItem1(QWidget):
     # messageClicked = QtCore.pyqtSignal(str) 
     photoClicked = QtCore.pyqtSignal()
     
-    def __init__(self, name, time, message, msg_type, parent=None):
+    def __init__(self, name, time, message, msg_type, usrid, parent=None):
         super().__init__(parent)
 
         self.message = message
@@ -36,7 +36,8 @@ class ChatBubbleItem1(QWidget):
         self.profPhoto.setMinimumSize(QtCore.QSize(51, 51))
         self.profPhoto.setMaximumSize(QtCore.QSize(51, 51))
         self.profPhoto.setText("")
-        self.profPhoto.setPixmap(QtGui.QPixmap("./graphSource/profPhoto1.jpg")) # 改头像
+        avatar = "./files/avatar/"+ str(usrid) +".png" if os.path.exists("./files/avatar/"+ str(usrid) +".png") else "./graphSource/profPhoto1.jpg"
+        self.profPhoto.setPixmap(QtGui.QPixmap(avatar)) # 改头像
         self.profPhoto.setScaledContents(True)
         self.profPhoto.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.profPhoto.setObjectName("profPhoto")
@@ -95,6 +96,8 @@ class ChatBubbleItem1(QWidget):
         
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("ChatBubbles", "Form"))
+        
+        time = time.replace("T", "  ").split('.')[0]
         self.nameAndTime.setText(_translate("ChatBubbles", name + "  " + time))
         # self.msgText.setText(_translate("ChatBubbles", message))
         
@@ -102,7 +105,7 @@ class ChatBubbleItem1(QWidget):
 
         # 点击头像时显示用户信息
         self.profPhoto.mousePressEvent = lambda event: self.showUsrInfo(
-            "",share.User.avatar, share.User.name, str(share.User.userID))
+            "", avatar, name, str(usrid))
         
     def showUsrInfo(self, event, user_avatar, user_name, userid):   # event不可省略
         share.usr_info_page = usrInfoUI(prof_path=user_avatar, usr_name=user_name, usr_id=userid)
@@ -254,6 +257,8 @@ class ChatBubbleItem2(QWidget):
 
         _translate = QtCore.QCoreApplication.translate
         self.setWindowTitle(_translate("ChatBubbles", "Form"))
+
+        time = time.replace("T", "  ").split('.')[0]
         self.nameAndTime.setText(_translate("ChatBubbles", time + "  " + name))
 
         self.setupMessage(message, msg_type)

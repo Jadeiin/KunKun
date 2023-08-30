@@ -21,6 +21,8 @@ class LoginUI(QWidget):
     def __init__(self):
         super().__init__()
         self.ui = uic.loadUi("./UIfiles/login.ui")
+        self.ui.setWindowTitle("Login") # 设置窗口名字
+
         self.backGround = self.ui.backGround
         # 创建 QMovie 对象并设置动态图像文件路径
         movie = QMovie("./graphSource/loginBackground1.gif")
@@ -59,7 +61,7 @@ class LoginUI(QWidget):
         self.ui.close()
 
     def goToFindPwd(self):
-        QMessageBox.warning(None, "错误", "忘记活该啊！！！")  # 以后再加
+        QMessageBox.warning(None, "错误", "那太可惜了（")  # 以后再加
 
     def goToChat(self):
         # 给服务端发送登录的消息

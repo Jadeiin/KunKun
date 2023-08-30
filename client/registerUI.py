@@ -14,6 +14,8 @@ class Register(QWidget):
     def __init__(self):
         super().__init__()
         self.ui = uic.loadUi("./UIfiles/register.ui")
+        self.ui.setWindowTitle("Register") # 设置窗口名字
+
         self.backGround = self.ui.backGround
         # 创建 QMovie 对象并设置动态图像文件路径
         movie = QMovie("./graphSource/registerBackground.gif")

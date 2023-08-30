@@ -28,6 +28,7 @@ class ChatUI(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.ui = uic.loadUi("./UIfiles/chat.ui")
+        self.ui.setWindowTitle("Chat") # 设置窗口名字
 
         # init
         # 用户头像加载
@@ -48,7 +49,7 @@ class ChatUI(QWidget):
         self.ui.sendMsgBtn.clicked.connect(self.sendTextToServer)
 
         # 加好友/创建群聊的按钮
-        self.ui.addFriendBtn.clicked.connect(self.addFriend)
+        # self.ui.addFriendBtn.clicked.connect(self.addFriend)
         self.ui.createGroupBtn.clicked.connect(self.createGroup)
 
         # 点击好友选择聊天，重新加载聊天记录
@@ -59,6 +60,8 @@ class ChatUI(QWidget):
         
         self.ui.usrProfPhoto.mousePressEvent = lambda event: self.showUsrInfo(
             "",share.User.avatar, share.User.name, str(share.User.userID))
+        
+
 
         # 发送文件功能
         # 获取 QLabel 对象，连接 QLabel 的点击事件到另一个函数
@@ -238,15 +241,15 @@ class ChatUI(QWidget):
     def handleRecvFileMsgClicked(self, message):
         file_name = message[:-40]
         file_sha1 = message[-40:]
-        self.recvFile(file_name, file_sha1)
+        share.recvFile(file_name, 0, file_sha1)
 
     # def handleSentFileMsgClicked(self, message):
     #     file_name = message[:-40]
     #     file_sha1 = message[-40:]
     #     self.recvFile(file_name, file_sha1)
     
-    def showRecvMsg(self, name, time, msg, msg_type):
-        chat_item = ChatBubbleItem1(name, time, msg, msg_type)
+    def showRecvMsg(self, name, time, msg, msg_type, usrid):
+        chat_item = ChatBubbleItem1(name, time, msg, msg_type, usrid)
 
         # 如果是文件信息，点击消息进行接收
         # 点击头像显示用户信息
@@ -332,7 +335,8 @@ class ChatUI(QWidget):
                     item["username"],
                     item["sendtime"],
                     item["content"],
-                    item["msgtype"]
+                    item["msgtype"],
+                    item["userid"]
                 )  # 聊天记录框显示文字 # 可以加时间
 
         self.getMember(share.CurrentRoom.roomID)  # 预加载
