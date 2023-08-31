@@ -1,3 +1,3 @@
 # KunKun
 KunKun is not QQ
-![图片]([https://1.bp.blogspot.com/-pGKrVHDZTh8/XI7AHgNxc1I/AAAAAAAABQQ/5pZULewBLz8AOVM7MxdmbyvWl3tEzpEzwCLcBGAs/s1600/NUEVO%2BLOGO%2BPP%2BPOPULARES%2BPARTIDO%2BPOPULAR%2B2019%2BLOGO%2BAZUL%2BCLARO%2BCON%2BCOLORES%2BDE%2BLA%2BBANDERA%2BDE%2BESPA%25C3%2591A.png](https://th.bing.com/th/id/R.38fa39f4df99f8da07a2d49f50906108?rik=R1OgCum%2b%2bAMoDA&riu=http%3a%2f%2fwww.kkindustry.hu%2fimages%2fKK-logo-19.01.04_2_2-3.png&ehk=6qVOPGbohGwczQ%2feOEXJ%2bc8jUtOauK2aaEQQMAXodz0%3d&risl=&pid=ImgRaw&r=0)https://th.bing.com/th/id/R.38fa39f4df99f8da07a2d49f50906108?rik=R1OgCum%2b%2bAMoDA&riu=http%3a%2f%2fwww.kkindustry.hu%2fimages%2fKK-logo-19.01.04_2_2-3.png&ehk=6qVOPGbohGwczQ%2feOEXJ%2bc8jUtOauK2aaEQQMAXodz0%3d&risl=&pid=ImgRaw&r=0)
+![图片](http://www.kkindustry.hu/images/KK-logo-19.01.04_2_2-3.png)
