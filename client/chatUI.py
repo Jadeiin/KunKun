@@ -76,7 +76,7 @@ class ChatUI(QWidget):
         # 语音输入功能
         self.ui.speechInput.mousePressEvent = self.speechInput
         self.is_recording = False
-        self.file_pos = ""
+        self.file_pos = os.getcwd() + "record.wav"
         self.audio_recorder = QAudioRecorder()
 
     def speechInput(self, event):
@@ -90,8 +90,7 @@ class ChatUI(QWidget):
             audio_settings.setCodec("audio/pcm")
             
             self.audio_recorder.setAudioSettings(audio_settings)
-            self.file_pos = "D:/Desktop/PP/client/output.wav" # change your absolute address
-            self.audio_recorder.setOutputLocation(QUrl.fromLocalFile(file_pos)) 
+            self.audio_recorder.setOutputLocation(QUrl.fromLocalFile(self.file_pos)) 
             self.audio_recorder.record()
         else:
             # 按钮再次点击，结束录制
