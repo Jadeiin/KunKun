@@ -35,7 +35,7 @@ class Bot:
         # 接收并处理服务器返回的消息
         while True:
             response = self.receive_json()
-            if response["type"] == "acceptmsg" and response["username"] != self.username and response["msgtype"] == 1:
+            if response["type"] == "acceptmsg" and response["username"] != self.username and response["msgtype"] == 1 and response["content"][0:4] == "@bot":
                 result = response["result"]
                 if result:
                     self.handle_accepted_message(response)
