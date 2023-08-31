@@ -296,7 +296,7 @@ class ChatUI(QWidget):
         if share.User.userID not in create_group_dict["memberid"]:
             create_group_dict["memberid"].append(share.User.userID)
 
-        create_group_dict["roomname"] = "群聊"
+        create_group_dict["roomname"] = "聊天室"
         # create_group_dict["roomname"] = groupNameLineEdit.toPlainText().encode("utf-8")
         # send
         share.sendMsg(create_group_dict)
@@ -387,7 +387,8 @@ class ChatUI(QWidget):
                 msg["username"],
                 msg["sendtime"],
                 msg_content,
-                msg["msgtype"])  # 在聊天框里加文字
+                msg["msgtype"],
+                msg["userid"])  # 在聊天框里加文字
 
     def receiveUnreadMsg(self, msg):
         # 更新room列表

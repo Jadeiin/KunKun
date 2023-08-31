@@ -46,7 +46,7 @@ class ChatListItemWidget(QWidget):
         self.chatProf.setObjectName("chatProf")
         
         self.chatName = QtWidgets.QLabel(self.frame)
-        self.chatName.setGeometry(QtCore.QRect(80, 13, 58, 16))
+        self.chatName.setGeometry(QtCore.QRect(80, 10, 110, 16))
         font = QtGui.QFont()
         font.setFamily("Heiti SC")
         font.setPointSize(14)

@@ -85,7 +85,7 @@ class usrInfoUI(QWidget):
         if share.User.userID not in create_group_dict["memberid"]:
             create_group_dict["memberid"].append(share.User.userID)
 
-        create_group_dict["roomname"] = "群聊"
+        create_group_dict["roomname"] = "聊天室"
         # create_group_dict["roomname"] = groupNameLineEdit.toPlainText().encode("utf-8")
         # send
         share.sendMsg(create_group_dict)
