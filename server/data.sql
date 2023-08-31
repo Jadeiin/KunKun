@@ -83,5 +83,5 @@ BEGIN
     AND NOT EXISTS (SELECT 1 FROM RoomMember WHERE RoomID = OLD.RoomID);
 END;
 
-INSERT INTO User(UserName, UserPasswordSha1)
+INSERT OR IGNORE INTO User(UserName, UserPasswordSha1)
 VALUES ("AIBot", "356a192b7913b04c54574d18c28d46e6395428ab")
