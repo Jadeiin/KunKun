@@ -80,6 +80,7 @@ class ChatBubbleItem1(QWidget):
 "    background-color: rgb(235, 228, 255); /* Set the background color */\n"
 "    padding: 5px; /* Add some padding to the label */\n"
 "}")
+        self.msgText.setWordWrap(True)
         self.msgText.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByMouse|QtCore.Qt.TextSelectableByMouse)
         self.msgText.setObjectName("msgText")
         self.verticalLayout_3.addWidget(self.msgText)
