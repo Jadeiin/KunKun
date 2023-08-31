@@ -76,7 +76,7 @@ class ChatUI(QWidget):
         # 语音输入功能
         self.ui.speechInput.mousePressEvent = self.speechInput
         self.is_recording = False
-        self.file_pos = ""
+        self.file_pos = os.getcwd() + "record.wav"
         self.audio_recorder = QAudioRecorder()
 
     def speechInput(self, event):
@@ -90,8 +90,7 @@ class ChatUI(QWidget):
             audio_settings.setCodec("audio/pcm")
             
             self.audio_recorder.setAudioSettings(audio_settings)
-            self.file_pos = "D:/Desktop/PP/client/output.wav" # change your absolute address
-            self.audio_recorder.setOutputLocation(QUrl.fromLocalFile(file_pos)) 
+            self.audio_recorder.setOutputLocation(QUrl.fromLocalFile(self.file_pos)) 
             self.audio_recorder.record()
         else:
             # 按钮再次点击，结束录制
@@ -409,8 +408,9 @@ class ChatUI(QWidget):
         self.additemInChatList(avatar_path, msg_room_id,
                                msg_content)  # 重新在顶部插入item
 
+        share.chat_list[0].setStyleSheet("QWidget{background-color: rgb(240, 217, 214)}") # rgb后面三个数字可以更改颜色
         # 加小红点
-        QMessageBox.information(self, "未读消息", msg_content)  # 后面改成标柱红点
+        # QMessageBox.information(self, "未读消息", msg_content)  # 后面改成标柱红点
 
     def displayChatList(self):
         self.ui.chatList.clear()
