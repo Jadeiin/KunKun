@@ -73,7 +73,7 @@ class ChatListItemWidget(QWidget):
         self.setWindowTitle(_translate("ChatListItemWidget", "Form"))
         self.chatName.setText(_translate("ChatListItemWidget", name)) # name
         self.recentMsg.setText(_translate("ChatListItemWidget", "<html><head/><body><p><span style=\" color:#a9a9a9;\">"+ recent_msg +"</span></p></body></html>")) # recMsg
-        self.msgTime.setText(_translate("ChatListItemWidget", "<html><head/><body><p align=\"right\"><span style=\" color:#a9a9a9;\">2023/8/26</span></p></body></html>"))
+        self.msgTime.setText(_translate("ChatListItemWidget", "<html><head/><body><p align=\"right\"><span style=\" color:#a9a9a9;\">2023/8/31</span></p></body></html>"))
         
         # 设置合适的初始字号
         initial_font_size = 20  # 初始字号

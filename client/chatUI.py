@@ -373,6 +373,7 @@ class ChatUI(QWidget):
         self.deletItemInChatList(msg_room_id)  # 删除当前item
         self.additemInChatList(avatar_path, msg_room_id,
                                msg_content)  # 重新在顶部插入item
+        share.chat_list[0].setStyleSheet("QWidget{background-color: rgb(220, 220, 220)}") # rgb后面三个数字可以更改颜色
 
         # 在room里面追加message
         if msg["userid"] == share.User.userID:  # 自己方向的气泡框，后期加效果
@@ -407,8 +408,9 @@ class ChatUI(QWidget):
         self.additemInChatList(avatar_path, msg_room_id,
                                msg_content)  # 重新在顶部插入item
 
+        share.chat_list[0].setStyleSheet("QWidget{background-color: rgb(240, 217, 214)}") # rgb后面三个数字可以更改颜色
         # 加小红点
-        QMessageBox.information(self, "未读消息", msg_content)  # 后面改成标柱红点
+        # QMessageBox.information(self, "未读消息", msg_content)  # 后面改成标柱红点
 
     def displayChatList(self):
         self.ui.chatList.clear()
