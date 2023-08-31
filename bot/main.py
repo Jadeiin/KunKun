@@ -3,13 +3,14 @@ import socket
 import logging
 import signal
 import json
+import struct
+import openai
 from threading import Thread
-from bot_handler import handler
 
 
-'''
 class Bot:
     def __init__(self, username, userpwdhash, send_message_func):
+        self.userid = 0
         self.username = username
         self.userpwdhash = userpwdhash
         self.send_message_func = send_message_func
@@ -25,6 +26,8 @@ class Bot:
             "userpwdhash": self.userpwdhash
         }
         self.send_json(login_request)
+
+        self.userid = self.receive_json()["userid"]
 
         # 注册 CTRL+C 信号处理函数
         signal.signal(signal.SIGINT, self.signal_handler)
@@ -57,7 +60,7 @@ class Bot:
         # 发送消息
         send_message = {
             "type": "sendmsg",
-            "userid": message["userid"],
+            "userid": self.userid,
             "roomid": message["roomid"],
             "msgtype": message["msgtype"],
             "content": response_content
@@ -70,66 +73,40 @@ class Bot:
 
     def send_json(self, data):
         # 将 JSON 对象序列化并发送到服务器
-        json_data = json.dumps(data)
-        self.sock.sendall(json_data.encode())
+        resp_bytes = bytes(json.dumps(data).encode())
+        head_bytes = struct.pack("I", len(resp_bytes))
+        resp_body = head_bytes + resp_bytes
+        self.sock.sendall(resp_body)
 
     def receive_json(self):
         # 从服务器接收 JSON 数据并反序列化为 Python 对象
-        data = self.sock.recv(4096).decode()
-        return json.loads(data)
+        msg_head_bytes = self.sock.recv(4)
+        if len(msg_head_bytes) != 4:
+            logging.info(f"Server has been offline")
+            exit(0)
+        msg_len = struct.unpack("I", msg_head_bytes)[0]
+        return json.loads(self.sock.recv(msg_len).decode())
 
 
 # 机器人发送消息的处理函数示例
-def send_message_handler(message):
-    # 在这里编写机器人的逻辑
-    url = "https://free.churchless.tech/v1/chat/completions"
-    api_key = "ChatGPT"
-    template = """
-    """
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer " + api_key  # 替换为实际的 API 密钥
-    }
-    payload = {
-        "content": message
-    }
-    response_content = 
+def send_msg(content):
+    # openai.log = "debug"
+    openai.api_base = "https://api.chatanywhere.com.cn/v1"
+    openai.api_key = ""
+    messages = [{'role': 'user', 'content': content}]
+    # 使用Completion接口获取AI的回复
+    response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo", messages=messages)
+
+    print(response)
+
+    # 获得AI的回复内容
+    response_content = response.choices[0].message.content
+
     return response_content
 
 
 # 创建机器人对象并运行
-bot = Bot("demo", "89e495e7941cf9e40e6980d14a16bf023ccd4c91",
-          send_message_handler)
+bot = Bot("AIBot", "356a192b7913b04c54574d18c28d46e6395428ab",
+          send_msg)
 bot.run()
-'''
-port = 7979
-
-
-def signal_handler(signal, frame):
-    logging.info("Caught Ctrl+C, shutting down...")
-    server.close()
-    sys.exit()
-    
-def run(socket):
-    # 发送登录请求
-    login_request = {
-        "type": "login",
-        "username": "bot",
-        "userpwdhash": "c71e7261d37a4f6ae4cfb0cbd79081310a237e67"
-    }
-    socket.sendall(json.dumps(login_request).encode())
-    
-    
-if __name__ == "__main__":
-    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server.connect(("127.0.0.1", port))  # Bind to server
-    
-    run(server)
-    
-    logging.info("Bot started...")
-
-    signal.signal(signal.SIGINT, signal_handler)
-
-    socket_thread = Thread(target=handler, daemon=True,  # 不要在循环里加新建线程 不然每次连接都会新建线程
-                           args=(server,))
-    socket_thread.start()
