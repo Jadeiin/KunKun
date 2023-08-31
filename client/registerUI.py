@@ -8,6 +8,8 @@ from hashlib import sha1
 import json
 
 from public import share
+import validate_email
+
 
 
 class Register(QWidget):
@@ -30,7 +32,11 @@ class Register(QWidget):
         # confirm the same password
         register_pwd = self.ui.pwdRegLineEdit.text()
         register_pwd_re = self.ui.pwdReconfirmLineEdit.text()
-
+        
+        # 判断邮箱是否存在
+        # email_to_check = self.ui.
+        # if validate_email(email_to_check, verify=True)
+        # 判断密码强度
         if register_pwd == register_pwd_re:
             # dictionary
             register_dict = {"type": "register"}
@@ -46,6 +52,8 @@ class Register(QWidget):
 
         else:
             QMessageBox.warning(None, "错误", "密码不一致")
+
+        
 
     def goToLogin(self):
         share.login_page.ui.show()

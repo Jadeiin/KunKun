@@ -19,9 +19,9 @@ class MemberListItemWidget(QWidget):
         self.usrID = usrID
 
         self.setObjectName("MemberListItemWidget")
-        self.resize(189, 72)
-        self.setMinimumSize(QtCore.QSize(189, 0))
-        self.setMaximumSize(QtCore.QSize(189, 16777215))
+        self.resize(188, 72)
+        self.setMinimumSize(QtCore.QSize(188, 0))
+        self.setMaximumSize(QtCore.QSize(188, 16777215))
         self.setStyleSheet("QWidget{\n"
                            "background-color: rgb(244, 244, 244)\n"
                            "}")
@@ -30,8 +30,8 @@ class MemberListItemWidget(QWidget):
         layout.setContentsMargins(0, 0, 0, 0)  # 设置布局的边距为 0
 
         self.frame = QtWidgets.QFrame(self)
-        self.frame.setMinimumSize(QtCore.QSize(189, 74))
-        self.frame.setMaximumSize(QtCore.QSize(189, 74))
+        self.frame.setMinimumSize(QtCore.QSize(188, 74))
+        self.frame.setMaximumSize(QtCore.QSize(188, 74))
         self.frame.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame.setObjectName("frame")
