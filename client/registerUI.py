@@ -6,12 +6,17 @@ from PyQt5.QtCore import QPoint
 from PyQt5.QtGui import QMovie
 from hashlib import sha1
 import json
-
+from password_strength import PasswordPolicy
 from public import share
-import validate_email
 
+from email_validator import validate_email, EmailNotValidError
 
-
+def is_valid_email(email):
+    try:
+        validate_email(email)
+        return True
+    except EmailNotValidError:
+        return False
 class Register(QWidget):
     def __init__(self):
         super().__init__()
@@ -33,25 +38,37 @@ class Register(QWidget):
         register_pwd = self.ui.pwdRegLineEdit.text()
         register_pwd_re = self.ui.pwdReconfirmLineEdit.text()
         
+        length=8        # 最小长度
+        # lowercase=1     # 至少一个小写字母
+        uppercase=1     # 至少一个大写字母
+        numbers=1       # 至少一个数字
+
         # 判断邮箱是否存在
-        # email_to_check = self.ui.
-        # if validate_email(email_to_check, verify=True)
+        email_to_check = self.ui.emailLineEdit.text()
+        if is_valid_email(email_to_check):
         # 判断密码强度
-        if register_pwd == register_pwd_re:
-            # dictionary
-            register_dict = {"type": "register"}
-            register_dict["username"] = self.ui.usrRegLineEdit.text()
-            register_dict["userpwdhash"] = sha1(
-                register_pwd.encode("utf-8")).hexdigest()
-            # assignment
-            name = register_dict["username"]
+            if PasswordPolicy.from_names(
+                length=length, uppercase=uppercase, numbers=numbers).test(register_pwd)==[]:
+                if register_pwd == register_pwd_re:
+                    # dictionary
+                    register_dict = {"type": "register"}
+                    register_dict["username"] = self.ui.usrRegLineEdit.text()
+                    register_dict["userpwdhash"] = sha1(
+                        register_pwd.encode("utf-8")).hexdigest()
+                    # assignment
+                    name = register_dict["username"]
 
-            print(register_dict)
-            # send
-            share.sendMsg(register_dict)
+                    print(register_dict)
+                    # send
+                    share.sendMsg(register_dict)
 
+                else:
+                    QMessageBox.warning(None, "错误", "密码不一致")
+            else: 
+                QMessageBox.warning(None, "错误", 
+                                    f"密码强度不足: \n密码最短长度为{length}，至少{numbers}个数字，{uppercase}个大写字母")
         else:
-            QMessageBox.warning(None, "错误", "密码不一致")
+            QMessageBox.warning(None, "错误", "邮箱不存在")
 
         
 
