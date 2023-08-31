@@ -1,5 +1,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QWidget
+from PyQt5.QtGui import QColor
 from public import share
 from pathlib import Path
 from ftplib import FTP
@@ -98,8 +99,14 @@ class ChatBubbleItem1(QWidget):
         self.setWindowTitle(_translate("ChatBubbles", "Form"))
         
         time = time.replace("T", "  ").split('.')[0]
-        self.nameAndTime.setText(_translate("ChatBubbles", name + "  " + time))
-        # self.msgText.setText(_translate("ChatBubbles", message))
+        self.nameAndTime.setText(_translate("ChatBubbles", name + "   " + time))
+        # 设置字体颜色为灰色
+        font_color = QColor(128, 128, 128)  # 灰色的 RGB 值
+        self.nameAndTime.setStyleSheet(f"color: {font_color.name()};")
+        # 设置字号为 11
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.nameAndTime.setFont(font)
         
         self.setupMessage(message, msg_type)
 
@@ -259,10 +266,17 @@ class ChatBubbleItem2(QWidget):
         self.setWindowTitle(_translate("ChatBubbles", "Form"))
 
         time = time.replace("T", "  ").split('.')[0]
-        self.nameAndTime.setText(_translate("ChatBubbles", time + "  " + name))
+        self.nameAndTime.setText(_translate("ChatBubbles", time + "   " + name))
 
+        # 设置字体颜色为灰色
+        font_color = QColor(128, 128, 128)  # 灰色的 RGB 值
+        self.nameAndTime.setStyleSheet(f"color: {font_color.name()};")
         self.setupMessage(message, msg_type)
-
+        # 设置字号为 11
+        font = QtGui.QFont()
+        font.setPointSize(12)
+        self.nameAndTime.setFont(font)
+        
         # 点击头像时显示用户信息
         self.profPhoto.mousePressEvent = lambda event: self.showUsrInfo(
             "",share.User.avatar, share.User.name, str(share.User.userID))

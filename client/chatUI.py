@@ -99,7 +99,7 @@ class ChatUI(QWidget):
             # self.audio_recorder.deleteLater()
             print("结束录制...")
             global model
-            audio_paths = ["file_pos"]
+            audio_paths = [file_pos]
             transcriptions = model.transcribe(audio_paths)
             self.ui.msgTextEdit.setPlainText(transcriptions[0]["transcription"])
         
