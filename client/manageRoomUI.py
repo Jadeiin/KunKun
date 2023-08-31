@@ -95,6 +95,13 @@ class manageRoomUI(QWidget):
         avatar_path = "files/avatar/" + str(member_id) +".png" if os.path.exists("files/avatar/" + str(member_id) +".png") else "./graphSource/profPhoto1.jpg"
         member_widget = MemberListItemWidget(
             avatar_path=avatar_path, name=member_name, usrID=member_id)
+        
+        # 如果是admin就设置高亮
+        if member_id in share.CurrentRoom.adminID:
+            member_widget.setStyleSheet("QWidget{\n"
+                           "background-color: rgb(237, 248, 248)\n"
+                           "}")
+        
         list_item = QListWidgetItem()
         list_item.setSizeHint(member_widget.sizeHint())
         self.ui.memberList.addItem(list_item) # 调整顺序
